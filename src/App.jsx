@@ -1642,34 +1642,15 @@ function App() {
             <div style={styles.budgetSummary}>
               <h3 style={styles.budgetSummaryTitle}>💰 Project Budget</h3>
 
-              {/* Repairs Summary (read-only) */}
-              <div style={styles.budgetCategorySection}>
-                <div style={styles.budgetCategoryHeader}>
-                  <span style={styles.budgetCategoryName}>🔧 Repairs</span>
-                  <span style={styles.budgetCategoryTotal}>${(getBudgetTotal('must') + getBudgetTotal('high') + getBudgetTotal('nice')).toLocaleString()}</span>
+              {/* Budget Line Items */}
+              <div style={styles.budgetLineItems}>
+                <div style={styles.budgetLineItem}>
+                  <span style={styles.budgetLineItemName}>🔧 Repairs</span>
+                  <span style={styles.budgetLineItemValue}>${(getBudgetTotal('must') + getBudgetTotal('high') + getBudgetTotal('nice')).toLocaleString()}</span>
                 </div>
-                <div style={styles.budgetCategoryBreakdown}>
-                  <div style={styles.budgetBreakdownItem}>
-                    <span style={styles.budgetBreakdownLabel}>Must Do (Safety/Inspection)</span>
-                    <span style={styles.budgetBreakdownValue}>${getBudgetTotal('must').toLocaleString()}</span>
-                  </div>
-                  <div style={styles.budgetBreakdownItem}>
-                    <span style={styles.budgetBreakdownLabel}>High Impact (Buyers Notice)</span>
-                    <span style={styles.budgetBreakdownValue}>${getBudgetTotal('high').toLocaleString()}</span>
-                  </div>
-                  <div style={styles.budgetBreakdownItem}>
-                    <span style={styles.budgetBreakdownLabel}>Nice to Have</span>
-                    <span style={styles.budgetBreakdownValue}>${getBudgetTotal('nice').toLocaleString()}</span>
-                  </div>
-                </div>
-                <p style={styles.budgetCategoryNote}>Edit repair costs in Checklist → Repairs</p>
-              </div>
-
-              {/* Moving & Housing Summary */}
-              <div style={styles.budgetCategorySection}>
-                <div style={styles.budgetCategoryHeader}>
-                  <span style={styles.budgetCategoryName}>🚚 Moving & Housing</span>
-                  <span style={styles.budgetCategoryTotal}>${getBudgetTotal('other').toLocaleString()}</span>
+                <div style={styles.budgetLineItem}>
+                  <span style={styles.budgetLineItemName}>🚚 Moving & Housing</span>
+                  <span style={styles.budgetLineItemValue}>${getBudgetTotal('other').toLocaleString()}</span>
                 </div>
               </div>
 
@@ -3055,51 +3036,29 @@ const styles = {
     marginBottom: '16px',
     fontWeight: '600'
   },
-  budgetCategorySection: {
-    background: 'white',
-    borderRadius: '10px',
-    padding: '14px',
+  budgetLineItems: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
     marginBottom: '12px'
   },
-  budgetCategoryHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  budgetCategoryName: {
-    fontSize: '0.95rem',
-    fontWeight: '600',
-    color: colors.charcoal
-  },
-  budgetCategoryTotal: {
-    fontSize: '1rem',
-    fontWeight: '700',
-    color: colors.evergreen
-  },
-  budgetCategoryBreakdown: {
-    marginTop: '10px',
-    paddingTop: '10px',
-    borderTop: `1px solid ${colors.mist}`
-  },
-  budgetBreakdownItem: {
+  budgetLineItem: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '6px 0',
-    fontSize: '0.85rem'
+    padding: '14px 16px',
+    background: 'white',
+    borderRadius: '10px'
   },
-  budgetBreakdownLabel: {
-    color: colors.slate
+  budgetLineItemName: {
+    fontSize: '1rem',
+    fontWeight: '600',
+    color: colors.charcoal
   },
-  budgetBreakdownValue: {
-    color: colors.mountain,
-    fontWeight: '500'
-  },
-  budgetCategoryNote: {
-    fontSize: '0.75rem',
-    color: colors.slate,
-    marginTop: '10px',
-    fontStyle: 'italic'
+  budgetLineItemValue: {
+    fontSize: '1.1rem',
+    fontWeight: '700',
+    color: colors.evergreen
   },
   budgetGrandTotal: {
     display: 'flex',
