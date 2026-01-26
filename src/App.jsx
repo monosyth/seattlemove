@@ -6,6 +6,18 @@ const initialData = {
   currentStep: 1,
   notes: '',
   stepNotes: {},
+  realtors: [
+    {
+      id: 'r1',
+      name: 'Caitlin Thill',
+      team: "O'Byrne Team",
+      brokerage: 'Compass',
+      phone: '',
+      email: '',
+      notes: '',
+      recommended: false
+    }
+  ],
   steps: {
     1: {
       title: 'Select Realtor',
@@ -207,6 +219,12 @@ function App() {
   const [dragOverBudgetItemId, setDragOverBudgetItemId] = useState(null);
   const [newBudgetItemCategory, setNewBudgetItemCategory] = useState(null);
   const [newBudgetItemText, setNewBudgetItemText] = useState('');
+  // Realtor management state
+  const [editingRealtorId, setEditingRealtorId] = useState(null);
+  const [editingRealtorData, setEditingRealtorData] = useState({});
+  const [addingRealtor, setAddingRealtor] = useState(false);
+  const [newRealtorData, setNewRealtorData] = useState({ name: '', team: '', brokerage: '', phone: '', email: '', notes: '' });
+  const [confirmDeleteRealtorId, setConfirmDeleteRealtorId] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
@@ -609,6 +627,75 @@ function App() {
     return { done, total: items.length };
   };
 
+  // Realtor management functions
+  const addRealtor = () => {
+    if (!newRealtorData.name.trim()) return;
+    const newData = { ...data };
+    if (!newData.realtors) newData.realtors = [];
+    const newId = `r-${Date.now()}`;
+    newData.realtors.push({
+      id: newId,
+      name: newRealtorData.name.trim(),
+      team: newRealtorData.team.trim(),
+      brokerage: newRealtorData.brokerage.trim(),
+      phone: newRealtorData.phone.trim(),
+      email: newRealtorData.email.trim(),
+      notes: newRealtorData.notes.trim(),
+      recommended: false
+    });
+    setData(newData);
+    saveData(newData);
+    addChangelogEntry('realtor_added', `Added realtor: ${newRealtorData.name.trim()}`, null, newRealtorData.name.trim());
+    setAddingRealtor(false);
+    setNewRealtorData({ name: '', team: '', brokerage: '', phone: '', email: '', notes: '' });
+  };
+
+  const updateRealtor = (realtorId) => {
+    const newData = { ...data };
+    const realtor = newData.realtors?.find(r => r.id === realtorId);
+    if (realtor) {
+      const oldName = realtor.name;
+      realtor.name = editingRealtorData.name?.trim() || realtor.name;
+      realtor.team = editingRealtorData.team?.trim() || '';
+      realtor.brokerage = editingRealtorData.brokerage?.trim() || '';
+      realtor.phone = editingRealtorData.phone?.trim() || '';
+      realtor.email = editingRealtorData.email?.trim() || '';
+      realtor.notes = editingRealtorData.notes?.trim() || '';
+      setData(newData);
+      saveData(newData);
+      addChangelogEntry('realtor_updated', `Updated realtor: ${realtor.name}`, oldName, realtor.name);
+    }
+    setEditingRealtorId(null);
+    setEditingRealtorData({});
+  };
+
+  const deleteRealtor = (realtorId) => {
+    const newData = { ...data };
+    const realtor = newData.realtors?.find(r => r.id === realtorId);
+    const deletedName = realtor?.name || '';
+    newData.realtors = newData.realtors?.filter(r => r.id !== realtorId) || [];
+    setData(newData);
+    saveData(newData);
+    addChangelogEntry('realtor_deleted', `Removed realtor: ${deletedName}`, deletedName, null);
+    setConfirmDeleteRealtorId(null);
+  };
+
+  const toggleRealtorRecommended = (realtorId) => {
+    const newData = { ...data };
+    const realtor = newData.realtors?.find(r => r.id === realtorId);
+    if (realtor) {
+      realtor.recommended = !realtor.recommended;
+      setData(newData);
+      saveData(newData);
+      addChangelogEntry(
+        'realtor_recommendation',
+        `${realtor.recommended ? 'Marked' : 'Unmarked'} "${realtor.name}" as recommended`,
+        !realtor.recommended,
+        realtor.recommended
+      );
+    }
+  };
+
   const updateNotes = (notes) => {
     const oldNotes = data.notes;
     const newData = { ...data, notes };
@@ -873,6 +960,194 @@ function App() {
                   )}
                 </div>
                 <p style={styles.stepContentDesc}>{data.steps[activeStep].description}</p>
+
+                {/* Realtors Section for Step 1 */}
+                {activeStep === '1' && (
+                  <div style={styles.realtorsSection}>
+                    <h3 style={styles.realtorsSectionTitle}>👤 Realtor Candidates</h3>
+
+                    {/* Realtor Cards */}
+                    <div style={styles.realtorCards}>
+                      {(data.realtors || []).map(realtor => (
+                        <div
+                          key={realtor.id}
+                          style={{
+                            ...styles.realtorCard,
+                            ...(realtor.recommended ? styles.realtorCardRecommended : {})
+                          }}
+                        >
+                          {editingRealtorId === realtor.id ? (
+                            // Edit Mode
+                            <div style={styles.realtorEditForm}>
+                              <input
+                                type="text"
+                                value={editingRealtorData.name || ''}
+                                onChange={(e) => setEditingRealtorData({...editingRealtorData, name: e.target.value})}
+                                placeholder="Name *"
+                                style={styles.realtorInput}
+                              />
+                              <input
+                                type="text"
+                                value={editingRealtorData.team || ''}
+                                onChange={(e) => setEditingRealtorData({...editingRealtorData, team: e.target.value})}
+                                placeholder="Team"
+                                style={styles.realtorInput}
+                              />
+                              <input
+                                type="text"
+                                value={editingRealtorData.brokerage || ''}
+                                onChange={(e) => setEditingRealtorData({...editingRealtorData, brokerage: e.target.value})}
+                                placeholder="Brokerage"
+                                style={styles.realtorInput}
+                              />
+                              <input
+                                type="text"
+                                value={editingRealtorData.phone || ''}
+                                onChange={(e) => setEditingRealtorData({...editingRealtorData, phone: e.target.value})}
+                                placeholder="Phone"
+                                style={styles.realtorInput}
+                              />
+                              <input
+                                type="text"
+                                value={editingRealtorData.email || ''}
+                                onChange={(e) => setEditingRealtorData({...editingRealtorData, email: e.target.value})}
+                                placeholder="Email"
+                                style={styles.realtorInput}
+                              />
+                              <textarea
+                                value={editingRealtorData.notes || ''}
+                                onChange={(e) => setEditingRealtorData({...editingRealtorData, notes: e.target.value})}
+                                placeholder="Notes"
+                                style={styles.realtorTextarea}
+                                rows={2}
+                              />
+                              <div style={styles.realtorEditActions}>
+                                <button style={styles.realtorSaveBtn} onClick={() => updateRealtor(realtor.id)}>Save</button>
+                                <button style={styles.realtorCancelBtn} onClick={() => { setEditingRealtorId(null); setEditingRealtorData({}); }}>Cancel</button>
+                              </div>
+                            </div>
+                          ) : (
+                            // View Mode
+                            <>
+                              <div style={styles.realtorCardHeader}>
+                                <h4 style={styles.realtorName}>{realtor.name}</h4>
+                                {realtor.recommended && <span style={styles.recommendedBadge}>★ Recommended</span>}
+                              </div>
+                              {realtor.team && <p style={styles.realtorDetail}><strong>Team:</strong> {realtor.team}</p>}
+                              {realtor.brokerage && <p style={styles.realtorDetail}><strong>Brokerage:</strong> {realtor.brokerage}</p>}
+                              {realtor.phone && <p style={styles.realtorDetail}><strong>Phone:</strong> {realtor.phone}</p>}
+                              {realtor.email && <p style={styles.realtorDetail}><strong>Email:</strong> {realtor.email}</p>}
+                              {realtor.notes && <p style={styles.realtorNotes}>{realtor.notes}</p>}
+
+                              <div style={styles.realtorActions}>
+                                {confirmDeleteRealtorId === realtor.id ? (
+                                  <>
+                                    <span style={styles.confirmDeleteText}>Delete?</span>
+                                    <button style={styles.confirmYesBtn} onClick={() => deleteRealtor(realtor.id)}>Yes</button>
+                                    <button style={styles.confirmNoBtn} onClick={() => setConfirmDeleteRealtorId(null)}>No</button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button
+                                      style={realtor.recommended ? styles.realtorUnstarBtn : styles.realtorStarBtn}
+                                      onClick={() => toggleRealtorRecommended(realtor.id)}
+                                      title={realtor.recommended ? 'Remove recommendation' : 'Mark as recommended'}
+                                    >
+                                      {realtor.recommended ? '★' : '☆'}
+                                    </button>
+                                    <button
+                                      style={styles.realtorEditBtn}
+                                      onClick={() => { setEditingRealtorId(realtor.id); setEditingRealtorData({...realtor}); }}
+                                      title="Edit"
+                                    >
+                                      ✏️
+                                    </button>
+                                    <button
+                                      style={styles.realtorDeleteBtn}
+                                      onClick={() => setConfirmDeleteRealtorId(realtor.id)}
+                                      title="Delete"
+                                    >
+                                      🗑️
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add New Realtor */}
+                    {addingRealtor ? (
+                      <div style={styles.addRealtorForm}>
+                        <h4 style={styles.addRealtorTitle}>Add New Realtor</h4>
+                        <input
+                          type="text"
+                          value={newRealtorData.name}
+                          onChange={(e) => setNewRealtorData({...newRealtorData, name: e.target.value})}
+                          placeholder="Name *"
+                          style={styles.realtorInput}
+                          autoFocus
+                        />
+                        <input
+                          type="text"
+                          value={newRealtorData.team}
+                          onChange={(e) => setNewRealtorData({...newRealtorData, team: e.target.value})}
+                          placeholder="Team"
+                          style={styles.realtorInput}
+                        />
+                        <input
+                          type="text"
+                          value={newRealtorData.brokerage}
+                          onChange={(e) => setNewRealtorData({...newRealtorData, brokerage: e.target.value})}
+                          placeholder="Brokerage"
+                          style={styles.realtorInput}
+                        />
+                        <input
+                          type="text"
+                          value={newRealtorData.phone}
+                          onChange={(e) => setNewRealtorData({...newRealtorData, phone: e.target.value})}
+                          placeholder="Phone"
+                          style={styles.realtorInput}
+                        />
+                        <input
+                          type="text"
+                          value={newRealtorData.email}
+                          onChange={(e) => setNewRealtorData({...newRealtorData, email: e.target.value})}
+                          placeholder="Email"
+                          style={styles.realtorInput}
+                        />
+                        <textarea
+                          value={newRealtorData.notes}
+                          onChange={(e) => setNewRealtorData({...newRealtorData, notes: e.target.value})}
+                          placeholder="Notes"
+                          style={styles.realtorTextarea}
+                          rows={2}
+                        />
+                        <div style={styles.realtorEditActions}>
+                          <button
+                            style={styles.realtorSaveBtn}
+                            onClick={addRealtor}
+                            disabled={!newRealtorData.name.trim()}
+                          >
+                            Add Realtor
+                          </button>
+                          <button
+                            style={styles.realtorCancelBtn}
+                            onClick={() => { setAddingRealtor(false); setNewRealtorData({ name: '', team: '', brokerage: '', phone: '', email: '', notes: '' }); }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button style={styles.addRealtorBtn} onClick={() => setAddingRealtor(true)}>
+                        + Add Realtor
+                      </button>
+                    )}
+                  </div>
+                )}
 
                 {/* Special Repairs View for Step 3 */}
                 {activeStep === '3' ? (
@@ -2448,6 +2723,187 @@ const styles = {
     cursor: 'pointer'
   },
 
+  // Realtors Section (Step 1)
+  realtorsSection: {
+    marginTop: '16px',
+    marginBottom: '20px'
+  },
+  realtorsSectionTitle: {
+    fontSize: '1rem',
+    fontWeight: '600',
+    color: colors.charcoal,
+    marginBottom: '12px'
+  },
+  realtorCards: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px'
+  },
+  realtorCard: {
+    background: 'white',
+    border: `1px solid ${colors.mist}`,
+    borderRadius: '10px',
+    padding: '14px',
+    position: 'relative'
+  },
+  realtorCardRecommended: {
+    border: `2px solid ${colors.evergreen}`,
+    background: `linear-gradient(135deg, white 0%, ${colors.fog} 100%)`
+  },
+  realtorCardHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    marginBottom: '8px'
+  },
+  realtorName: {
+    margin: 0,
+    fontSize: '1rem',
+    fontWeight: '600',
+    color: colors.charcoal
+  },
+  recommendedBadge: {
+    background: colors.evergreen,
+    color: 'white',
+    fontSize: '0.7rem',
+    fontWeight: '600',
+    padding: '2px 8px',
+    borderRadius: '10px'
+  },
+  realtorDetail: {
+    margin: '4px 0',
+    fontSize: '0.85rem',
+    color: colors.slate
+  },
+  realtorNotes: {
+    margin: '8px 0 0 0',
+    fontSize: '0.85rem',
+    color: colors.slate,
+    fontStyle: 'italic',
+    padding: '8px',
+    background: colors.fog,
+    borderRadius: '6px'
+  },
+  realtorActions: {
+    display: 'flex',
+    gap: '8px',
+    marginTop: '10px',
+    paddingTop: '10px',
+    borderTop: `1px solid ${colors.mist}`
+  },
+  realtorStarBtn: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '1.1rem',
+    padding: '4px 8px',
+    borderRadius: '4px',
+    color: colors.slate,
+    transition: 'all 0.2s'
+  },
+  realtorUnstarBtn: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '1.1rem',
+    padding: '4px 8px',
+    borderRadius: '4px',
+    color: colors.goldenHour,
+    transition: 'all 0.2s'
+  },
+  realtorEditBtn: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '0.85rem',
+    padding: '4px 8px',
+    borderRadius: '4px',
+    opacity: 0.6,
+    transition: 'all 0.2s'
+  },
+  realtorDeleteBtn: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '0.85rem',
+    padding: '4px 8px',
+    borderRadius: '4px',
+    opacity: 0.6,
+    transition: 'all 0.2s'
+  },
+  realtorEditForm: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px'
+  },
+  realtorInput: {
+    padding: '10px 12px',
+    border: `1px solid ${colors.mist}`,
+    borderRadius: '6px',
+    fontSize: '0.9rem',
+    outline: 'none'
+  },
+  realtorTextarea: {
+    padding: '10px 12px',
+    border: `1px solid ${colors.mist}`,
+    borderRadius: '6px',
+    fontSize: '0.9rem',
+    outline: 'none',
+    resize: 'vertical',
+    fontFamily: 'inherit'
+  },
+  realtorEditActions: {
+    display: 'flex',
+    gap: '8px',
+    marginTop: '4px'
+  },
+  realtorSaveBtn: {
+    padding: '8px 16px',
+    background: colors.evergreen,
+    color: 'white',
+    border: 'none',
+    borderRadius: '6px',
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    cursor: 'pointer'
+  },
+  realtorCancelBtn: {
+    padding: '8px 16px',
+    background: colors.mist,
+    color: colors.charcoal,
+    border: 'none',
+    borderRadius: '6px',
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    cursor: 'pointer'
+  },
+  addRealtorBtn: {
+    width: '100%',
+    padding: '12px',
+    marginTop: '12px',
+    background: 'transparent',
+    border: `2px dashed ${colors.mist}`,
+    borderRadius: '8px',
+    color: colors.slate,
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.2s'
+  },
+  addRealtorForm: {
+    marginTop: '12px',
+    padding: '16px',
+    background: colors.fog,
+    borderRadius: '10px',
+    border: `1px solid ${colors.mist}`
+  },
+  addRealtorTitle: {
+    margin: '0 0 12px 0',
+    fontSize: '0.95rem',
+    fontWeight: '600',
+    color: colors.charcoal
+  },
+
   // Repairs Section (Step 3)
   repairsContainer: {
     display: 'flex',
@@ -2947,28 +3403,6 @@ const styles = {
     fontSize: '0.9rem',
     color: colors.mountain,
     lineHeight: '1.5'
-  },
-  realtorBox: {
-    background: `linear-gradient(135deg, ${colors.cream}44, ${colors.fog})`,
-    border: `2px solid ${colors.goldenHour}`,
-    borderRadius: '12px',
-    padding: '16px'
-  },
-  realtorTitle: {
-    color: colors.honey,
-    marginBottom: '8px',
-    fontSize: '1rem',
-    fontWeight: '600'
-  },
-  realtorName: {
-    fontWeight: 'bold',
-    color: colors.evergreen,
-    marginBottom: '4px',
-    fontSize: '0.95rem'
-  },
-  realtorInfo: {
-    fontSize: '0.85rem',
-    color: colors.slate
   },
   notesInputSection: {},
   notesLabel: {
