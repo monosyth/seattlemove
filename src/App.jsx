@@ -1268,153 +1268,151 @@ function App() {
           <div style={styles.budgetContainer}>
             {/* Budget Summary Card */}
             <div style={styles.budgetSummary}>
-              <h3 style={styles.budgetSummaryTitle}>💰 Project Budget Overview</h3>
-              <div style={styles.budgetSummaryGrid}>
-                {[
-                  { key: 'must', label: 'Must Do Repairs', color: colors.salmon },
-                  { key: 'high', label: 'High Impact Repairs', color: colors.goldenHour },
-                  { key: 'nice', label: 'Nice to Have', color: colors.duskBlue },
-                  { key: 'other', label: 'Moving & Housing', color: colors.deepBlue }
-                ].map(({ key, label, color }) => (
-                  <div key={key} style={styles.summaryItem}>
-                    <div style={{ ...styles.summaryDot, background: color }}></div>
-                    <span style={styles.summaryLabel}>{label}</span>
-                    <span style={styles.summaryValue}>${getBudgetTotal(key).toLocaleString()}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Budget Sections - Clean table view for cost tracking */}
-            {[
-              { key: 'must', title: '🔧 Must Do Repairs', color: colors.salmon, desc: 'Safety & inspection requirements' },
-              { key: 'high', title: '✨ High Impact Repairs', color: colors.goldenHour, desc: 'Improvements buyers notice' },
-              { key: 'nice', title: '💫 Nice to Have', color: colors.duskBlue, desc: 'Optional improvements' },
-              { key: 'other', title: '🚚 Moving & Housing Costs', color: colors.deepBlue, desc: 'Temporary housing, movers, storage, etc.' }
-            ].map(({ key, title, color, desc }) => (
-              <div key={key} className="budget-section" style={{...styles.budgetSection, borderColor: color}}>
-                <div style={{...styles.budgetTitle, background: color}}>
-                  <div>
-                    <h3 style={styles.budgetTitleText}>{title}</h3>
-                    <p style={styles.budgetTitleDesc}>{desc}</p>
-                  </div>
-                  <span style={styles.budgetTitleTotal}>${getBudgetTotal(key).toLocaleString()}</span>
+              <h3 style={styles.budgetSummaryTitle}>💰 Project Budget</h3>
+              <div style={styles.budgetOverviewGrid}>
+                <div style={styles.budgetOverviewItem}>
+                  <span style={styles.budgetOverviewLabel}>Repairs (Must Do)</span>
+                  <span style={styles.budgetOverviewValue}>${getBudgetTotal('must').toLocaleString()}</span>
                 </div>
-
-                <table style={styles.budgetTable}>
-                  <thead>
-                    <tr>
-                      <th style={styles.budgetTh}>Item</th>
-                      <th style={{...styles.budgetTh, width: '120px', textAlign: 'right'}}>Cost</th>
-                      <th style={{...styles.budgetTh, width: '80px', textAlign: 'center'}}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.budget[key].map(item => (
-                      <tr key={item.id} style={item.done ? styles.budgetRowDone : {}}>
-                        <td style={styles.budgetTd}>
-                          {editingBudgetItemId === item.id ? (
-                            <input
-                              type="text"
-                              value={editBudgetItemText}
-                              onChange={(e) => setEditBudgetItemText(e.target.value)}
-                              onKeyPress={(e) => e.key === 'Enter' && updateBudgetItemText(key, item.id)}
-                              onBlur={() => updateBudgetItemText(key, item.id)}
-                              style={styles.budgetTableInput}
-                              autoFocus
-                            />
-                          ) : (
-                            <span style={item.done ? styles.budgetItemNameDone : styles.budgetItemName}>
-                              {item.done && <span style={styles.budgetDoneCheck}>✓</span>}
-                              {item.item}
-                            </span>
-                          )}
-                        </td>
-                        <td style={{...styles.budgetTd, textAlign: 'right'}}>
-                          <div style={styles.costInputWrapper}>
-                            <span style={styles.dollarSign}>$</span>
-                            <input
-                              type="number"
-                              value={item.cost}
-                              onChange={(e) => updateBudgetCost(key, item.id, e.target.value)}
-                              placeholder="0"
-                              style={styles.costField}
-                            />
-                          </div>
-                        </td>
-                        <td style={{...styles.budgetTd, textAlign: 'center'}}>
-                          {confirmDeleteBudgetItemId === item.id ? (
-                            <div style={styles.budgetTableActions}>
-                              <button style={styles.confirmYesBtn} onClick={() => deleteBudgetItem(key, item.id)}>Yes</button>
-                              <button style={styles.confirmNoBtn} onClick={() => setConfirmDeleteBudgetItemId(null)}>No</button>
-                            </div>
-                          ) : (
-                            <div style={styles.budgetTableActions}>
-                              <button
-                                style={styles.budgetTableBtn}
-                                onClick={() => { setEditingBudgetItemId(item.id); setEditBudgetItemText(item.item); }}
-                                title="Edit"
-                              >
-                                ✏️
-                              </button>
-                              <button
-                                style={styles.budgetTableBtn}
-                                onClick={() => setConfirmDeleteBudgetItemId(item.id)}
-                                title="Delete"
-                              >
-                                🗑️
-                              </button>
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                {/* Add New Item */}
-                {newBudgetItemCategory === key ? (
-                  <div style={styles.addBudgetRowForm}>
-                    <input
-                      type="text"
-                      value={newBudgetItemText}
-                      onChange={(e) => setNewBudgetItemText(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && addNewBudgetItem(key)}
-                      placeholder="Enter item name..."
-                      style={styles.addBudgetInput}
-                      autoFocus
-                    />
-                    <button
-                      style={styles.addItemSaveBtn}
-                      onClick={() => addNewBudgetItem(key)}
-                      disabled={!newBudgetItemText.trim()}
-                    >
-                      Add
-                    </button>
-                    <button
-                      style={styles.addItemCancelBtn}
-                      onClick={() => { setNewBudgetItemCategory(null); setNewBudgetItemText(''); }}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    style={styles.addBudgetItemBtn}
-                    onClick={() => setNewBudgetItemCategory(key)}
-                  >
-                    + Add line item
-                  </button>
-                )}
+                <div style={styles.budgetOverviewItem}>
+                  <span style={styles.budgetOverviewLabel}>Repairs (High Impact)</span>
+                  <span style={styles.budgetOverviewValue}>${getBudgetTotal('high').toLocaleString()}</span>
+                </div>
+                <div style={styles.budgetOverviewItem}>
+                  <span style={styles.budgetOverviewLabel}>Repairs (Nice to Have)</span>
+                  <span style={styles.budgetOverviewValue}>${getBudgetTotal('nice').toLocaleString()}</span>
+                </div>
+                <div style={styles.budgetOverviewItem}>
+                  <span style={styles.budgetOverviewLabel}>Moving & Housing</span>
+                  <span style={styles.budgetOverviewValue}>${getBudgetTotal('other').toLocaleString()}</span>
+                </div>
+                <div style={{...styles.budgetOverviewItem, ...styles.budgetOverviewTotal}}>
+                  <span style={styles.budgetOverviewLabelTotal}>Total Budget</span>
+                  <span style={styles.budgetOverviewTotalValue}>${getGrandTotal().toLocaleString()}</span>
+                </div>
               </div>
-            ))}
-
-            <div className="grand-total" style={styles.grandTotal}>
-              <span>TOTAL PROJECT BUDGET</span>
-              <span className="grand-total-amount" style={styles.grandTotalAmount}>
-                ${getGrandTotal().toLocaleString()}
-              </span>
             </div>
+
+            {/* Moving & Housing Section */}
+            <div className="budget-section" style={{...styles.budgetSection, borderColor: colors.deepBlue}}>
+              <div style={{...styles.budgetTitle, background: colors.deepBlue}}>
+                <div>
+                  <h3 style={styles.budgetTitleText}>🚚 Moving & Housing Costs</h3>
+                  <p style={styles.budgetTitleDesc}>Temporary housing, movers, storage, travel, etc.</p>
+                </div>
+                <span style={styles.budgetTitleTotal}>${getBudgetTotal('other').toLocaleString()}</span>
+              </div>
+
+              <table style={styles.budgetTable}>
+                <thead>
+                  <tr>
+                    <th style={styles.budgetTh}>Item</th>
+                    <th style={{...styles.budgetTh, width: '120px', textAlign: 'right'}}>Cost</th>
+                    <th style={{...styles.budgetTh, width: '80px', textAlign: 'center'}}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.budget.other.map(item => (
+                    <tr key={item.id} style={item.done ? styles.budgetRowDone : {}}>
+                      <td style={styles.budgetTd}>
+                        {editingBudgetItemId === item.id ? (
+                          <input
+                            type="text"
+                            value={editBudgetItemText}
+                            onChange={(e) => setEditBudgetItemText(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && updateBudgetItemText('other', item.id)}
+                            onBlur={() => updateBudgetItemText('other', item.id)}
+                            style={styles.budgetTableInput}
+                            autoFocus
+                          />
+                        ) : (
+                          <span style={item.done ? styles.budgetItemNameDone : styles.budgetItemName}>
+                            {item.done && <span style={styles.budgetDoneCheck}>✓</span>}
+                            {item.item}
+                          </span>
+                        )}
+                      </td>
+                      <td style={{...styles.budgetTd, textAlign: 'right'}}>
+                        <div style={styles.costInputWrapper}>
+                          <span style={styles.dollarSign}>$</span>
+                          <input
+                            type="number"
+                            value={item.cost}
+                            onChange={(e) => updateBudgetCost('other', item.id, e.target.value)}
+                            placeholder="0"
+                            style={styles.costField}
+                          />
+                        </div>
+                      </td>
+                      <td style={{...styles.budgetTd, textAlign: 'center'}}>
+                        {confirmDeleteBudgetItemId === item.id ? (
+                          <div style={styles.budgetTableActions}>
+                            <button style={styles.confirmYesBtn} onClick={() => deleteBudgetItem('other', item.id)}>Yes</button>
+                            <button style={styles.confirmNoBtn} onClick={() => setConfirmDeleteBudgetItemId(null)}>No</button>
+                          </div>
+                        ) : (
+                          <div style={styles.budgetTableActions}>
+                            <button
+                              style={styles.budgetTableBtn}
+                              onClick={() => { setEditingBudgetItemId(item.id); setEditBudgetItemText(item.item); }}
+                              title="Edit"
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              style={styles.budgetTableBtn}
+                              onClick={() => setConfirmDeleteBudgetItemId(item.id)}
+                              title="Delete"
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Add New Item */}
+              {newBudgetItemCategory === 'other' ? (
+                <div style={styles.addBudgetRowForm}>
+                  <input
+                    type="text"
+                    value={newBudgetItemText}
+                    onChange={(e) => setNewBudgetItemText(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && addNewBudgetItem('other')}
+                    placeholder="Enter item name..."
+                    style={styles.addBudgetInput}
+                    autoFocus
+                  />
+                  <button
+                    style={styles.addItemSaveBtn}
+                    onClick={() => addNewBudgetItem('other')}
+                    disabled={!newBudgetItemText.trim()}
+                  >
+                    Add
+                  </button>
+                  <button
+                    style={styles.addItemCancelBtn}
+                    onClick={() => { setNewBudgetItemCategory(null); setNewBudgetItemText(''); }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button
+                  style={styles.addBudgetItemBtn}
+                  onClick={() => setNewBudgetItemCategory('other')}
+                >
+                  + Add expense
+                </button>
+              )}
+            </div>
+
+            <p style={styles.budgetNote}>
+              💡 Repair costs are managed in the Checklist → Repairs step
+            </p>
           </div>
         )}
 
@@ -2477,44 +2475,51 @@ const styles = {
     marginBottom: '16px',
     fontWeight: '600'
   },
-  budgetSummaryGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-    gap: '12px'
-  },
-  summaryItem: {
+  budgetOverviewGrid: {
     display: 'flex',
+    flexDirection: 'column',
+    gap: '8px'
+  },
+  budgetOverviewItem: {
+    display: 'flex',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: '10px',
     padding: '10px 14px',
     background: 'white',
     borderRadius: '8px'
   },
-  summaryDot: {
-    width: '12px',
-    height: '12px',
-    borderRadius: '50%',
-    flexShrink: 0
-  },
-  summaryDetails: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2px'
-  },
-  summaryLabel: {
-    fontSize: '0.85rem',
-    color: colors.mountain,
-    fontWeight: '500'
-  },
-  summaryProgress: {
-    fontSize: '0.7rem',
+  budgetOverviewLabel: {
+    fontSize: '0.9rem',
     color: colors.slate
   },
-  summaryValue: {
+  budgetOverviewLabelTotal: {
+    fontSize: '0.95rem',
+    color: colors.evergreen,
+    fontWeight: '600'
+  },
+  budgetOverviewValue: {
+    fontWeight: '600',
+    color: colors.mountain,
+    fontSize: '0.95rem'
+  },
+  budgetOverviewTotal: {
+    background: `linear-gradient(135deg, ${colors.fog}, white)`,
+    borderTop: `2px solid ${colors.evergreen}`,
+    marginTop: '4px'
+  },
+  budgetOverviewTotalValue: {
     fontWeight: 'bold',
     color: colors.evergreen,
-    fontSize: '0.95rem'
+    fontSize: '1.1rem'
+  },
+  budgetNote: {
+    textAlign: 'center',
+    color: colors.slate,
+    fontSize: '0.85rem',
+    marginTop: '16px',
+    padding: '12px',
+    background: colors.fog,
+    borderRadius: '8px'
   },
   budgetSection: {
     marginBottom: '20px',
