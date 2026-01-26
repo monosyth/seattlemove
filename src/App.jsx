@@ -183,6 +183,7 @@ function App() {
   const [newNoteText, setNewNoteText] = useState('');
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [editNoteText, setEditNoteText] = useState('');
+  const [confirmDeleteNoteId, setConfirmDeleteNoteId] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
@@ -546,20 +547,40 @@ function App() {
                             <>
                               <span style={styles.noteText}>{note.text}</span>
                               <div style={styles.noteActions}>
-                                <button
-                                  style={styles.noteActionBtn}
-                                  onClick={() => { setEditingNoteId(note.id); setEditNoteText(note.text); }}
-                                  title="Edit"
-                                >
-                                  ✏️
-                                </button>
-                                <button
-                                  style={styles.noteActionBtn}
-                                  onClick={() => deleteStepNote(activeStep, note.id)}
-                                  title="Delete"
-                                >
-                                  🗑️
-                                </button>
+                                {confirmDeleteNoteId === note.id ? (
+                                  <>
+                                    <span style={styles.confirmDeleteText}>Delete?</span>
+                                    <button
+                                      style={styles.confirmYesBtn}
+                                      onClick={() => { deleteStepNote(activeStep, note.id); setConfirmDeleteNoteId(null); }}
+                                    >
+                                      Yes
+                                    </button>
+                                    <button
+                                      style={styles.confirmNoBtn}
+                                      onClick={() => setConfirmDeleteNoteId(null)}
+                                    >
+                                      No
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button
+                                      style={styles.noteActionBtn}
+                                      onClick={() => { setEditingNoteId(note.id); setEditNoteText(note.text); }}
+                                      title="Edit"
+                                    >
+                                      ✏️
+                                    </button>
+                                    <button
+                                      style={styles.noteActionBtn}
+                                      onClick={() => setConfirmDeleteNoteId(note.id)}
+                                      title="Delete"
+                                    >
+                                      🗑️
+                                    </button>
+                                  </>
+                                )}
                               </div>
                             </>
                           )}
@@ -826,20 +847,40 @@ function App() {
                               <>
                                 <span style={styles.noteText}>{note.text}</span>
                                 <div style={styles.noteActions}>
-                                  <button
-                                    style={styles.noteActionBtn}
-                                    onClick={() => { setEditingNoteId(note.id); setEditNoteText(note.text); }}
-                                    title="Edit"
-                                  >
-                                    ✏️
-                                  </button>
-                                  <button
-                                    style={styles.noteActionBtn}
-                                    onClick={() => deleteStepNote(stepId, note.id)}
-                                    title="Delete"
-                                  >
-                                    🗑️
-                                  </button>
+                                  {confirmDeleteNoteId === note.id ? (
+                                    <>
+                                      <span style={styles.confirmDeleteText}>Delete?</span>
+                                      <button
+                                        style={styles.confirmYesBtn}
+                                        onClick={() => { deleteStepNote(stepId, note.id); setConfirmDeleteNoteId(null); }}
+                                      >
+                                        Yes
+                                      </button>
+                                      <button
+                                        style={styles.confirmNoBtn}
+                                        onClick={() => setConfirmDeleteNoteId(null)}
+                                      >
+                                        No
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <button
+                                        style={styles.noteActionBtn}
+                                        onClick={() => { setEditingNoteId(note.id); setEditNoteText(note.text); }}
+                                        title="Edit"
+                                      >
+                                        ✏️
+                                      </button>
+                                      <button
+                                        style={styles.noteActionBtn}
+                                        onClick={() => setConfirmDeleteNoteId(note.id)}
+                                        title="Delete"
+                                      >
+                                        🗑️
+                                      </button>
+                                    </>
+                                  )}
                                 </div>
                               </>
                             )}
@@ -1277,6 +1318,32 @@ const styles = {
     border: 'none',
     borderRadius: '6px',
     fontSize: '0.8rem',
+    fontWeight: '600',
+    cursor: 'pointer'
+  },
+  confirmDeleteText: {
+    fontSize: '0.8rem',
+    color: colors.salmon,
+    fontWeight: '600',
+    marginRight: '4px'
+  },
+  confirmYesBtn: {
+    padding: '4px 10px',
+    background: colors.salmon,
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    fontSize: '0.75rem',
+    fontWeight: '600',
+    cursor: 'pointer'
+  },
+  confirmNoBtn: {
+    padding: '4px 10px',
+    background: colors.mist,
+    color: colors.slate,
+    border: 'none',
+    borderRadius: '4px',
+    fontSize: '0.75rem',
     fontWeight: '600',
     cursor: 'pointer'
   },
