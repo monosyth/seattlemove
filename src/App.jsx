@@ -355,6 +355,17 @@ function App() {
                 const progress = getStepProgress(stepId);
                 const isComplete = progress === 100;
                 const isActive = activeStep === stepId;
+                const shortLabels = {
+                  '1': 'Realtor',
+                  '2': 'Funding',
+                  '3': 'Repairs',
+                  '4': 'Sort',
+                  '5': 'Temp Home',
+                  '6': 'Vacate',
+                  '7': 'Sell',
+                  '8': 'Move',
+                  '9': 'Closing'
+                };
 
                 return (
                   <button
@@ -362,17 +373,14 @@ function App() {
                     className="step-tab"
                     style={{
                       ...styles.stepTab,
-                      ...(isActive ? styles.stepTabActive : {})
+                      ...(isActive ? styles.stepTabActive : {}),
+                      ...(isComplete && !isActive ? styles.stepTabComplete : {})
                     }}
                     onClick={() => setActiveStep(stepId)}
                     title={step.title}
                   >
-                    <span style={{
-                      ...styles.stepTabNumber,
-                      ...(isComplete ? styles.stepTabNumberComplete : {})
-                    }}>
-                      {isComplete ? '✓' : stepId}
-                    </span>
+                    {isComplete && <span style={styles.stepTabCheck}>✓</span>}
+                    <span className="step-tab-label" style={styles.stepTabLabel}>{shortLabels[stepId]}</span>
                   </button>
                 );
               })}
@@ -829,19 +837,18 @@ const styles = {
   checklistContainer: {},
   stepTabs: {
     display: 'flex',
-    gap: '4px',
+    gap: '6px',
     marginBottom: '20px',
     padding: '6px',
     background: '#f0f0f0',
-    borderRadius: '30px',
-    justifyContent: 'space-between'
+    borderRadius: '12px',
+    overflowX: 'auto',
+    WebkitOverflowScrolling: 'touch'
   },
   stepTab: {
-    width: '42px',
-    height: '42px',
-    padding: '0',
+    padding: '8px 12px',
     border: 'none',
-    borderRadius: '50%',
+    borderRadius: '8px',
     background: 'transparent',
     color: '#666',
     fontSize: '0.8rem',
@@ -851,34 +858,23 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative'
+    gap: '6px',
+    whiteSpace: 'nowrap',
+    flexShrink: 0
   },
   stepTabActive: {
     background: 'white',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+    color: '#667eea',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
   },
-  stepTabComplete: {},
-  stepTabNumber: {
-    width: '32px',
-    height: '32px',
-    background: 'linear-gradient(135deg, #667eea, #764ba2)',
-    color: 'white',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '0.9rem',
+  stepTabComplete: {
+    color: '#27ae60'
+  },
+  stepTabCheck: {
+    fontSize: '0.75rem',
     fontWeight: 'bold'
   },
-  stepTabNumberComplete: {
-    background: '#27ae60'
-  },
-  stepTabTitle: {
-    display: 'none'
-  },
-  stepTabProgress: {
-    display: 'none'
-  },
+  stepTabLabel: {},
   stepContent: {
     background: '#f8f9fa',
     borderRadius: '12px',

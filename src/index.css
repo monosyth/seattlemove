@@ -89,11 +89,12 @@ textarea:focus-visible {
 
   .step-tabs {
     padding: 4px !important;
+    gap: 4px !important;
   }
 
   .step-tab {
-    width: 36px !important;
-    height: 36px !important;
+    padding: 6px 10px !important;
+    font-size: 0.75rem !important;
   }
 
   .step-content {
@@ -193,12 +194,12 @@ textarea:focus-visible {
 
   .step-tabs {
     padding: 3px !important;
-    gap: 2px !important;
+    gap: 3px !important;
   }
 
   .step-tab {
-    width: 32px !important;
-    height: 32px !important;
+    padding: 6px 8px !important;
+    font-size: 0.7rem !important;
   }
 
   .step-content {
