@@ -500,7 +500,7 @@ function App() {
                           className="category-badge"
                           style={{
                             ...styles.categoryBadge,
-                            background: item.category === 'must' ? colors.salmon : colors.sunset
+                            background: item.category === 'must' ? colors.salmon : colors.goldenHour
                           }}
                         >
                           {item.category === 'must' ? 'MUST' : 'HIGH'}
@@ -647,9 +647,9 @@ function App() {
               <div style={styles.budgetSummaryGrid}>
                 {[
                   { key: 'must', label: 'Must Do', color: colors.salmon },
-                  { key: 'high', label: 'High Impact', color: colors.sunset },
-                  { key: 'nice', label: 'Nice to Have', color: colors.slate },
-                  { key: 'other', label: 'Moving & Housing', color: colors.forest }
+                  { key: 'high', label: 'High Impact', color: colors.goldenHour },
+                  { key: 'nice', label: 'Nice to Have', color: colors.duskBlue },
+                  { key: 'other', label: 'Moving & Housing', color: colors.deepBlue }
                 ].map(({ key, label, color }) => (
                   <div key={key} style={styles.summaryItem}>
                     <div style={{ ...styles.summaryDot, background: color }}></div>
@@ -663,9 +663,9 @@ function App() {
             {/* Budget Sections */}
             {[
               { key: 'must', title: 'Must Do (Safety/Inspection)', color: colors.salmon },
-              { key: 'high', title: 'High Impact (Buyers Notice)', color: colors.sunset },
-              { key: 'nice', title: 'Nice to Have', color: colors.slate },
-              { key: 'other', title: 'Moving & Housing Costs', color: colors.forest }
+              { key: 'high', title: 'High Impact (Buyers Notice)', color: colors.goldenHour },
+              { key: 'nice', title: 'Nice to Have', color: colors.duskBlue },
+              { key: 'other', title: 'Moving & Housing Costs', color: colors.deepBlue }
             ].map(({ key, title, color }) => (
               <div key={key} className="budget-section" style={{...styles.budgetSection, borderColor: color}}>
                 <h3 className="budget-title" style={{...styles.budgetTitle, background: color}}>{title}</h3>
@@ -915,7 +915,7 @@ function App() {
   );
 }
 
-// PNW Color Palette
+// PNW Color Palette - with muted blues and yellows
 const colors = {
   evergreen: '#2d5a4a',
   forest: '#3d6b5a',
@@ -930,7 +930,17 @@ const colors = {
   cedar: '#8b7355',
   salmon: '#d4836a',
   sunset: '#e8a87c',
-  complete: '#4a9a7c'
+  complete: '#4a9a7c',
+  // Muted blues
+  skyBlue: '#6a9cba',
+  deepBlue: '#4a7a9a',
+  duskBlue: '#5d8aa8',
+  paleBlue: '#b8d4e3',
+  // Muted yellows
+  goldenHour: '#d4b870',
+  wheat: '#d9c98a',
+  honey: '#c9a855',
+  cream: '#f5edd6'
 };
 
 const styles = {
@@ -1615,7 +1625,7 @@ const styles = {
     margin: 0
   },
   timelineDateBadge: {
-    background: colors.sage,
+    background: colors.skyBlue,
     color: 'white',
     padding: '4px 10px',
     borderRadius: '12px',
@@ -1675,13 +1685,13 @@ const styles = {
     marginBottom: '24px'
   },
   reminderBox: {
-    background: `linear-gradient(135deg, ${colors.fog}, ${colors.mist})`,
-    border: `2px solid ${colors.sage}`,
+    background: `linear-gradient(135deg, ${colors.paleBlue}22, ${colors.fog})`,
+    border: `2px solid ${colors.skyBlue}`,
     borderRadius: '12px',
     padding: '16px'
   },
   reminderTitle: {
-    color: colors.forest,
+    color: colors.deepBlue,
     marginBottom: '12px',
     fontSize: '1rem',
     fontWeight: '600'
@@ -1698,13 +1708,13 @@ const styles = {
     lineHeight: '1.5'
   },
   realtorBox: {
-    background: `linear-gradient(135deg, #f0f5f3, ${colors.fog})`,
-    border: `2px solid ${colors.cedar}`,
+    background: `linear-gradient(135deg, ${colors.cream}44, ${colors.fog})`,
+    border: `2px solid ${colors.goldenHour}`,
     borderRadius: '12px',
     padding: '16px'
   },
   realtorTitle: {
-    color: colors.bark,
+    color: colors.honey,
     marginBottom: '8px',
     fontSize: '1rem',
     fontWeight: '600'
