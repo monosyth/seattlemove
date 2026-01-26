@@ -191,6 +191,7 @@ function App() {
   const [editItemText, setEditItemText] = useState('');
   const [confirmDeleteItemId, setConfirmDeleteItemId] = useState(null);
   const [draggedItemId, setDraggedItemId] = useState(null);
+  const [dragOverItemId, setDragOverItemId] = useState(null);
   const [newItemStepId, setNewItemStepId] = useState(null);
   const [newItemText, setNewItemText] = useState('');
 
@@ -332,9 +333,16 @@ function App() {
     e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleDragOver = (e) => {
+  const handleDragOver = (e, itemId) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+    if (itemId !== dragOverItemId) {
+      setDragOverItemId(itemId);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragOverItemId(null);
   };
 
   const handleDrop = (e, stepId, targetItemId) => {
@@ -367,10 +375,12 @@ function App() {
       `Position ${targetIndex + 1}`
     );
     setDraggedItemId(null);
+    setDragOverItemId(null);
   };
 
   const handleDragEnd = () => {
     setDraggedItemId(null);
+    setDragOverItemId(null);
   };
 
 
@@ -686,13 +696,15 @@ function App() {
                       className="checklist-item"
                       draggable={editingItemId !== item.id}
                       onDragStart={(e) => handleDragStart(e, item.id)}
-                      onDragOver={handleDragOver}
+                      onDragOver={(e) => handleDragOver(e, item.id)}
+                      onDragLeave={handleDragLeave}
                       onDrop={(e) => handleDrop(e, activeStep, item.id)}
                       onDragEnd={handleDragEnd}
                       style={{
                         ...styles.checklistItem,
                         ...(item.done ? styles.checklistItemDone : {}),
-                        ...(draggedItemId === item.id ? styles.checklistItemDragging : {})
+                        ...(draggedItemId === item.id ? styles.checklistItemDragging : {}),
+                        ...(dragOverItemId === item.id && draggedItemId !== item.id ? styles.checklistItemDropTarget : {})
                       }}
                     >
                       {/* Drag Handle */}
@@ -1829,18 +1841,25 @@ const styles = {
     opacity: 0.6
   },
   checklistItemDragging: {
-    opacity: 0.5,
-    background: colors.paleBlue,
-    border: `2px dashed ${colors.skyBlue}`
+    opacity: 0.4,
+    background: colors.fog,
+    border: `2px dashed ${colors.slate}`,
+    transform: 'scale(0.98)'
+  },
+  checklistItemDropTarget: {
+    borderTop: `3px solid ${colors.evergreen}`,
+    background: `linear-gradient(180deg, ${colors.mist}40 0%, white 20%)`,
+    transform: 'translateY(2px)'
   },
   dragHandle: {
     cursor: 'grab',
-    color: colors.rain,
-    fontSize: '0.9rem',
-    padding: '4px',
+    color: colors.slate,
+    fontSize: '1rem',
+    padding: '4px 2px',
     userSelect: 'none',
-    opacity: 0.5,
-    transition: 'opacity 0.2s'
+    fontWeight: 'bold',
+    letterSpacing: '-2px',
+    transition: 'all 0.2s'
   },
   checkbox: {
     width: '22px',
