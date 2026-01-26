@@ -1,2063 +1,940 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cozy Stitches - Crochet Companion</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --cream: #FDF8F3;
-      --warm-white: #FFFAF5;
-      --soft-pink: #E8D5D5;
-      --dusty-rose: #C9A9A6;
-      --terracotta: #C17767;
-      --sage: #9CAF88;
-      --soft-sage: #D4E0CD;
-      --warm-brown: #8B6F5C;
-      --deep-brown: #5C4033;
-      --golden: #D4A574;
-      --shadow: rgba(92, 64, 51, 0.1);
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Nunito', sans-serif;
-      background-color: var(--cream);
-      color: var(--deep-brown);
-      min-height: 100vh;
-    }
-
-    /* Auth Screen */
-    .auth-screen {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, var(--soft-pink) 0%, var(--cream) 50%, var(--soft-sage) 100%);
-      padding: 2rem;
-    }
-
-    .auth-card {
-      background: var(--warm-white);
-      border-radius: 24px;
-      padding: 3rem;
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 10px 40px var(--shadow);
-      border: 2px solid var(--soft-pink);
-    }
-
-    .auth-logo {
-      font-size: 4rem;
-      margin-bottom: 1rem;
-    }
-
-    .auth-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 2rem;
-      color: var(--deep-brown);
-      margin-bottom: 0.5rem;
-    }
-
-    .auth-subtitle {
-      color: var(--warm-brown);
-      margin-bottom: 2rem;
-    }
-
-    .google-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      width: 100%;
-      padding: 1rem 1.5rem;
-      border: 2px solid var(--soft-pink);
-      border-radius: 50px;
-      background: white;
-      font-family: 'Nunito', sans-serif;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--deep-brown);
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .google-btn:hover {
-      background: var(--cream);
-      border-color: var(--terracotta);
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px var(--shadow);
-    }
-
-    .google-btn svg {
-      width: 20px;
-      height: 20px;
-    }
-
-    .auth-features {
-      margin-top: 2rem;
-      padding-top: 2rem;
-      border-top: 2px dashed var(--soft-pink);
-      text-align: left;
-    }
-
-    .auth-feature {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 0.75rem;
-      color: var(--warm-brown);
-      font-size: 0.9rem;
-    }
-
-    .auth-feature-icon {
-      font-size: 1.2rem;
-    }
-
-    /* App container */
-    .app-container {
-      display: none;
-    }
-
-    .app-container.active {
-      display: block;
-    }
-
-    /* Header */
-    .header {
-      background: linear-gradient(135deg, var(--soft-pink) 0%, var(--dusty-rose) 100%);
-      padding: 1rem 2rem;
-      box-shadow: 0 4px 15px var(--shadow);
-    }
-
-    .header-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .header h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.75rem;
-      color: var(--deep-brown);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .header h1 .yarn-icon {
-      font-size: 1.5rem;
-    }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .user-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: 2px solid white;
-    }
-
-    .user-name {
-      font-weight: 600;
-      color: var(--deep-brown);
-      font-size: 0.9rem;
-    }
-
-    .logout-btn {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 20px;
-      background: rgba(255,255,255,0.8);
-      color: var(--warm-brown);
-      font-family: 'Nunito', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .logout-btn:hover {
-      background: white;
-      color: var(--terracotta);
-    }
-
-    /* Sync indicator */
-    .sync-indicator {
-      position: fixed;
-      bottom: 1rem;
-      right: 1rem;
-      padding: 0.5rem 1rem;
-      background: var(--sage);
-      color: white;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.3s ease;
-      z-index: 1000;
-    }
-
-    .sync-indicator.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .sync-indicator.error {
-      background: #E57373;
-    }
-
-    /* Navigation */
-    .nav {
-      display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-      padding: 1rem;
-      background: var(--warm-white);
-      border-bottom: 2px solid var(--soft-pink);
-      flex-wrap: wrap;
-    }
-
-    .nav-btn {
-      padding: 0.75rem 1.25rem;
-      border: none;
-      background: transparent;
-      color: var(--warm-brown);
-      font-family: 'Nunito', sans-serif;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      border-radius: 25px;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .nav-btn:hover {
-      background: var(--soft-sage);
-      color: var(--deep-brown);
-    }
-
-    .nav-btn.active {
-      background: var(--terracotta);
-      color: white;
-    }
-
-    /* Main Content */
-    .main {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-
-    .section {
-      display: none;
-    }
-
-    .section.active {
-      display: block;
-      animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Loading spinner */
-    .loading {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 3rem;
-    }
-
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid var(--soft-pink);
-      border-top-color: var(--terracotta);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Cards */
-    .card {
-      background: var(--warm-white);
-      border-radius: 20px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 4px 20px var(--shadow);
-      border: 1px solid var(--soft-pink);
-    }
-
-    .card-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.4rem;
-      color: var(--terracotta);
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    /* Buttons */
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 25px;
-      font-family: 'Nunito', sans-serif;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .btn-primary {
-      background: var(--terracotta);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: var(--warm-brown);
-      transform: translateY(-2px);
-    }
-
-    .btn-secondary {
-      background: var(--soft-sage);
-      color: var(--deep-brown);
-    }
-
-    .btn-secondary:hover {
-      background: var(--sage);
-    }
-
-    .btn-small {
-      padding: 0.5rem 1rem;
-      font-size: 0.85rem;
-    }
-
-    .btn-danger {
-      background: #E57373;
-      color: white;
-    }
-
-    .btn-danger:hover {
-      background: #C62828;
-    }
-
-    /* Forms */
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 0.4rem;
-      font-weight: 600;
-      color: var(--warm-brown);
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border: 2px solid var(--soft-pink);
-      border-radius: 12px;
-      font-family: 'Nunito', sans-serif;
-      font-size: 1rem;
-      background: var(--cream);
-      color: var(--deep-brown);
-      transition: border-color 0.3s ease;
-    }
-
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: var(--terracotta);
-    }
-
-    .form-group textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-
-    /* Grid layouts */
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-    }
-
-    /* ===== STITCH COUNTER ===== */
-    .counter-display {
-      text-align: center;
-      padding: 2rem;
-    }
-
-    .counter-value {
-      font-size: 5rem;
-      font-weight: 700;
-      color: var(--terracotta);
-      line-height: 1;
-      font-family: 'Playfair Display', serif;
-    }
-
-    .counter-label {
-      font-size: 1.2rem;
-      color: var(--warm-brown);
-      margin-top: 0.5rem;
-    }
-
-    .counter-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-top: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .counter-btn {
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      border: none;
-      font-size: 2rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .counter-btn-plus {
-      background: var(--sage);
-      color: white;
-    }
-
-    .counter-btn-plus:hover {
-      background: #7A9A66;
-      transform: scale(1.1);
-    }
-
-    .counter-btn-minus {
-      background: var(--dusty-rose);
-      color: white;
-    }
-
-    .counter-btn-minus:hover {
-      background: #B89895;
-      transform: scale(1.1);
-    }
-
-    .row-counter {
-      margin-top: 2rem;
-      padding-top: 2rem;
-      border-top: 2px dashed var(--soft-pink);
-    }
-
-    .row-info {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 2rem;
-      flex-wrap: wrap;
-    }
-
-    .row-stat {
-      text-align: center;
-    }
-
-    .row-stat-value {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--sage);
-      font-family: 'Playfair Display', serif;
-    }
-
-    .row-stat-label {
-      font-size: 0.9rem;
-      color: var(--warm-brown);
-    }
-
-    /* ===== PROJECT TRACKER ===== */
-    .project-card {
-      background: var(--warm-white);
-      border-radius: 16px;
-      padding: 1.25rem;
-      border: 2px solid var(--soft-pink);
-      transition: all 0.3s ease;
-    }
-
-    .project-card:hover {
-      border-color: var(--terracotta);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 25px var(--shadow);
-    }
-
-    .project-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 0.75rem;
-    }
-
-    .project-name {
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: var(--deep-brown);
-    }
-
-    .project-status {
-      padding: 0.25rem 0.75rem;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-
-    .status-active {
-      background: var(--soft-sage);
-      color: var(--deep-brown);
-    }
-
-    .status-completed {
-      background: var(--sage);
-      color: white;
-    }
-
-    .status-paused {
-      background: var(--golden);
-      color: var(--deep-brown);
-    }
-
-    .project-meta {
-      font-size: 0.85rem;
-      color: var(--warm-brown);
-      margin-bottom: 0.5rem;
-    }
-
-    .project-progress {
-      height: 8px;
-      background: var(--soft-pink);
-      border-radius: 10px;
-      overflow: hidden;
-      margin: 0.75rem 0;
-    }
-
-    .project-progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, var(--sage), var(--terracotta));
-      border-radius: 10px;
-      transition: width 0.5s ease;
-    }
-
-    .project-actions {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 0.75rem;
-    }
-
-    /* ===== PATTERN LIBRARY ===== */
-    .search-bar {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .search-bar input {
-      flex: 1;
-      min-width: 200px;
-      padding: 0.75rem 1.25rem;
-      border: 2px solid var(--soft-pink);
-      border-radius: 25px;
-      font-size: 1rem;
-      background: var(--warm-white);
-    }
-
-    .search-bar input:focus {
-      outline: none;
-      border-color: var(--terracotta);
-    }
-
-    .filter-tags {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      margin-bottom: 1rem;
-    }
-
-    .filter-tag {
-      padding: 0.4rem 1rem;
-      border-radius: 20px;
-      background: var(--soft-pink);
-      color: var(--warm-brown);
-      font-size: 0.85rem;
-      cursor: pointer;
-      border: none;
-      transition: all 0.3s ease;
-    }
-
-    .filter-tag:hover,
-    .filter-tag.active {
-      background: var(--terracotta);
-      color: white;
-    }
-
-    .pattern-card {
-      background: var(--warm-white);
-      border-radius: 16px;
-      overflow: hidden;
-      border: 2px solid var(--soft-pink);
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .pattern-card:hover {
-      border-color: var(--terracotta);
-      transform: translateY(-3px);
-    }
-
-    .pattern-image {
-      height: 150px;
-      background: linear-gradient(135deg, var(--soft-sage) 0%, var(--soft-pink) 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3rem;
-    }
-
-    .pattern-info {
-      padding: 1rem;
-    }
-
-    .pattern-title {
-      font-weight: 700;
-      color: var(--deep-brown);
-      margin-bottom: 0.25rem;
-    }
-
-    .pattern-difficulty {
-      font-size: 0.8rem;
-      color: var(--warm-brown);
-    }
-
-    .difficulty-dots {
-      display: inline-flex;
-      gap: 3px;
-      margin-left: 0.5rem;
-    }
-
-    .difficulty-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--soft-pink);
-    }
-
-    .difficulty-dot.filled {
-      background: var(--terracotta);
-    }
-
-    /* ===== YARN STASH ===== */
-    .yarn-card {
-      background: var(--warm-white);
-      border-radius: 16px;
-      padding: 1.25rem;
-      border: 2px solid var(--soft-pink);
-      transition: all 0.3s ease;
-    }
-
-    .yarn-card:hover {
-      border-color: var(--terracotta);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 25px var(--shadow);
-    }
-
-    .yarn-color-swatch {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      margin-bottom: 1rem;
-      border: 3px solid white;
-      box-shadow: 0 2px 8px var(--shadow);
-    }
-
-    .yarn-name {
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: var(--deep-brown);
-      margin-bottom: 0.25rem;
-    }
-
-    .yarn-brand {
-      font-size: 0.9rem;
-      color: var(--warm-brown);
-      margin-bottom: 0.75rem;
-    }
-
-    .yarn-details {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .yarn-tag {
-      padding: 0.25rem 0.75rem;
-      background: var(--soft-sage);
-      border-radius: 12px;
-      font-size: 0.8rem;
-      color: var(--deep-brown);
-    }
-
-    .yarn-quantity {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding-top: 0.75rem;
-      border-top: 1px dashed var(--soft-pink);
-      margin-top: 0.75rem;
-    }
-
-    .yarn-quantity-label {
-      font-size: 0.85rem;
-      color: var(--warm-brown);
-    }
-
-    .yarn-quantity-value {
-      font-weight: 700;
-      color: var(--terracotta);
-      font-size: 1.1rem;
-    }
-
-    .yarn-actions {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 0.75rem;
-    }
-
-    /* ===== LEARNING SECTION ===== */
-    .stitch-guide {
-      display: flex;
-      gap: 1rem;
-      padding: 1rem;
-      background: var(--cream);
-      border-radius: 12px;
-      margin-bottom: 1rem;
-      align-items: center;
-    }
-
-    .stitch-icon {
-      width: 60px;
-      height: 60px;
-      background: var(--soft-sage);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      flex-shrink: 0;
-    }
-
-    .stitch-info h4 {
-      color: var(--deep-brown);
-      margin-bottom: 0.25rem;
-    }
-
-    .stitch-info p {
-      font-size: 0.9rem;
-      color: var(--warm-brown);
-    }
-
-    .stitch-abbr {
-      background: var(--terracotta);
-      color: white;
-      padding: 0.2rem 0.5rem;
-      border-radius: 5px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      margin-left: 0.5rem;
-    }
-
-    .tip-card {
-      background: linear-gradient(135deg, var(--soft-sage) 0%, var(--soft-pink) 100%);
-      border-radius: 16px;
-      padding: 1.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .tip-card h4 {
-      color: var(--deep-brown);
-      margin-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .tip-card p {
-      color: var(--warm-brown);
-      font-size: 0.95rem;
-    }
-
-    /* Modal */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 1rem;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-    }
-
-    .modal-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .modal {
-      background: var(--warm-white);
-      border-radius: 20px;
-      padding: 2rem;
-      max-width: 500px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      transform: scale(0.9);
-      transition: transform 0.3s ease;
-    }
-
-    .modal-overlay.active .modal {
-      transform: scale(1);
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .modal-header h3 {
-      font-family: 'Playfair Display', serif;
-      color: var(--terracotta);
-    }
-
-    .modal-close {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: var(--warm-brown);
-    }
-
-    /* Empty state */
-    .empty-state {
-      text-align: center;
-      padding: 3rem;
-      color: var(--warm-brown);
-    }
-
-    .empty-state-icon {
-      font-size: 4rem;
-      margin-bottom: 1rem;
-    }
-
-    .empty-state h3 {
-      margin-bottom: 0.5rem;
-      color: var(--deep-brown);
-    }
-
-    /* Responsive */
-    @media (max-width: 600px) {
-      .header h1 {
-        font-size: 1.4rem;
-      }
-
-      .header-content {
-        justify-content: center;
-        text-align: center;
-      }
-
-      .user-info {
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-
-      .nav {
-        gap: 0.25rem;
-      }
-
-      .nav-btn {
-        padding: 0.6rem 0.9rem;
-        font-size: 0.85rem;
-      }
-
-      .main {
-        padding: 1rem;
-      }
-
-      .counter-value {
-        font-size: 4rem;
-      }
-
-      .counter-btn {
-        width: 60px;
-        height: 60px;
-        font-size: 1.5rem;
-      }
-
-      .auth-card {
-        padding: 2rem;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moving Plan Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .plan-summary {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        /* TAB NAVIGATION */
+        .tab-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn {
+            padding: 10px 16px;
+            border: 2px solid #ddd;
+            background: #f8f9fa;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #555;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            background: #e8f4f8;
+            border-color: #3498db;
+        }
+
+        .tab-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        .tab-btn .step-num {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .tab-btn.active .step-num {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* TAB CONTENT */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            font-size: 1.4rem;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .section h3 {
+            font-size: 1.1rem;
+            color: #34495e;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .checklist {
+            list-style: none;
+        }
+
+        .checklist li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+            border-bottom: 1px solid #eee;
+        }
+
+        .checklist li:last-child {
+            border-bottom: none;
+        }
+
+        .checklist li::before {
+            content: '☐';
+            position: absolute;
+            left: 0;
+            font-size: 1.2rem;
+        }
+
+        .checklist li.done::before {
+            content: '☑';
+            color: #27ae60;
+        }
+
+        .budget-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .budget-table th,
+        .budget-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .budget-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .budget-table .cost {
+            text-align: right;
+            font-family: monospace;
+            font-size: 1rem;
+        }
+
+        .budget-table .subtotal {
+            font-weight: bold;
+            background: #f0f0f0;
+        }
+
+        .budget-section {
+            margin-bottom: 25px;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .budget-section h3 {
+            margin: 0 0 15px 0;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-size: 1.1rem;
+        }
+
+        .budget-must {
+            background: #fdf2f2;
+            border: 2px solid #e74c3c;
+        }
+
+        .budget-must h3 {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .budget-high {
+            background: #fef9e7;
+            border: 2px solid #f39c12;
+        }
+
+        .budget-high h3 {
+            background: #f39c12;
+            color: white;
+        }
+
+        .budget-nice {
+            background: #eaf4fc;
+            border: 2px solid #3498db;
+        }
+
+        .budget-nice h3 {
+            background: #3498db;
+            color: white;
+        }
+
+        .budget-skip {
+            background: #f4f4f4;
+            border: 2px solid #95a5a6;
+        }
+
+        .budget-skip h3 {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .notes-section {
+            background: #fffbea;
+            border-left: 4px solid #f1c40f;
+        }
+
+        .notes-section textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 30px 0;
+        }
+
+        /* Navigation hint */
+        .nav-hint {
+            text-align: center;
+            color: #888;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+
+        /* Prev/Next buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #2980b9;
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* MOBILE STYLES */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .plan-summary {
+                font-size: 0.9rem;
+                padding: 12px;
+            }
+
+            .tab-nav {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 8px;
+                padding: 10px;
+            }
+
+            .tab-btn {
+                padding: 8px 4px;
+                flex-direction: column;
+                justify-content: center;
+                font-size: 0.7rem;
+                gap: 4px;
+            }
+
+            .tab-btn .step-num {
+                width: 28px;
+                height: 28px;
+                line-height: 28px;
+                font-size: 0.9rem;
+            }
+
+            .tab-btn .tab-label {
+                display: block;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 100%;
+            }
+
+            .section {
+                padding: 15px;
+            }
+
+            .section h2 {
+                font-size: 1.1rem;
+            }
+
+            .budget-section {
+                padding: 10px;
+            }
+
+            .budget-section h3 {
+                font-size: 0.95rem;
+                padding: 8px 10px;
+            }
+
+            .budget-table th,
+            .budget-table td {
+                padding: 8px 5px;
+                font-size: 0.85rem;
+            }
+
+            .nav-buttons {
+                gap: 10px;
+            }
+
+            .nav-btn {
+                padding: 10px 15px;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tab-nav {
+                grid-template-columns: repeat(5, 1fr);
+            }
+
+            .tab-btn {
+                padding: 6px 2px;
+                font-size: 0.65rem;
+            }
+
+            .tab-btn .step-num {
+                width: 24px;
+                height: 24px;
+                line-height: 24px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- AUTH SCREEN -->
-  <div class="auth-screen" id="authScreen">
-    <div class="auth-card">
-      <div class="auth-logo">🧶</div>
-      <h1 class="auth-title">Cozy Stitches</h1>
-      <p class="auth-subtitle">Your crochet companion</p>
+    <div class="container">
+        <h1>Moving Plan Dashboard</h1>
 
-      <button class="google-btn" id="googleSignIn">
-        <svg viewBox="0 0 24 24">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-        </svg>
-        Sign in with Google
-      </button>
+        <div class="plan-summary">
+            <strong>The Plan:</strong> Vacate the house completely, stay at a nearby pet-friendly location in San Diego while the house sells (empty), then move to Seattle after closing.
+        </div>
 
-      <div class="auth-features">
-        <div class="auth-feature">
-          <span class="auth-feature-icon">☁️</span>
-          <span>Sync across all your devices</span>
+        <p class="nav-hint">Click a step to view details</p>
+
+        <!-- TAB NAVIGATION -->
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="1">
+                <span class="step-num">1</span><span class="tab-label">Realtor</span>
+            </button>
+            <button class="tab-btn" data-tab="2">
+                <span class="step-num">2</span><span class="tab-label">Funding</span>
+            </button>
+            <button class="tab-btn" data-tab="3">
+                <span class="step-num">3</span><span class="tab-label">Repairs</span>
+            </button>
+            <button class="tab-btn" data-tab="4">
+                <span class="step-num">4</span><span class="tab-label">Sort</span>
+            </button>
+            <button class="tab-btn" data-tab="5">
+                <span class="step-num">5</span><span class="tab-label">Housing</span>
+            </button>
+            <button class="tab-btn" data-tab="6">
+                <span class="step-num">6</span><span class="tab-label">Vacate</span>
+            </button>
+            <button class="tab-btn" data-tab="7">
+                <span class="step-num">7</span><span class="tab-label">Sell</span>
+            </button>
+            <button class="tab-btn" data-tab="8">
+                <span class="step-num">8</span><span class="tab-label">Move</span>
+            </button>
+            <button class="tab-btn" data-tab="9">
+                <span class="step-num">9</span><span class="tab-label">Final</span>
+            </button>
         </div>
-        <div class="auth-feature">
-          <span class="auth-feature-icon">🔒</span>
-          <span>Your data is private and secure</span>
+
+        <!-- STEP 1 -->
+        <div class="tab-content active" data-tab="1">
+            <div class="section">
+                <h2><span class="step-number">1</span>Select Realtor</h2>
+                <p style="color: #666; margin-bottom: 15px; font-style: italic;">Talk to realtor first to get real numbers for repair budget, timeline, and funding needs.</p>
+                <ul class="checklist">
+                    <li>Research realtors experienced with remote/vacant home sales</li>
+                    <li>Interview candidates</li>
+                    <li>Verify they will use their inspector before listing</li>
+                    <li>Confirm their strategy for maximizing home value</li>
+                    <li>Get realistic sale price estimate</li>
+                    <li>Get repair recommendations and cost estimates</li>
+                    <li>Sign listing agreement</li>
+                </ul>
+
+                <h3 style="margin-top: 25px;">🏠 Recommended: Caitlin Thill - O'Byrne Team / Compass</h3>
+                <div style="background: #e8f8f5; border: 2px solid #27ae60; border-radius: 8px; padding: 15px; margin-top: 10px;">
+                    <p style="margin-bottom: 10px;"><strong>Why Caitlin:</strong> $95M+ in sales, experienced with $1M+ homes, HGTV-featured team with high-production marketing</p>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <tr>
+                            <td style="padding: 6px 0;"><strong>Sales Volume:</strong></td>
+                            <td style="padding: 6px 0;">$95+ million in sales</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0;"><strong>Team:</strong></td>
+                            <td style="padding: 6px 0;">O'Byrne Team ($1.5B+ total sales, HGTV's "Hot Properties")</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0;"><strong>Specialty:</strong></td>
+                            <td style="padding: 6px 0;">Sellers, buyers, investors, developers</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0;"><strong>Brokerage:</strong></td>
+                            <td style="padding: 6px 0;">Compass (luxury-focused)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0;"><strong>License:</strong></td>
+                            <td style="padding: 6px 0;">CA DRE #02061995</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0;"><strong>Website:</strong></td>
+                            <td style="padding: 6px 0;"><a href="https://obyrneteam.com/agent/caitlin-thill" target="_blank">obyrneteam.com</a></td>
+                        </tr>
+                    </table>
+                    <p style="margin-top: 12px; font-style: italic; color: #27ae60;">Offers complimentary project management, coordinates with contractors/vendors for pre-sale prep.</p>
+                </div>
+
+                <h3 style="margin-top: 25px;">💰 Compass Concierge Program</h3>
+                <div style="background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 8px; padding: 15px; margin-top: 10px;">
+                    <p style="margin-bottom: 10px;"><strong>What it is:</strong> Compass pays upfront for repairs, staging, painting, flooring — you pay back at closing</p>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <tr>
+                            <td style="padding: 6px 0;"><strong>Cost:</strong></td>
+                            <td style="padding: 6px 0;">Zero interest, no hidden fees</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0;"><strong>When you pay:</strong></td>
+                            <td style="padding: 6px 0;">Only when home sells (from proceeds)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0;"><strong>Covers:</strong></td>
+                            <td style="padding: 6px 0;">Painting, flooring, staging, landscaping, repairs</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0;"><strong>Approval:</strong></td>
+                            <td style="padding: 6px 0;">Typically within 48 hours</td>
+                        </tr>
+                    </table>
+                    <p style="margin-top: 12px; font-style: italic; color: #0ea5e9;">Available through Caitlin since she's with Compass — could reduce how much 401k loan you need.</p>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn" disabled>← Previous</button>
+                    <button class="nav-btn" onclick="goToTab(2)">Next →</button>
+                </div>
+            </div>
         </div>
-        <div class="auth-feature">
-          <span class="auth-feature-icon">📱</span>
-          <span>Access from phone, tablet, or computer</span>
+
+        <!-- STEP 2 -->
+        <div class="tab-content" data-tab="2">
+            <div class="section">
+                <h2><span class="step-number">2</span>Secure Funding</h2>
+                <p style="color: #666; margin-bottom: 15px; font-style: italic;">Now that you have real numbers from the realtor, determine how much you need.</p>
+                <ul class="checklist">
+                    <li>Calculate total needed (repairs + temp housing + moving + buffer)</li>
+                    <li>Decide on 401k loan amount (or alternative funding source)</li>
+                    <li>Apply for and secure the loan</li>
+                    <li>Open separate account to manage these funds</li>
+                </ul>
+
+                <h3 style="margin-top: 25px;">💡 Compass Concierge Option</h3>
+                <div style="background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 8px; padding: 15px; margin-top: 10px;">
+                    <p><strong>If using Caitlin Thill (Compass):</strong> The Compass Concierge program can cover repair costs upfront — you only pay back from sale proceeds at closing. Zero interest, no fees.</p>
+                    <p style="margin-top: 10px;"><strong>This means:</strong> You may need less from your 401k loan. Use 401k primarily for temp housing, moving costs, and buffer — let Compass Concierge handle repairs.</p>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn" onclick="goToTab(1)">← Previous</button>
+                    <button class="nav-btn" onclick="goToTab(3)">Next →</button>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <!-- STEP 3 -->
+        <div class="tab-content" data-tab="3">
+            <div class="section">
+                <h2><span class="step-number">3</span>House Prep - Repairs</h2>
+
+                <div class="budget-section budget-must">
+                    <h3>MUST DO (Inspection/Safety/Deal Breakers)</h3>
+                    <table class="budget-table">
+                        <tr>
+                            <th>Item</th>
+                            <th class="cost">Est. Cost</th>
+                        </tr>
+                        <tr>
+                            <td>Fix garage exterior light (electrical issue)</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Install GFCI outlet in bathroom</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Unclog primary bathroom sink</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Sealant around toilet</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Reseal primary shower tile</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Secure side gate/fence corner</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr class="subtotal">
+                            <td>Subtotal - Must Do</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="budget-section budget-high">
+                    <h3>HIGH IMPACT (Buyers Notice These)</h3>
+                    <table class="budget-table">
+                        <tr>
+                            <th>Item</th>
+                            <th class="cost">Est. Cost</th>
+                        </tr>
+                        <tr>
+                            <td>Pressure wash concrete, exterior, windows</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Professional carpet cleaning</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Professional move-out cleaning</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Replace bathroom light fixtures x3 (Marketplace/OfferUp)</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Replace mirrors (primary + guest)</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Patch and paint walls/baseboards</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Reface guest bathtub</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Weeds - spray/remove all</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Clean and deodorize turf</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr class="subtotal">
+                            <td>Subtotal - High Impact</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="budget-section budget-nice">
+                    <h3>NICE TO HAVE (If Budget Allows)</h3>
+                    <table class="budget-table">
+                        <tr>
+                            <th>Item</th>
+                            <th class="cost">Est. Cost</th>
+                        </tr>
+                        <tr>
+                            <td>Replace primary bathroom faucet</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Match bathroom hardware (silver/black)</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Kitchen cabinet replacement ($40 Home Depot)</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Repair/paint retaining walls</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Sand and paint pergola</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Replace window screens (4 total)</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Install stairwell hand railing</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Sand/repaint wood railing</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Clean up plants</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Test/fix irrigation system</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr class="subtotal">
+                            <td>Subtotal - Nice to Have</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="budget-section budget-skip">
+                    <h3>LIKELY SKIP (Minimal Impact)</h3>
+                    <table class="budget-table">
+                        <tr>
+                            <th>Item</th>
+                            <th class="cost">Est. Cost</th>
+                        </tr>
+                        <tr>
+                            <td>Vent patch above TV</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Secure oven trim (longer screws)</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Tighten kitchen faucet</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Repair/paint attic ceiling & cabinet frames</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Address closet frame rust in guest bedroom</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr>
+                            <td>Repaint gazebo interior wall</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                        <tr class="subtotal">
+                            <td>Subtotal - Skip</td>
+                            <td class="cost">$_______</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3 style="margin-top: 30px;">TOTALS</h3>
+                <table class="budget-table">
+                    <tr>
+                        <th>Category</th>
+                        <th class="cost">Est. Cost</th>
+                    </tr>
+                    <tr>
+                        <td>Must Do</td>
+                        <td class="cost">$_______</td>
+                    </tr>
+                    <tr>
+                        <td>High Impact</td>
+                        <td class="cost">$_______</td>
+                    </tr>
+                    <tr>
+                        <td>Nice to Have</td>
+                        <td class="cost">$_______</td>
+                    </tr>
+                    <tr class="subtotal">
+                        <td>TOTAL (without Skip)</td>
+                        <td class="cost">$_______</td>
+                    </tr>
+                </table>
+
+                <div class="nav-buttons">
+                    <button class="nav-btn" onclick="goToTab(2)">← Previous</button>
+                    <button class="nav-btn" onclick="goToTab(4)">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="tab-content" data-tab="4">
+            <div class="section">
+                <h2><span class="step-number">4</span>Sort & Reduce Belongings</h2>
+                <ul class="checklist">
+                    <li>Decide what goes to Seattle (storage unit)</li>
+                    <li>Sell items (Marketplace, OfferUp, etc.)</li>
+                    <li>Donate items</li>
+                    <li>Discard/junk removal for bulky items</li>
+                    <li>Move items for Seattle to storage unit</li>
+                </ul>
+                <div class="nav-buttons">
+                    <button class="nav-btn" onclick="goToTab(3)">← Previous</button>
+                    <button class="nav-btn" onclick="goToTab(5)">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 5 -->
+        <div class="tab-content" data-tab="5">
+            <div class="section">
+                <h2><span class="step-number">5</span>Find Temporary Housing (San Diego)</h2>
+                <ul class="checklist">
+                    <li>Research pet-friendly short-term rentals in San Diego area</li>
+                    <li>Confirm availability and pricing (need to accommodate 2 dogs + senior cat)</li>
+                    <li>Secure the temporary rental</li>
+                    <li>Coordinate move-in date with house vacate date</li>
+                </ul>
+
+                <h3 style="margin-top: 25px;">Rental Inquiry Message Template</h3>
+                <div style="background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; padding: 15px; margin-top: 10px;">
+                    <p style="margin-bottom: 10px;"><strong>Subject:</strong> Short-term rental inquiry — 2 small dogs + senior cat</p>
+                    <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
+                    <p>Hi,</p>
+                    <p style="margin-top: 10px;">I'm relocating from San Diego to Seattle and need temporary housing while my home sells. I'm looking for a <strong>furnished house with a yard</strong> on a <strong>week-to-week basis</strong> (timeline depends on how quickly the sale closes).</p>
+                    <p style="margin-top: 10px;">I have <strong>2 Pomeranians and a senior cat</strong> — all well-behaved, house-trained, and up to date on vaccinations. The Poms are small and quiet, and the cat is elderly and mostly sleeps. I'm happy to provide a pet deposit or additional pet fee.</p>
+                    <p style="margin-top: 10px;">I'm looking in the <strong>92119 / La Mesa area</strong> to stay close to my current home during the sale process.</p>
+                    <p style="margin-top: 10px;">A few things about me:</p>
+                    <ul style="margin: 10px 0 10px 20px;">
+                        <li>I'm a responsible renter — the house will be left clean</li>
+                        <li>Flexible on move-in date</li>
+                        <li>Can provide references if needed</li>
+                    </ul>
+                    <p style="margin-top: 10px;">Is your property available for week-to-week rentals, and would you consider my pets? I'm happy to answer any questions.</p>
+                    <p style="margin-top: 10px;">Thank you!<br>Scott</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="nav-btn" onclick="goToTab(4)">← Previous</button>
+                    <button class="nav-btn" onclick="goToTab(6)">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 6 -->
+        <div class="tab-content" data-tab="6">
+            <div class="section">
+                <h2><span class="step-number">6</span>Vacate the House</h2>
+                <ul class="checklist">
+                    <li>Schedule professional carpet cleaning</li>
+                    <li>Schedule professional move-out cleaning</li>
+                    <li>Final walkthrough with realtor</li>
+                    <li>Hand over keys / lockbox setup</li>
+                    <li>Move into temporary San Diego rental (Airbnb, short-term - could be 1-3+ weeks depending on sale timeline)</li>
+                </ul>
+                <div class="nav-buttons">
+                    <button class="nav-btn" onclick="goToTab(5)">← Previous</button>
+                    <button class="nav-btn" onclick="goToTab(7)">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 7 -->
+        <div class="tab-content" data-tab="7">
+            <div class="section">
+                <h2><span class="step-number">7</span>List & Sell the House</h2>
+                <ul class="checklist">
+                    <li>Pre-listing inspection (realtor's inspector)</li>
+                    <li>Address any inspection surprises</li>
+                    <li>Professional photos / staging consultation</li>
+                    <li>List the house</li>
+                    <li>Open houses / showings (you're nearby if needed)</li>
+                    <li>Review offers</li>
+                    <li>Accept offer / enter escrow</li>
+                    <li>Complete sale / close</li>
+                </ul>
+                <div class="nav-buttons">
+                    <button class="nav-btn" onclick="goToTab(6)">← Previous</button>
+                    <button class="nav-btn" onclick="goToTab(8)">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 8 -->
+        <div class="tab-content" data-tab="8">
+            <div class="section">
+                <h2><span class="step-number">8</span>Move to Seattle</h2>
+                <ul class="checklist">
+                    <li>Research Seattle neighborhoods for long-term rental</li>
+                    <li>Find pet-friendly rental in Seattle</li>
+                    <li>Hire movers (storage unit → Seattle)</li>
+                    <li>Travel to Seattle (with pets)</li>
+                    <li>Move into Seattle rental</li>
+                    <li>Set up mail forwarding to Seattle</li>
+                    <li>Set up utilities at new place</li>
+                    <li>Update address with important accounts</li>
+                </ul>
+                <div class="nav-buttons">
+                    <button class="nav-btn" onclick="goToTab(7)">← Previous</button>
+                    <button class="nav-btn" onclick="goToTab(9)">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 9 -->
+        <div class="tab-content" data-tab="9">
+            <div class="section">
+                <h2><span class="step-number">9</span>Post-Closing Financials</h2>
+                <ul class="checklist">
+                    <li>Pay off all debts from proceeds</li>
+                    <li>Repay 401k loan (if taken)</li>
+                    <li>Cancel utilities at San Diego house</li>
+                    <li>Set up new bank accounts if needed</li>
+                    <li>Establish emergency fund</li>
+                </ul>
+                <div class="nav-buttons">
+                    <button class="nav-btn" onclick="goToTab(8)">← Previous</button>
+                    <button class="nav-btn" disabled>Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- NOTES (always visible) -->
+        <div class="section notes-section">
+            <h2>Notes & Thoughts</h2>
+            <p style="margin-bottom: 15px; color: #666;">Use this space to capture any additional thoughts, reminders, or details.</p>
+            <textarea placeholder="Add your notes here..."></textarea>
+        </div>
+
+        <!-- KEY REMINDERS (always visible) -->
+        <div class="section">
+            <h2>Key Reminders</h2>
+            <ul class="checklist">
+                <li>Two extremely fluffy dogs + senior cat need pet-friendly accommodations</li>
+                <li>House will be empty during showings = less stress, better presentation</li>
+                <li>You're nearby if any issues arise during sale</li>
+            </ul>
+        </div>
+
     </div>
-  </div>
 
-  <!-- MAIN APP -->
-  <div class="app-container" id="appContainer">
-    <header class="header">
-      <div class="header-content">
-        <div class="header-left">
-          <h1><span class="yarn-icon">🧶</span> Cozy Stitches</h1>
-        </div>
-        <div class="user-info">
-          <img class="user-avatar" id="userAvatar" src="" alt="Profile">
-          <span class="user-name" id="userName"></span>
-          <button class="logout-btn" id="logoutBtn">Sign Out</button>
-        </div>
-      </div>
-    </header>
+    <script>
+        // Tab switching functionality
+        function goToTab(tabNum) {
+            // Remove active from all tabs and content
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-    <nav class="nav">
-      <button class="nav-btn active" data-section="counter">🔢 Counter</button>
-      <button class="nav-btn" data-section="projects">📋 Projects</button>
-      <button class="nav-btn" data-section="patterns">📚 Patterns</button>
-      <button class="nav-btn" data-section="yarn">🧶 Yarn Stash</button>
-      <button class="nav-btn" data-section="learn">💡 Learn</button>
-    </nav>
+            // Add active to selected tab and content
+            document.querySelector(`.tab-btn[data-tab="${tabNum}"]`).classList.add('active');
+            document.querySelector(`.tab-content[data-tab="${tabNum}"]`).classList.add('active');
 
-    <main class="main">
-      <!-- STITCH COUNTER SECTION -->
-      <section id="counter" class="section active">
-        <div class="card">
-          <h2 class="card-title">🔢 Stitch Counter</h2>
-          <div class="counter-display">
-            <div class="counter-value" id="stitchCount">0</div>
-            <div class="counter-label">stitches</div>
-            <div class="counter-buttons">
-              <button class="counter-btn counter-btn-minus" id="decreaseStitch">−</button>
-              <button class="counter-btn counter-btn-plus" id="increaseStitch">+</button>
-            </div>
-          </div>
-
-          <div class="row-counter">
-            <div class="row-info">
-              <div class="row-stat">
-                <div class="row-stat-value" id="rowCount">0</div>
-                <div class="row-stat-label">rows completed</div>
-              </div>
-              <div class="row-stat">
-                <div class="row-stat-value" id="totalStitches">0</div>
-                <div class="row-stat-label">total stitches</div>
-              </div>
-            </div>
-            <div class="counter-buttons" style="margin-top: 1rem;">
-              <button class="btn btn-secondary" id="completeRow">✓ Complete Row</button>
-              <button class="btn btn-small btn-danger" id="resetCounter">Reset</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3 class="card-title">⚙️ Counter Settings</h3>
-          <div class="grid-2">
-            <div class="form-group">
-              <label>Stitches per row (goal)</label>
-              <input type="number" id="stitchesPerRow" value="20" min="1">
-            </div>
-            <div class="form-group">
-              <label>Sound on count</label>
-              <select id="soundEnabled">
-                <option value="true">On</option>
-                <option value="false">Off</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- PROJECTS SECTION -->
-      <section id="projects" class="section">
-        <div class="card">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-            <h2 class="card-title" style="margin-bottom: 0;">📋 My Projects</h2>
-            <button class="btn btn-primary" id="addProjectBtn">+ New Project</button>
-          </div>
-        </div>
-
-        <div class="grid-2" id="projectsGrid">
-          <!-- Projects will be added here dynamically -->
-        </div>
-
-        <div class="empty-state" id="noProjects">
-          <div class="empty-state-icon">🧵</div>
-          <h3>No projects yet</h3>
-          <p>Start your first crochet project and track your progress!</p>
-        </div>
-      </section>
-
-      <!-- PATTERNS SECTION -->
-      <section id="patterns" class="section">
-        <div class="card">
-          <h2 class="card-title">📚 Pattern Library</h2>
-          <div class="search-bar">
-            <input type="text" id="patternSearch" placeholder="Search patterns...">
-            <button class="btn btn-primary" id="addPatternBtn">+ Add Pattern</button>
-          </div>
-          <div class="filter-tags">
-            <button class="filter-tag active" data-filter="all">All</button>
-            <button class="filter-tag" data-filter="beginner">Beginner</button>
-            <button class="filter-tag" data-filter="intermediate">Intermediate</button>
-            <button class="filter-tag" data-filter="advanced">Advanced</button>
-            <button class="filter-tag" data-filter="amigurumi">Amigurumi</button>
-            <button class="filter-tag" data-filter="blanket">Blankets</button>
-            <button class="filter-tag" data-filter="wearable">Wearables</button>
-          </div>
-        </div>
-
-        <div class="grid-3" id="patternsGrid">
-          <!-- Patterns will be added here -->
-        </div>
-
-        <div class="empty-state" id="noPatterns" style="display: none;">
-          <div class="empty-state-icon">📖</div>
-          <h3>No patterns found</h3>
-          <p>Add your first pattern or adjust your search filters.</p>
-        </div>
-      </section>
-
-      <!-- YARN STASH SECTION -->
-      <section id="yarn" class="section">
-        <div class="card">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-            <h2 class="card-title" style="margin-bottom: 0;">🧶 My Yarn Stash</h2>
-            <button class="btn btn-primary" id="addYarnBtn">+ Add Yarn</button>
-          </div>
-        </div>
-
-        <div class="grid-3" id="yarnGrid">
-          <!-- Yarn will be added here dynamically -->
-        </div>
-
-        <div class="empty-state" id="noYarn">
-          <div class="empty-state-icon">🧶</div>
-          <h3>Your stash is empty</h3>
-          <p>Add your first yarn to start tracking your collection!</p>
-        </div>
-      </section>
-
-      <!-- LEARN SECTION -->
-      <section id="learn" class="section">
-        <div class="card">
-          <h2 class="card-title">💡 Stitch Guide</h2>
-          <p style="color: var(--warm-brown); margin-bottom: 1rem;">Reference guide for common crochet stitches</p>
-
-          <div class="stitch-guide">
-            <div class="stitch-icon">🔗</div>
-            <div class="stitch-info">
-              <h4>Chain <span class="stitch-abbr">ch</span></h4>
-              <p>The foundation stitch. Yarn over, pull through loop. Creates the base for most projects.</p>
-            </div>
-          </div>
-
-          <div class="stitch-guide">
-            <div class="stitch-icon">•</div>
-            <div class="stitch-info">
-              <h4>Slip Stitch <span class="stitch-abbr">sl st</span></h4>
-              <p>Insert hook, yarn over, pull through both loops. Used for joining and moving yarn.</p>
-            </div>
-          </div>
-
-          <div class="stitch-guide">
-            <div class="stitch-icon">─</div>
-            <div class="stitch-info">
-              <h4>Single Crochet <span class="stitch-abbr">sc</span></h4>
-              <p>Insert hook, yarn over, pull through, yarn over, pull through both loops. Creates tight, dense fabric.</p>
-            </div>
-          </div>
-
-          <div class="stitch-guide">
-            <div class="stitch-icon">╪</div>
-            <div class="stitch-info">
-              <h4>Half Double Crochet <span class="stitch-abbr">hdc</span></h4>
-              <p>Yarn over, insert hook, yarn over, pull through, yarn over, pull through all 3 loops.</p>
-            </div>
-          </div>
-
-          <div class="stitch-guide">
-            <div class="stitch-icon">╫</div>
-            <div class="stitch-info">
-              <h4>Double Crochet <span class="stitch-abbr">dc</span></h4>
-              <p>Yarn over, insert hook, yarn over, pull through, (yarn over, pull through 2) twice. Taller stitch, works up quickly.</p>
-            </div>
-          </div>
-
-          <div class="stitch-guide">
-            <div class="stitch-icon">╬</div>
-            <div class="stitch-info">
-              <h4>Treble Crochet <span class="stitch-abbr">tr</span></h4>
-              <p>Yarn over twice, insert hook, yarn over, pull through, (yarn over, pull through 2) three times.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2 class="card-title">✨ Tips & Tricks</h2>
-
-          <div class="tip-card">
-            <h4>💡 Tension Tip</h4>
-            <p>Consistent tension comes with practice! If your work is too tight, try holding the yarn more loosely. Too loose? Hold it a bit firmer. Everyone's natural tension is different.</p>
-          </div>
-
-          <div class="tip-card">
-            <h4>🧶 Yarn Weight Guide</h4>
-            <p>Fingering (1) → Sport (2) → DK (3) → Worsted (4) → Bulky (5) → Super Bulky (6). Always check your pattern for recommended weight!</p>
-          </div>
-
-          <div class="tip-card">
-            <h4>📏 Gauge Matters</h4>
-            <p>Always make a gauge swatch for wearables! A small difference in tension can mean the difference between a perfect fit and a project that's way off.</p>
-          </div>
-
-          <div class="tip-card">
-            <h4>🔄 Magic Ring</h4>
-            <p>For amigurumi and working in the round: the magic ring (magic circle) creates a closed center with no hole. Practice makes perfect!</p>
-          </div>
-
-          <div class="tip-card">
-            <h4>📌 Stitch Markers</h4>
-            <p>Use stitch markers to mark the first stitch of a round, pattern repeats, or increases. Even a piece of contrasting yarn works!</p>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2 class="card-title">🪝 Hook Size Reference</h2>
-          <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-              <thead>
-                <tr style="background: var(--soft-pink);">
-                  <th style="padding: 0.75rem; text-align: left; border-radius: 8px 0 0 0;">US Size</th>
-                  <th style="padding: 0.75rem; text-align: left;">Metric (mm)</th>
-                  <th style="padding: 0.75rem; text-align: left; border-radius: 0 8px 0 0;">Best For</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td style="padding: 0.5rem 0.75rem;">B/1</td><td>2.25mm</td><td>Lace, thread</td></tr>
-                <tr style="background: var(--cream);"><td style="padding: 0.5rem 0.75rem;">C/2</td><td>2.75mm</td><td>Lace, fine yarn</td></tr>
-                <tr><td style="padding: 0.5rem 0.75rem;">D/3</td><td>3.25mm</td><td>Fine yarn</td></tr>
-                <tr style="background: var(--cream);"><td style="padding: 0.5rem 0.75rem;">E/4</td><td>3.5mm</td><td>Light worsted</td></tr>
-                <tr><td style="padding: 0.5rem 0.75rem;">G/6</td><td>4.0mm</td><td>DK, light worsted</td></tr>
-                <tr style="background: var(--cream);"><td style="padding: 0.5rem 0.75rem;">H/8</td><td>5.0mm</td><td>Worsted</td></tr>
-                <tr><td style="padding: 0.5rem 0.75rem;">I/9</td><td>5.5mm</td><td>Worsted, aran</td></tr>
-                <tr style="background: var(--cream);"><td style="padding: 0.5rem 0.75rem;">J/10</td><td>6.0mm</td><td>Bulky</td></tr>
-                <tr><td style="padding: 0.5rem 0.75rem;">K/10.5</td><td>6.5mm</td><td>Bulky</td></tr>
-                <tr style="background: var(--cream);"><td style="padding: 0.5rem 0.75rem;">L/11</td><td>8.0mm</td><td>Super bulky</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <!-- Sync Indicator -->
-  <div class="sync-indicator" id="syncIndicator">
-    <span id="syncIcon">☁️</span>
-    <span id="syncText">Saved</span>
-  </div>
-
-  <!-- Add Project Modal -->
-  <div class="modal-overlay" id="projectModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h3>🧶 New Project</h3>
-        <button class="modal-close" id="closeProjectModal">&times;</button>
-      </div>
-      <form id="projectForm">
-        <div class="form-group">
-          <label>Project Name *</label>
-          <input type="text" id="projectName" required placeholder="e.g., Cozy Winter Blanket">
-        </div>
-        <div class="form-group">
-          <label>Pattern Name</label>
-          <input type="text" id="projectPattern" placeholder="e.g., Granny Square">
-        </div>
-        <div class="form-group">
-          <label>Yarn Used</label>
-          <input type="text" id="projectYarn" placeholder="e.g., Bernat Blanket in Vintage White">
-        </div>
-        <div class="form-group">
-          <label>Hook Size</label>
-          <input type="text" id="projectHook" placeholder="e.g., 5.0mm / H/8">
-        </div>
-        <div class="form-group">
-          <label>Status</label>
-          <select id="projectStatus">
-            <option value="active">In Progress</option>
-            <option value="paused">Paused</option>
-            <option value="completed">Completed</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Progress (%)</label>
-          <input type="number" id="projectProgress" min="0" max="100" value="0">
-        </div>
-        <div class="form-group">
-          <label>Notes</label>
-          <textarea id="projectNotes" placeholder="Any notes about your project..."></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Save Project</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Add Pattern Modal -->
-  <div class="modal-overlay" id="patternModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h3>📚 Add Pattern</h3>
-        <button class="modal-close" id="closePatternModal">&times;</button>
-      </div>
-      <form id="patternForm">
-        <div class="form-group">
-          <label>Pattern Name *</label>
-          <input type="text" id="patternName" required placeholder="e.g., Cozy Bear Amigurumi">
-        </div>
-        <div class="form-group">
-          <label>Difficulty</label>
-          <select id="patternDifficulty">
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Category</label>
-          <select id="patternCategory">
-            <option value="amigurumi">Amigurumi</option>
-            <option value="blanket">Blanket</option>
-            <option value="wearable">Wearable</option>
-            <option value="accessory">Accessory</option>
-            <option value="home">Home Decor</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Source / Link</label>
-          <input type="text" id="patternSource" placeholder="e.g., Ravelry link or book name">
-        </div>
-        <div class="form-group">
-          <label>Notes</label>
-          <textarea id="patternNotes" placeholder="Materials needed, modifications, etc."></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Save Pattern</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Add Yarn Modal -->
-  <div class="modal-overlay" id="yarnModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h3>🧶 Add Yarn</h3>
-        <button class="modal-close" id="closeYarnModal">&times;</button>
-      </div>
-      <form id="yarnForm">
-        <div class="form-group">
-          <label>Yarn Name / Color *</label>
-          <input type="text" id="yarnName" required placeholder="e.g., Sunset Orange">
-        </div>
-        <div class="form-group">
-          <label>Brand</label>
-          <input type="text" id="yarnBrand" placeholder="e.g., Lion Brand, Red Heart">
-        </div>
-        <div class="form-group">
-          <label>Color Preview</label>
-          <input type="color" id="yarnColorPicker" value="#C17767" style="height: 50px; cursor: pointer;">
-        </div>
-        <div class="form-group">
-          <label>Weight</label>
-          <select id="yarnWeight">
-            <option value="0">0 - Lace</option>
-            <option value="1">1 - Fingering</option>
-            <option value="2">2 - Sport</option>
-            <option value="3">3 - DK</option>
-            <option value="4" selected>4 - Worsted</option>
-            <option value="5">5 - Bulky</option>
-            <option value="6">6 - Super Bulky</option>
-            <option value="7">7 - Jumbo</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Fiber Content</label>
-          <input type="text" id="yarnFiber" placeholder="e.g., 100% Acrylic, Cotton Blend">
-        </div>
-        <div class="form-group">
-          <label>Quantity (skeins/balls)</label>
-          <input type="number" id="yarnQuantity" min="0" step="0.5" value="1">
-        </div>
-        <div class="form-group">
-          <label>Notes</label>
-          <textarea id="yarnNotes" placeholder="Dye lot, where purchased, project ideas..."></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Save Yarn</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-  <script>
-    // ===== FIREBASE CONFIG =====
-    const firebaseConfig = {
-      apiKey: "AIzaSyAQTuX4TdVmvq6GZAJW9n7qokY-05zEtOk",
-      authDomain: "crochetapp-43855.firebaseapp.com",
-      databaseURL: "https://crochetapp-43855-default-rtdb.firebaseio.com",
-      projectId: "crochetapp-43855",
-      storageBucket: "crochetapp-43855.firebasestorage.app",
-      messagingSenderId: "1069226922390",
-      appId: "1:1069226922390:web:95a27e62c1604fd0920db7",
-      measurementId: "G-VRDJKPS8ST"
-    };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    // ===== APP STATE =====
-    let currentUser = null;
-    let state = {
-      counter: {
-        stitches: 0,
-        rows: 0,
-        totalStitches: 0,
-        stitchesPerRow: 20,
-        soundEnabled: true
-      },
-      projects: [],
-      patterns: [],
-      yarn: []
-    };
-
-    // Debounce for saving
-    let saveTimeout = null;
-
-    // ===== AUTH FUNCTIONS =====
-    function signInWithGoogle() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider).catch(error => {
-        console.error('Sign in error:', error);
-        alert('Sign in failed. Please try again.');
-      });
-    }
-
-    function signOut() {
-      auth.signOut();
-    }
-
-    // Auth state listener
-    auth.onAuthStateChanged(user => {
-      currentUser = user;
-      if (user) {
-        showApp(user);
-        loadUserData();
-      } else {
-        showAuthScreen();
-      }
-    });
-
-    function showAuthScreen() {
-      document.getElementById('authScreen').style.display = 'flex';
-      document.getElementById('appContainer').classList.remove('active');
-    }
-
-    function showApp(user) {
-      document.getElementById('authScreen').style.display = 'none';
-      document.getElementById('appContainer').classList.add('active');
-      document.getElementById('userAvatar').src = user.photoURL || 'https://via.placeholder.com/40';
-      document.getElementById('userName').textContent = user.displayName || 'Crocheter';
-    }
-
-    // ===== FIRESTORE FUNCTIONS =====
-    async function loadUserData() {
-      if (!currentUser) return;
-
-      try {
-        const doc = await db.collection('users').doc(currentUser.uid).get();
-
-        if (doc.exists) {
-          const data = doc.data();
-          state = {
-            counter: data.counter || state.counter,
-            projects: data.projects || [],
-            patterns: data.patterns || [],
-            yarn: data.yarn || []
-          };
-        } else {
-          // First time user - add sample patterns
-          state.patterns = getSamplePatterns();
-          await saveUserData();
+            // Scroll to top of content
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Update UI with loaded data
-        updateCounterUI();
-        renderProjects();
-        renderPatterns('', 'all');
-        renderYarn();
-
-        showSyncIndicator('Synced', false);
-      } catch (error) {
-        console.error('Error loading data:', error);
-        showSyncIndicator('Sync error', true);
-      }
-    }
-
-    async function saveUserData() {
-      if (!currentUser) return;
-
-      // Debounce saves
-      if (saveTimeout) clearTimeout(saveTimeout);
-
-      saveTimeout = setTimeout(async () => {
-        try {
-          await db.collection('users').doc(currentUser.uid).set({
-            counter: state.counter,
-            projects: state.projects,
-            patterns: state.patterns,
-            yarn: state.yarn,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true });
-
-          showSyncIndicator('Saved', false);
-        } catch (error) {
-          console.error('Error saving data:', error);
-          showSyncIndicator('Save error', true);
-        }
-      }, 500);
-    }
-
-    function showSyncIndicator(text, isError) {
-      const indicator = document.getElementById('syncIndicator');
-      const icon = document.getElementById('syncIcon');
-      const textEl = document.getElementById('syncText');
-
-      icon.textContent = isError ? '⚠️' : '☁️';
-      textEl.textContent = text;
-      indicator.classList.toggle('error', isError);
-      indicator.classList.add('show');
-
-      setTimeout(() => {
-        indicator.classList.remove('show');
-      }, 2000);
-    }
-
-    function getSamplePatterns() {
-      return [
-        { id: 1, name: 'Simple Granny Square', difficulty: 'beginner', category: 'blanket', icon: '🔲', source: '', notes: '' },
-        { id: 2, name: 'Cozy Bear Amigurumi', difficulty: 'intermediate', category: 'amigurumi', icon: '🧸', source: '', notes: '' },
-        { id: 3, name: 'Chunky Beanie', difficulty: 'beginner', category: 'wearable', icon: '🧢', source: '', notes: '' },
-        { id: 4, name: 'Market Bag', difficulty: 'beginner', category: 'accessory', icon: '👜', source: '', notes: '' },
-        { id: 5, name: 'Cable Knit Scarf', difficulty: 'intermediate', category: 'wearable', icon: '🧣', source: '', notes: '' },
-        { id: 6, name: 'Sunflower Blanket', difficulty: 'advanced', category: 'blanket', icon: '🌻', source: '', notes: '' },
-        { id: 7, name: 'Baby Booties', difficulty: 'beginner', category: 'wearable', icon: '👶', source: '', notes: '' },
-        { id: 8, name: 'Octopus Amigurumi', difficulty: 'intermediate', category: 'amigurumi', icon: '🐙', source: '', notes: '' },
-        { id: 9, name: 'Coaster Set', difficulty: 'beginner', category: 'home', icon: '☕', source: '', notes: '' },
-      ];
-    }
-
-    // ===== NAVIGATION =====
-    function initNavigation() {
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const section = btn.dataset.section;
-          showSection(section);
+        // Add click listeners to tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabNum = this.getAttribute('data-tab');
+                goToTab(tabNum);
+            });
         });
-      });
-    }
-
-    function showSection(sectionId) {
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.section === sectionId);
-      });
-
-      document.querySelectorAll('.section').forEach(section => {
-        section.classList.toggle('active', section.id === sectionId);
-      });
-    }
-
-    // ===== STITCH COUNTER =====
-    function updateCounterUI() {
-      document.getElementById('stitchCount').textContent = state.counter.stitches;
-      document.getElementById('rowCount').textContent = state.counter.rows;
-      document.getElementById('totalStitches').textContent = state.counter.totalStitches;
-      document.getElementById('stitchesPerRow').value = state.counter.stitchesPerRow;
-      document.getElementById('soundEnabled').value = state.counter.soundEnabled.toString();
-    }
-
-    function initCounter() {
-      const stitchDisplay = document.getElementById('stitchCount');
-      const rowDisplay = document.getElementById('rowCount');
-      const totalDisplay = document.getElementById('totalStitches');
-      const stitchesPerRowInput = document.getElementById('stitchesPerRow');
-      const soundSelect = document.getElementById('soundEnabled');
-
-      function playClick() {
-        if (state.counter.soundEnabled) {
-          try {
-            const audio = new AudioContext();
-            const oscillator = audio.createOscillator();
-            const gainNode = audio.createGain();
-            oscillator.connect(gainNode);
-            gainNode.connect(audio.destination);
-            oscillator.frequency.value = 800;
-            oscillator.type = 'sine';
-            gainNode.gain.setValueAtTime(0.1, audio.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audio.currentTime + 0.1);
-            oscillator.start(audio.currentTime);
-            oscillator.stop(audio.currentTime + 0.1);
-          } catch (e) {}
-        }
-      }
-
-      document.getElementById('increaseStitch').addEventListener('click', () => {
-        state.counter.stitches++;
-        stitchDisplay.textContent = state.counter.stitches;
-        playClick();
-
-        if (state.counter.stitches >= state.counter.stitchesPerRow) {
-          stitchDisplay.style.color = 'var(--sage)';
-        } else {
-          stitchDisplay.style.color = 'var(--terracotta)';
-        }
-        saveUserData();
-      });
-
-      document.getElementById('decreaseStitch').addEventListener('click', () => {
-        if (state.counter.stitches > 0) {
-          state.counter.stitches--;
-          stitchDisplay.textContent = state.counter.stitches;
-          stitchDisplay.style.color = 'var(--terracotta)';
-          saveUserData();
-        }
-      });
-
-      document.getElementById('completeRow').addEventListener('click', () => {
-        if (state.counter.stitches > 0) {
-          state.counter.totalStitches += state.counter.stitches;
-          state.counter.rows++;
-          state.counter.stitches = 0;
-
-          stitchDisplay.textContent = '0';
-          rowDisplay.textContent = state.counter.rows;
-          totalDisplay.textContent = state.counter.totalStitches;
-          stitchDisplay.style.color = 'var(--terracotta)';
-
-          rowDisplay.style.transform = 'scale(1.2)';
-          setTimeout(() => rowDisplay.style.transform = 'scale(1)', 200);
-
-          saveUserData();
-        }
-      });
-
-      document.getElementById('resetCounter').addEventListener('click', () => {
-        if (confirm('Reset all counter values?')) {
-          state.counter.stitches = 0;
-          state.counter.rows = 0;
-          state.counter.totalStitches = 0;
-          stitchDisplay.textContent = '0';
-          rowDisplay.textContent = '0';
-          totalDisplay.textContent = '0';
-          stitchDisplay.style.color = 'var(--terracotta)';
-          saveUserData();
-        }
-      });
-
-      stitchesPerRowInput.addEventListener('change', () => {
-        state.counter.stitchesPerRow = parseInt(stitchesPerRowInput.value) || 20;
-        saveUserData();
-      });
-
-      soundSelect.addEventListener('change', () => {
-        state.counter.soundEnabled = soundSelect.value === 'true';
-        saveUserData();
-      });
-    }
-
-    // ===== PROJECTS =====
-    function initProjects() {
-      const modal = document.getElementById('projectModal');
-      const form = document.getElementById('projectForm');
-
-      document.getElementById('addProjectBtn').addEventListener('click', () => {
-        form.reset();
-        form.dataset.editId = '';
-        modal.classList.add('active');
-      });
-
-      document.getElementById('closeProjectModal').addEventListener('click', () => {
-        modal.classList.remove('active');
-      });
-
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.classList.remove('active');
-      });
-
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        const project = {
-          id: form.dataset.editId ? parseInt(form.dataset.editId) : Date.now(),
-          name: document.getElementById('projectName').value,
-          pattern: document.getElementById('projectPattern').value,
-          yarn: document.getElementById('projectYarn').value,
-          hook: document.getElementById('projectHook').value,
-          status: document.getElementById('projectStatus').value,
-          progress: parseInt(document.getElementById('projectProgress').value) || 0,
-          notes: document.getElementById('projectNotes').value,
-          createdAt: form.dataset.editId ? state.projects.find(p => p.id === parseInt(form.dataset.editId))?.createdAt : new Date().toISOString()
-        };
-
-        if (form.dataset.editId) {
-          const index = state.projects.findIndex(p => p.id === parseInt(form.dataset.editId));
-          state.projects[index] = project;
-        } else {
-          state.projects.push(project);
-        }
-
-        saveUserData();
-        renderProjects();
-        modal.classList.remove('active');
-      });
-    }
-
-    function renderProjects() {
-      const grid = document.getElementById('projectsGrid');
-      const emptyState = document.getElementById('noProjects');
-
-      if (state.projects.length === 0) {
-        grid.innerHTML = '';
-        emptyState.style.display = 'block';
-        return;
-      }
-
-      emptyState.style.display = 'none';
-      grid.innerHTML = state.projects.map(project => `
-        <div class="project-card">
-          <div class="project-header">
-            <div class="project-name">${escapeHtml(project.name)}</div>
-            <span class="project-status status-${project.status}">
-              ${project.status === 'active' ? '🔄 In Progress' : project.status === 'completed' ? '✅ Done' : '⏸️ Paused'}
-            </span>
-          </div>
-          ${project.pattern ? `<div class="project-meta">📖 ${escapeHtml(project.pattern)}</div>` : ''}
-          ${project.yarn ? `<div class="project-meta">🧶 ${escapeHtml(project.yarn)}</div>` : ''}
-          ${project.hook ? `<div class="project-meta">🪝 ${escapeHtml(project.hook)}</div>` : ''}
-          <div class="project-progress">
-            <div class="project-progress-bar" style="width: ${project.progress}%"></div>
-          </div>
-          <div style="font-size: 0.85rem; color: var(--warm-brown);">${project.progress}% complete</div>
-          <div class="project-actions">
-            <button class="btn btn-small btn-secondary" onclick="editProject(${project.id})">Edit</button>
-            <button class="btn btn-small btn-danger" onclick="deleteProject(${project.id})">Delete</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function editProject(id) {
-      const project = state.projects.find(p => p.id === id);
-      if (!project) return;
-
-      const form = document.getElementById('projectForm');
-      form.dataset.editId = id;
-      document.getElementById('projectName').value = project.name;
-      document.getElementById('projectPattern').value = project.pattern || '';
-      document.getElementById('projectYarn').value = project.yarn || '';
-      document.getElementById('projectHook').value = project.hook || '';
-      document.getElementById('projectStatus').value = project.status;
-      document.getElementById('projectProgress').value = project.progress;
-      document.getElementById('projectNotes').value = project.notes || '';
-
-      document.getElementById('projectModal').classList.add('active');
-    }
-
-    function deleteProject(id) {
-      if (confirm('Delete this project?')) {
-        state.projects = state.projects.filter(p => p.id !== id);
-        saveUserData();
-        renderProjects();
-      }
-    }
-
-    // ===== PATTERNS =====
-    let currentFilter = 'all';
-
-    function initPatterns() {
-      const modal = document.getElementById('patternModal');
-      const form = document.getElementById('patternForm');
-      const searchInput = document.getElementById('patternSearch');
-
-      document.getElementById('addPatternBtn').addEventListener('click', () => {
-        form.reset();
-        form.dataset.editId = '';
-        modal.classList.add('active');
-      });
-
-      document.getElementById('closePatternModal').addEventListener('click', () => {
-        modal.classList.remove('active');
-      });
-
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.classList.remove('active');
-      });
-
-      document.querySelectorAll('.filter-tag').forEach(tag => {
-        tag.addEventListener('click', () => {
-          document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
-          tag.classList.add('active');
-          currentFilter = tag.dataset.filter;
-          renderPatterns(searchInput.value, currentFilter);
-        });
-      });
-
-      searchInput.addEventListener('input', () => {
-        renderPatterns(searchInput.value, currentFilter);
-      });
-
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        const icons = ['🧶', '🧸', '🧣', '🧢', '👜', '🌻', '🐙', '☕', '🏠', '✨'];
-        const pattern = {
-          id: form.dataset.editId ? parseInt(form.dataset.editId) : Date.now(),
-          name: document.getElementById('patternName').value,
-          difficulty: document.getElementById('patternDifficulty').value,
-          category: document.getElementById('patternCategory').value,
-          source: document.getElementById('patternSource').value,
-          notes: document.getElementById('patternNotes').value,
-          icon: icons[Math.floor(Math.random() * icons.length)]
-        };
-
-        if (form.dataset.editId) {
-          const index = state.patterns.findIndex(p => p.id === parseInt(form.dataset.editId));
-          state.patterns[index] = { ...state.patterns[index], ...pattern };
-        } else {
-          state.patterns.push(pattern);
-        }
-
-        saveUserData();
-        renderPatterns(searchInput.value, currentFilter);
-        modal.classList.remove('active');
-      });
-    }
-
-    function renderPatterns(search = '', filter = 'all') {
-      const grid = document.getElementById('patternsGrid');
-      const emptyState = document.getElementById('noPatterns');
-
-      let filtered = state.patterns;
-
-      if (search) {
-        const term = search.toLowerCase();
-        filtered = filtered.filter(p =>
-          p.name.toLowerCase().includes(term) ||
-          p.category.toLowerCase().includes(term)
-        );
-      }
-
-      if (filter !== 'all') {
-        filtered = filtered.filter(p =>
-          p.difficulty === filter || p.category === filter
-        );
-      }
-
-      if (filtered.length === 0) {
-        grid.innerHTML = '';
-        emptyState.style.display = 'block';
-        return;
-      }
-
-      emptyState.style.display = 'none';
-      grid.innerHTML = filtered.map(pattern => {
-        const difficultyLevel = pattern.difficulty === 'beginner' ? 1 : pattern.difficulty === 'intermediate' ? 2 : 3;
-        return `
-          <div class="pattern-card" onclick="viewPattern(${pattern.id})">
-            <div class="pattern-image">${pattern.icon || '🧶'}</div>
-            <div class="pattern-info">
-              <div class="pattern-title">${escapeHtml(pattern.name)}</div>
-              <div class="pattern-difficulty">
-                ${pattern.difficulty.charAt(0).toUpperCase() + pattern.difficulty.slice(1)}
-                <span class="difficulty-dots">
-                  ${[1,2,3].map(i => `<span class="difficulty-dot ${i <= difficultyLevel ? 'filled' : ''}"></span>`).join('')}
-                </span>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function viewPattern(id) {
-      const pattern = state.patterns.find(p => p.id === id);
-      if (!pattern) return;
-
-      const details = [
-        `📖 ${pattern.name}`,
-        `⭐ Difficulty: ${pattern.difficulty}`,
-        `📁 Category: ${pattern.category}`,
-        pattern.source ? `🔗 Source: ${pattern.source}` : '',
-        pattern.notes ? `📝 Notes: ${pattern.notes}` : '',
-        '',
-        'Would you like to start a project with this pattern?'
-      ].filter(Boolean).join('\n');
-
-      if (confirm(details)) {
-        document.getElementById('projectName').value = `${pattern.name} Project`;
-        document.getElementById('projectPattern').value = pattern.name;
-        document.getElementById('projectModal').classList.add('active');
-        showSection('projects');
-      }
-    }
-
-    // ===== YARN STASH =====
-    function initYarn() {
-      const modal = document.getElementById('yarnModal');
-      const form = document.getElementById('yarnForm');
-
-      document.getElementById('addYarnBtn').addEventListener('click', () => {
-        form.reset();
-        form.dataset.editId = '';
-        document.getElementById('yarnColorPicker').value = '#C17767';
-        modal.classList.add('active');
-      });
-
-      document.getElementById('closeYarnModal').addEventListener('click', () => {
-        modal.classList.remove('active');
-      });
-
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.classList.remove('active');
-      });
-
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        const yarn = {
-          id: form.dataset.editId ? parseInt(form.dataset.editId) : Date.now(),
-          name: document.getElementById('yarnName').value,
-          brand: document.getElementById('yarnBrand').value,
-          color: document.getElementById('yarnColorPicker').value,
-          weight: document.getElementById('yarnWeight').value,
-          fiber: document.getElementById('yarnFiber').value,
-          quantity: parseFloat(document.getElementById('yarnQuantity').value) || 1,
-          notes: document.getElementById('yarnNotes').value,
-          createdAt: form.dataset.editId ? state.yarn.find(y => y.id === parseInt(form.dataset.editId))?.createdAt : new Date().toISOString()
-        };
-
-        if (form.dataset.editId) {
-          const index = state.yarn.findIndex(y => y.id === parseInt(form.dataset.editId));
-          state.yarn[index] = yarn;
-        } else {
-          state.yarn.push(yarn);
-        }
-
-        saveUserData();
-        renderYarn();
-        modal.classList.remove('active');
-      });
-    }
-
-    function getWeightLabel(weight) {
-      const labels = {
-        '0': 'Lace',
-        '1': 'Fingering',
-        '2': 'Sport',
-        '3': 'DK',
-        '4': 'Worsted',
-        '5': 'Bulky',
-        '6': 'Super Bulky',
-        '7': 'Jumbo'
-      };
-      return labels[weight] || 'Worsted';
-    }
-
-    function renderYarn() {
-      const grid = document.getElementById('yarnGrid');
-      const emptyState = document.getElementById('noYarn');
-
-      if (!state.yarn || state.yarn.length === 0) {
-        grid.innerHTML = '';
-        emptyState.style.display = 'block';
-        return;
-      }
-
-      emptyState.style.display = 'none';
-      grid.innerHTML = state.yarn.map(yarn => `
-        <div class="yarn-card">
-          <div class="yarn-color-swatch" style="background-color: ${yarn.color}"></div>
-          <div class="yarn-name">${escapeHtml(yarn.name)}</div>
-          ${yarn.brand ? `<div class="yarn-brand">${escapeHtml(yarn.brand)}</div>` : '<div class="yarn-brand" style="opacity:0.5">No brand</div>'}
-          <div class="yarn-details">
-            <span class="yarn-tag">${getWeightLabel(yarn.weight)}</span>
-            ${yarn.fiber ? `<span class="yarn-tag">${escapeHtml(yarn.fiber)}</span>` : ''}
-          </div>
-          <div class="yarn-quantity">
-            <span class="yarn-quantity-label">Quantity:</span>
-            <span class="yarn-quantity-value">${yarn.quantity} ${yarn.quantity === 1 ? 'skein' : 'skeins'}</span>
-          </div>
-          <div class="yarn-actions">
-            <button class="btn btn-small btn-secondary" onclick="editYarn(${yarn.id})">Edit</button>
-            <button class="btn btn-small btn-danger" onclick="deleteYarn(${yarn.id})">Remove</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function editYarn(id) {
-      const yarn = state.yarn.find(y => y.id === id);
-      if (!yarn) return;
-
-      const form = document.getElementById('yarnForm');
-      form.dataset.editId = id;
-      document.getElementById('yarnName').value = yarn.name;
-      document.getElementById('yarnBrand').value = yarn.brand || '';
-      document.getElementById('yarnColorPicker').value = yarn.color || '#C17767';
-      document.getElementById('yarnWeight').value = yarn.weight || '4';
-      document.getElementById('yarnFiber').value = yarn.fiber || '';
-      document.getElementById('yarnQuantity').value = yarn.quantity || 1;
-      document.getElementById('yarnNotes').value = yarn.notes || '';
-
-      document.getElementById('yarnModal').classList.add('active');
-    }
-
-    function deleteYarn(id) {
-      if (confirm('Remove this yarn from your stash?')) {
-        state.yarn = state.yarn.filter(y => y.id !== id);
-        saveUserData();
-        renderYarn();
-      }
-    }
-
-    // ===== HELPERS =====
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    // ===== INIT =====
-    document.addEventListener('DOMContentLoaded', () => {
-      // Auth buttons
-      document.getElementById('googleSignIn').addEventListener('click', signInWithGoogle);
-      document.getElementById('logoutBtn').addEventListener('click', signOut);
-
-      // Initialize UI components
-      initNavigation();
-      initCounter();
-      initProjects();
-      initPatterns();
-      initYarn();
-    });
-  </script>
+    </script>
 </body>
 </html>
