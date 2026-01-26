@@ -19,6 +19,44 @@ const initialData = {
       recommended: false
     }
   ],
+  realtorQuestions: [
+    {
+      id: 'q1',
+      question: 'How many homes in the $1.5M+ range have you sold in the last 12 months?',
+      idealAnswer: '5+ sales, bonus if they can show before/after pricing strategies',
+      answer: ''
+    },
+    {
+      id: 'q2',
+      question: 'What is your pricing strategy for homes at our value?',
+      idealAnswer: 'Data-backed comps, search-band psychology discussion, clear stance on under-pricing vs precision pricing',
+      answer: ''
+    },
+    {
+      id: 'q3',
+      question: 'What do you personally handle vs delegate?',
+      idealAnswer: 'Hands-on involvement at our price range, not just a brand name passing us off to assistants',
+      answer: ''
+    },
+    {
+      id: 'q4',
+      question: 'Does your firm offer a concierge program? What\'s included?',
+      idealAnswer: 'Budget/priority list options, realistic repair timeline (~1 month max), experience with concierge packages, won\'t exceed budget or eat into sale proceeds',
+      answer: ''
+    },
+    {
+      id: 'q5',
+      question: 'What experience do you have with remote/hands-off sales?',
+      idealAnswer: 'Weekly update cadence, digital signing capability, comfort managing without us present, could enable faster transition to Seattle',
+      answer: ''
+    },
+    {
+      id: 'q6',
+      question: 'What is your commission rate and is it negotiable?',
+      idealAnswer: 'Transparency, willingness to discuss - good realtors expect negotiation',
+      answer: ''
+    }
+  ],
   steps: {
     1: {
       title: 'Select Realtor',
@@ -226,6 +264,12 @@ function App() {
   const [addingRealtor, setAddingRealtor] = useState(false);
   const [newRealtorData, setNewRealtorData] = useState({ name: '', team: '', brokerage: '', phone: '', email: '', website: '', notes: '' });
   const [confirmDeleteRealtorId, setConfirmDeleteRealtorId] = useState(null);
+  // Realtor questions state
+  const [editingQuestionId, setEditingQuestionId] = useState(null);
+  const [editingQuestionData, setEditingQuestionData] = useState({});
+  const [addingQuestion, setAddingQuestion] = useState(false);
+  const [newQuestionData, setNewQuestionData] = useState({ question: '', idealAnswer: '', answer: '' });
+  const [confirmDeleteQuestionId, setConfirmDeleteQuestionId] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
@@ -697,6 +741,51 @@ function App() {
         realtor.recommended
       );
     }
+  };
+
+  // Realtor questions management functions
+  const addQuestion = () => {
+    if (!newQuestionData.question.trim()) return;
+    const newData = { ...data };
+    if (!newData.realtorQuestions) newData.realtorQuestions = [];
+    const newId = `q-${Date.now()}`;
+    newData.realtorQuestions.push({
+      id: newId,
+      question: newQuestionData.question.trim(),
+      idealAnswer: newQuestionData.idealAnswer.trim(),
+      answer: newQuestionData.answer.trim()
+    });
+    setData(newData);
+    saveData(newData);
+    addChangelogEntry('question_added', `Added realtor question`, null, newQuestionData.question.trim());
+    setAddingQuestion(false);
+    setNewQuestionData({ question: '', idealAnswer: '', answer: '' });
+  };
+
+  const updateQuestion = (questionId) => {
+    const newData = { ...data };
+    const question = newData.realtorQuestions?.find(q => q.id === questionId);
+    if (question) {
+      question.question = editingQuestionData.question?.trim() || question.question;
+      question.idealAnswer = editingQuestionData.idealAnswer?.trim() || '';
+      question.answer = editingQuestionData.answer?.trim() || '';
+      setData(newData);
+      saveData(newData);
+      addChangelogEntry('question_updated', `Updated realtor question`, null, question.question);
+    }
+    setEditingQuestionId(null);
+    setEditingQuestionData({});
+  };
+
+  const deleteQuestion = (questionId) => {
+    const newData = { ...data };
+    const question = newData.realtorQuestions?.find(q => q.id === questionId);
+    const deletedText = question?.question || '';
+    newData.realtorQuestions = newData.realtorQuestions?.filter(q => q.id !== questionId) || [];
+    setData(newData);
+    saveData(newData);
+    addChangelogEntry('question_deleted', `Removed realtor question`, deletedText, null);
+    setConfirmDeleteQuestionId(null);
   };
 
   const updateNotes = (notes) => {
@@ -1176,6 +1265,137 @@ function App() {
                         + Add Realtor
                       </button>
                     )}
+
+                    {/* Realtor Questions Section */}
+                    <div style={styles.questionsSection}>
+                      <h3 style={styles.questionsSectionTitle}>❓ Questions to Ask</h3>
+
+                      <div style={styles.questionsList}>
+                        {(data.realtorQuestions || []).map((q, index) => (
+                          <div key={q.id} style={styles.questionCard}>
+                            {editingQuestionId === q.id ? (
+                              // Edit Mode
+                              <div style={styles.questionEditForm}>
+                                <label style={styles.questionLabel}>Question:</label>
+                                <textarea
+                                  value={editingQuestionData.question || ''}
+                                  onChange={(e) => setEditingQuestionData({...editingQuestionData, question: e.target.value})}
+                                  style={styles.questionTextarea}
+                                  rows={2}
+                                />
+                                <label style={styles.questionLabel}>Ideal Answer / What to look for:</label>
+                                <textarea
+                                  value={editingQuestionData.idealAnswer || ''}
+                                  onChange={(e) => setEditingQuestionData({...editingQuestionData, idealAnswer: e.target.value})}
+                                  style={styles.questionTextarea}
+                                  rows={2}
+                                />
+                                <label style={styles.questionLabel}>Notes / Their Answer:</label>
+                                <textarea
+                                  value={editingQuestionData.answer || ''}
+                                  onChange={(e) => setEditingQuestionData({...editingQuestionData, answer: e.target.value})}
+                                  style={styles.questionTextarea}
+                                  rows={2}
+                                />
+                                <div style={styles.questionEditActions}>
+                                  <button style={styles.questionSaveBtn} onClick={() => updateQuestion(q.id)}>Save</button>
+                                  <button style={styles.questionCancelBtn} onClick={() => { setEditingQuestionId(null); setEditingQuestionData({}); }}>Cancel</button>
+                                </div>
+                              </div>
+                            ) : (
+                              // View Mode
+                              <>
+                                <div style={styles.questionHeader}>
+                                  <span style={styles.questionNumber}>{index + 1}</span>
+                                  <p style={styles.questionText}>{q.question}</p>
+                                </div>
+                                {q.idealAnswer && (
+                                  <div style={styles.idealAnswerBox}>
+                                    <span style={styles.idealAnswerLabel}>Look for:</span>
+                                    <p style={styles.idealAnswerText}>{q.idealAnswer}</p>
+                                  </div>
+                                )}
+                                {q.answer && (
+                                  <div style={styles.answerBox}>
+                                    <span style={styles.answerLabel}>Notes:</span>
+                                    <p style={styles.answerText}>{q.answer}</p>
+                                  </div>
+                                )}
+                                <div style={styles.questionActions}>
+                                  {confirmDeleteQuestionId === q.id ? (
+                                    <>
+                                      <span style={styles.confirmDeleteText}>Delete?</span>
+                                      <button style={styles.confirmYesBtn} onClick={() => deleteQuestion(q.id)}>Yes</button>
+                                      <button style={styles.confirmNoBtn} onClick={() => setConfirmDeleteQuestionId(null)}>No</button>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <button
+                                        style={styles.questionEditBtn}
+                                        onClick={() => { setEditingQuestionId(q.id); setEditingQuestionData({...q}); }}
+                                        title="Edit"
+                                      >
+                                        ✏️
+                                      </button>
+                                      <button
+                                        style={styles.questionDeleteBtn}
+                                        onClick={() => setConfirmDeleteQuestionId(q.id)}
+                                        title="Delete"
+                                      >
+                                        🗑️
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Add New Question */}
+                      {addingQuestion ? (
+                        <div style={styles.addQuestionForm}>
+                          <h4 style={styles.addQuestionTitle}>Add New Question</h4>
+                          <label style={styles.questionLabel}>Question:</label>
+                          <textarea
+                            value={newQuestionData.question}
+                            onChange={(e) => setNewQuestionData({...newQuestionData, question: e.target.value})}
+                            placeholder="What do you want to ask?"
+                            style={styles.questionTextarea}
+                            rows={2}
+                            autoFocus
+                          />
+                          <label style={styles.questionLabel}>Ideal Answer / What to look for:</label>
+                          <textarea
+                            value={newQuestionData.idealAnswer}
+                            onChange={(e) => setNewQuestionData({...newQuestionData, idealAnswer: e.target.value})}
+                            placeholder="What should a good answer include?"
+                            style={styles.questionTextarea}
+                            rows={2}
+                          />
+                          <div style={styles.questionEditActions}>
+                            <button
+                              style={styles.questionSaveBtn}
+                              onClick={addQuestion}
+                              disabled={!newQuestionData.question.trim()}
+                            >
+                              Add Question
+                            </button>
+                            <button
+                              style={styles.questionCancelBtn}
+                              onClick={() => { setAddingQuestion(false); setNewQuestionData({ question: '', idealAnswer: '', answer: '' }); }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button style={styles.addQuestionBtn} onClick={() => setAddingQuestion(true)}>
+                          + Add Question
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -2926,6 +3146,192 @@ const styles = {
     border: `1px solid ${colors.mist}`
   },
   addRealtorTitle: {
+    margin: '0 0 12px 0',
+    fontSize: '0.95rem',
+    fontWeight: '600',
+    color: colors.charcoal
+  },
+
+  // Realtor Questions Section
+  questionsSection: {
+    marginTop: '24px',
+    paddingTop: '20px',
+    borderTop: `2px solid ${colors.mist}`
+  },
+  questionsSectionTitle: {
+    fontSize: '1rem',
+    fontWeight: '600',
+    color: colors.charcoal,
+    marginBottom: '12px'
+  },
+  questionsList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px'
+  },
+  questionCard: {
+    background: 'white',
+    border: `1px solid ${colors.mist}`,
+    borderRadius: '10px',
+    padding: '14px',
+    position: 'relative'
+  },
+  questionHeader: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '10px'
+  },
+  questionNumber: {
+    background: colors.evergreen,
+    color: 'white',
+    width: '24px',
+    height: '24px',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '0.8rem',
+    fontWeight: '600',
+    flexShrink: 0
+  },
+  questionText: {
+    margin: 0,
+    fontSize: '0.95rem',
+    fontWeight: '600',
+    color: colors.charcoal,
+    lineHeight: '1.4'
+  },
+  idealAnswerBox: {
+    marginTop: '10px',
+    marginLeft: '34px',
+    padding: '10px',
+    background: colors.fog,
+    borderRadius: '6px',
+    borderLeft: `3px solid ${colors.sage}`
+  },
+  idealAnswerLabel: {
+    fontSize: '0.75rem',
+    fontWeight: '600',
+    color: colors.evergreen,
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px'
+  },
+  idealAnswerText: {
+    margin: '4px 0 0 0',
+    fontSize: '0.85rem',
+    color: colors.slate,
+    lineHeight: '1.4'
+  },
+  answerBox: {
+    marginTop: '10px',
+    marginLeft: '34px',
+    padding: '10px',
+    background: `${colors.skyBlue}22`,
+    borderRadius: '6px',
+    borderLeft: `3px solid ${colors.skyBlue}`
+  },
+  answerLabel: {
+    fontSize: '0.75rem',
+    fontWeight: '600',
+    color: colors.deepBlue,
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px'
+  },
+  answerText: {
+    margin: '4px 0 0 0',
+    fontSize: '0.85rem',
+    color: colors.charcoal,
+    lineHeight: '1.4'
+  },
+  questionActions: {
+    display: 'flex',
+    gap: '8px',
+    marginTop: '10px',
+    marginLeft: '34px'
+  },
+  questionEditBtn: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '0.85rem',
+    padding: '4px 8px',
+    borderRadius: '4px',
+    opacity: 0.6
+  },
+  questionDeleteBtn: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '0.85rem',
+    padding: '4px 8px',
+    borderRadius: '4px',
+    opacity: 0.6
+  },
+  questionEditForm: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px'
+  },
+  questionLabel: {
+    fontSize: '0.8rem',
+    fontWeight: '600',
+    color: colors.slate,
+    marginTop: '4px'
+  },
+  questionTextarea: {
+    padding: '10px 12px',
+    border: `1px solid ${colors.mist}`,
+    borderRadius: '6px',
+    fontSize: '0.9rem',
+    outline: 'none',
+    resize: 'vertical',
+    fontFamily: 'inherit'
+  },
+  questionEditActions: {
+    display: 'flex',
+    gap: '8px',
+    marginTop: '8px'
+  },
+  questionSaveBtn: {
+    padding: '8px 16px',
+    background: colors.evergreen,
+    color: 'white',
+    border: 'none',
+    borderRadius: '6px',
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    cursor: 'pointer'
+  },
+  questionCancelBtn: {
+    padding: '8px 16px',
+    background: colors.mist,
+    color: colors.charcoal,
+    border: 'none',
+    borderRadius: '6px',
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    cursor: 'pointer'
+  },
+  addQuestionBtn: {
+    width: '100%',
+    padding: '12px',
+    marginTop: '12px',
+    background: 'transparent',
+    border: `2px dashed ${colors.mist}`,
+    borderRadius: '8px',
+    color: colors.slate,
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    cursor: 'pointer'
+  },
+  addQuestionForm: {
+    marginTop: '12px',
+    padding: '16px',
+    background: colors.fog,
+    borderRadius: '10px',
+    border: `1px solid ${colors.mist}`
+  },
+  addQuestionTitle: {
     margin: '0 0 12px 0',
     fontSize: '0.95rem',
     fontWeight: '600',
