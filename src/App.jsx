@@ -12,13 +12,13 @@ const initialData = {
       description: 'Talk to realtor first to get real numbers for repair budget, timeline, and funding needs.',
       targetDate: '',
       items: [
-        { id: '1-1', text: '🔍 Research realtors experienced with remote/vacant home sales', done: false },
-        { id: '1-2', text: '🗣️ Interview candidates', done: false },
-        { id: '1-3', text: '🔎 Verify they will use their inspector before listing', done: false },
-        { id: '1-4', text: '📈 Confirm their strategy for maximizing home value', done: false },
-        { id: '1-5', text: '💵 Get realistic sale price estimate', done: false },
-        { id: '1-6', text: '🔧 Get repair recommendations and cost estimates', done: false },
-        { id: '1-7', text: '✍️ Sign listing agreement', done: false },
+        { id: '1-1', text: 'Research realtors experienced with remote/vacant home sales', done: false },
+        { id: '1-2', text: 'Interview candidates', done: false },
+        { id: '1-3', text: 'Verify they will use their inspector before listing', done: false },
+        { id: '1-4', text: 'Confirm their strategy for maximizing home value', done: false },
+        { id: '1-5', text: 'Get realistic sale price estimate', done: false },
+        { id: '1-6', text: 'Get repair recommendations and cost estimates', done: false },
+        { id: '1-7', text: 'Sign listing agreement', done: false },
       ]
     },
     2: {
@@ -26,10 +26,10 @@ const initialData = {
       description: 'Now that you have real numbers from the realtor, determine how much you need.',
       targetDate: '',
       items: [
-        { id: '2-1', text: '🧮 Calculate total needed (repairs + temp housing + moving + buffer)', done: false },
-        { id: '2-2', text: '💰 Decide on 401k loan amount (or Compass Concierge)', done: false },
-        { id: '2-3', text: '📝 Apply for and secure the loan', done: false },
-        { id: '2-4', text: '🏦 Open separate account to manage these funds', done: false },
+        { id: '2-1', text: 'Calculate total needed (repairs + temp housing + moving + buffer)', done: false },
+        { id: '2-2', text: 'Decide on 401k loan amount (or Compass Concierge)', done: false },
+        { id: '2-3', text: 'Apply for and secure the loan', done: false },
+        { id: '2-4', text: 'Open separate account to manage these funds', done: false },
       ]
     },
     3: {
@@ -37,21 +37,21 @@ const initialData = {
       description: 'Complete necessary repairs to maximize sale price.',
       targetDate: '',
       items: [
-        { id: '3-1', text: '💡 Fix garage exterior light (electrical issue)', done: false, category: 'must' },
-        { id: '3-2', text: '🔌 Install GFCI outlet in bathroom', done: false, category: 'must' },
-        { id: '3-3', text: '🚰 Unclog primary bathroom sink', done: false, category: 'must' },
-        { id: '3-4', text: '🚽 Sealant around toilet', done: false, category: 'must' },
-        { id: '3-5', text: '🚿 Reseal primary shower tile', done: false, category: 'must' },
-        { id: '3-6', text: '🚪 Secure side gate/fence corner', done: false, category: 'must' },
-        { id: '3-7', text: '💦 Pressure wash concrete, exterior, windows', done: false, category: 'high' },
-        { id: '3-8', text: '🧹 Professional carpet cleaning', done: false, category: 'high' },
-        { id: '3-9', text: '✨ Professional move-out cleaning', done: false, category: 'high' },
-        { id: '3-10', text: '💡 Replace bathroom light fixtures x3', done: false, category: 'high' },
-        { id: '3-11', text: '🪞 Replace mirrors (primary + guest)', done: false, category: 'high' },
-        { id: '3-12', text: '🎨 Patch and paint walls/baseboards', done: false, category: 'high' },
-        { id: '3-13', text: '🛁 Reface guest bathtub', done: false, category: 'high' },
-        { id: '3-14', text: '🌿 Weeds - spray/remove all', done: false, category: 'high' },
-        { id: '3-15', text: '🌱 Clean and deodorize turf', done: false, category: 'high' },
+        { id: '3-1', text: 'Fix garage exterior light (electrical issue)', done: false, category: 'must' },
+        { id: '3-2', text: 'Install GFCI outlet in bathroom', done: false, category: 'must' },
+        { id: '3-3', text: 'Unclog primary bathroom sink', done: false, category: 'must' },
+        { id: '3-4', text: 'Sealant around toilet', done: false, category: 'must' },
+        { id: '3-5', text: 'Reseal primary shower tile', done: false, category: 'must' },
+        { id: '3-6', text: 'Secure side gate/fence corner', done: false, category: 'must' },
+        { id: '3-7', text: 'Pressure wash concrete, exterior, windows', done: false, category: 'high' },
+        { id: '3-8', text: 'Professional carpet cleaning', done: false, category: 'high' },
+        { id: '3-9', text: 'Professional move-out cleaning', done: false, category: 'high' },
+        { id: '3-10', text: 'Replace bathroom light fixtures x3', done: false, category: 'high' },
+        { id: '3-11', text: 'Replace mirrors (primary + guest)', done: false, category: 'high' },
+        { id: '3-12', text: 'Patch and paint walls/baseboards', done: false, category: 'high' },
+        { id: '3-13', text: 'Reface guest bathtub', done: false, category: 'high' },
+        { id: '3-14', text: 'Weeds - spray/remove all', done: false, category: 'high' },
+        { id: '3-15', text: 'Clean and deodorize turf', done: false, category: 'high' },
       ]
     },
     4: {
@@ -59,11 +59,11 @@ const initialData = {
       description: 'Decide what to keep, sell, donate, or discard.',
       targetDate: '',
       items: [
-        { id: '4-1', text: '📦 Decide what goes to Seattle (storage unit)', done: false },
-        { id: '4-2', text: '🏷️ Sell items (Marketplace, OfferUp, etc.)', done: false },
-        { id: '4-3', text: '🎁 Donate items', done: false },
-        { id: '4-4', text: '🗑️ Discard/junk removal for bulky items', done: false },
-        { id: '4-5', text: '🚚 Move items for Seattle to storage unit', done: false },
+        { id: '4-1', text: 'Decide what goes to Seattle (storage unit)', done: false },
+        { id: '4-2', text: 'Sell items (Marketplace, OfferUp, etc.)', done: false },
+        { id: '4-3', text: 'Donate items', done: false },
+        { id: '4-4', text: 'Discard/junk removal for bulky items', done: false },
+        { id: '4-5', text: 'Move items for Seattle to storage unit', done: false },
       ]
     },
     5: {
@@ -71,10 +71,10 @@ const initialData = {
       description: 'Find pet-friendly short-term rental in San Diego area.',
       targetDate: '',
       items: [
-        { id: '5-1', text: '🔍 Research pet-friendly short-term rentals in San Diego area', done: false },
-        { id: '5-2', text: '🐕 Confirm availability and pricing (2 dogs + senior cat)', done: false },
-        { id: '5-3', text: '🏡 Secure the temporary rental', done: false },
-        { id: '5-4', text: '📅 Coordinate move-in date with house vacate date', done: false },
+        { id: '5-1', text: 'Research pet-friendly short-term rentals in San Diego area', done: false },
+        { id: '5-2', text: 'Confirm availability and pricing (2 dogs + senior cat)', done: false },
+        { id: '5-3', text: 'Secure the temporary rental', done: false },
+        { id: '5-4', text: 'Coordinate move-in date with house vacate date', done: false },
       ]
     },
     6: {
@@ -82,11 +82,11 @@ const initialData = {
       description: 'Leave the house empty and ready for showings.',
       targetDate: '',
       items: [
-        { id: '6-1', text: '🧹 Schedule professional carpet cleaning', done: false },
-        { id: '6-2', text: '✨ Schedule professional move-out cleaning', done: false },
-        { id: '6-3', text: '👀 Final walkthrough with realtor', done: false },
-        { id: '6-4', text: '🔑 Hand over keys / lockbox setup', done: false },
-        { id: '6-5', text: '🏠 Move into temporary San Diego rental', done: false },
+        { id: '6-1', text: 'Schedule professional carpet cleaning', done: false },
+        { id: '6-2', text: 'Schedule professional move-out cleaning', done: false },
+        { id: '6-3', text: 'Final walkthrough with realtor', done: false },
+        { id: '6-4', text: 'Hand over keys / lockbox setup', done: false },
+        { id: '6-5', text: 'Move into temporary San Diego rental', done: false },
       ]
     },
     7: {
@@ -94,14 +94,14 @@ const initialData = {
       description: 'Get the house on the market and close the sale.',
       targetDate: '',
       items: [
-        { id: '7-1', text: '🔎 Pre-listing inspection (realtor\'s inspector)', done: false },
-        { id: '7-2', text: '⚠️ Address any inspection surprises', done: false },
-        { id: '7-3', text: '📸 Professional photos / staging consultation', done: false },
-        { id: '7-4', text: '📋 List the house', done: false },
-        { id: '7-5', text: '🏠 Open houses / showings', done: false },
-        { id: '7-6', text: '📄 Review offers', done: false },
-        { id: '7-7', text: '🤝 Accept offer / enter escrow', done: false },
-        { id: '7-8', text: '🎉 Complete sale / close', done: false },
+        { id: '7-1', text: 'Pre-listing inspection (realtor\'s inspector)', done: false },
+        { id: '7-2', text: 'Address any inspection surprises', done: false },
+        { id: '7-3', text: 'Professional photos / staging consultation', done: false },
+        { id: '7-4', text: 'List the house', done: false },
+        { id: '7-5', text: 'Open houses / showings', done: false },
+        { id: '7-6', text: 'Review offers', done: false },
+        { id: '7-7', text: 'Accept offer / enter escrow', done: false },
+        { id: '7-8', text: 'Complete sale / close', done: false },
       ]
     },
     8: {
@@ -109,14 +109,14 @@ const initialData = {
       description: 'Make the big move to your new city!',
       targetDate: '',
       items: [
-        { id: '8-1', text: '🗺️ Research Seattle neighborhoods for long-term rental', done: false },
-        { id: '8-2', text: '🐾 Find pet-friendly rental in Seattle', done: false },
-        { id: '8-3', text: '🚛 Hire movers (storage unit → Seattle)', done: false },
-        { id: '8-4', text: '✈️ Travel to Seattle (with pets)', done: false },
-        { id: '8-5', text: '🏡 Move into Seattle rental', done: false },
-        { id: '8-6', text: '📬 Set up mail forwarding to Seattle', done: false },
-        { id: '8-7', text: '⚡ Set up utilities at new place', done: false },
-        { id: '8-8', text: '📝 Update address with important accounts', done: false },
+        { id: '8-1', text: 'Research Seattle neighborhoods for long-term rental', done: false },
+        { id: '8-2', text: 'Find pet-friendly rental in Seattle', done: false },
+        { id: '8-3', text: 'Hire movers (storage unit → Seattle)', done: false },
+        { id: '8-4', text: 'Travel to Seattle (with pets)', done: false },
+        { id: '8-5', text: 'Move into Seattle rental', done: false },
+        { id: '8-6', text: 'Set up mail forwarding to Seattle', done: false },
+        { id: '8-7', text: 'Set up utilities at new place', done: false },
+        { id: '8-8', text: 'Update address with important accounts', done: false },
       ]
     },
     9: {
@@ -124,11 +124,11 @@ const initialData = {
       description: 'Wrap up financial matters after the sale.',
       targetDate: '',
       items: [
-        { id: '9-1', text: '💳 Pay off all debts from proceeds', done: false },
-        { id: '9-2', text: '🔄 Repay 401k loan (if taken)', done: false },
-        { id: '9-3', text: '🔌 Cancel utilities at San Diego house', done: false },
-        { id: '9-4', text: '🏦 Set up new bank accounts if needed', done: false },
-        { id: '9-5', text: '🛡️ Establish emergency fund', done: false },
+        { id: '9-1', text: 'Pay off all debts from proceeds', done: false },
+        { id: '9-2', text: 'Repay 401k loan (if taken)', done: false },
+        { id: '9-3', text: 'Cancel utilities at San Diego house', done: false },
+        { id: '9-4', text: 'Set up new bank accounts if needed', done: false },
+        { id: '9-5', text: 'Establish emergency fund', done: false },
       ]
     }
   },
@@ -186,6 +186,13 @@ function App() {
   const [confirmDeleteNoteId, setConfirmDeleteNoteId] = useState(null);
   const [changelog, setChangelog] = useState([]);
   const [changelogLoading, setChangelogLoading] = useState(false);
+  // Checklist item editing/reordering state
+  const [editingItemId, setEditingItemId] = useState(null);
+  const [editItemText, setEditItemText] = useState('');
+  const [confirmDeleteItemId, setConfirmDeleteItemId] = useState(null);
+  const [draggedItemId, setDraggedItemId] = useState(null);
+  const [newItemStepId, setNewItemStepId] = useState(null);
+  const [newItemText, setNewItemText] = useState('');
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
@@ -257,6 +264,113 @@ function App() {
         item.done
       );
     }
+  };
+
+  // Update checklist item text
+  const updateItemText = (stepId, itemId) => {
+    if (!editItemText.trim()) return;
+    const newData = { ...data };
+    const item = newData.steps[stepId].items.find(i => i.id === itemId);
+    if (item && item.text !== editItemText.trim()) {
+      const oldText = item.text;
+      item.text = editItemText.trim();
+      setData(newData);
+      saveData(newData);
+      addChangelogEntry(
+        'item_edited',
+        `Edited task in "${newData.steps[stepId].title}"`,
+        oldText,
+        editItemText.trim()
+      );
+    }
+    setEditingItemId(null);
+    setEditItemText('');
+  };
+
+  // Add new checklist item
+  const addNewItem = (stepId) => {
+    if (!newItemText.trim()) return;
+    const newData = { ...data };
+    const newId = `${stepId}-${Date.now()}`;
+    newData.steps[stepId].items.push({
+      id: newId,
+      text: newItemText.trim(),
+      done: false
+    });
+    setData(newData);
+    saveData(newData);
+    addChangelogEntry(
+      'item_added',
+      `Added task to "${newData.steps[stepId].title}"`,
+      null,
+      newItemText.trim()
+    );
+    setNewItemStepId(null);
+    setNewItemText('');
+  };
+
+  // Delete checklist item
+  const deleteItem = (stepId, itemId) => {
+    const newData = { ...data };
+    const item = newData.steps[stepId].items.find(i => i.id === itemId);
+    const deletedText = item?.text || '';
+    newData.steps[stepId].items = newData.steps[stepId].items.filter(i => i.id !== itemId);
+    setData(newData);
+    saveData(newData);
+    addChangelogEntry(
+      'item_deleted',
+      `Deleted task from "${newData.steps[stepId].title}"`,
+      deletedText,
+      null
+    );
+    setConfirmDeleteItemId(null);
+  };
+
+  // Reorder checklist items via drag and drop
+  const handleDragStart = (e, itemId) => {
+    setDraggedItemId(itemId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e, stepId, targetItemId) => {
+    e.preventDefault();
+    if (!draggedItemId || draggedItemId === targetItemId) {
+      setDraggedItemId(null);
+      return;
+    }
+
+    const newData = { ...data };
+    const items = newData.steps[stepId].items;
+    const draggedIndex = items.findIndex(i => i.id === draggedItemId);
+    const targetIndex = items.findIndex(i => i.id === targetItemId);
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedItemId(null);
+      return;
+    }
+
+    // Remove dragged item and insert at target position
+    const [draggedItem] = items.splice(draggedIndex, 1);
+    items.splice(targetIndex, 0, draggedItem);
+
+    setData(newData);
+    saveData(newData);
+    addChangelogEntry(
+      'item_reordered',
+      `Reordered task "${draggedItem.text}" in "${newData.steps[stepId].title}"`,
+      `Position ${draggedIndex + 1}`,
+      `Position ${targetIndex + 1}`
+    );
+    setDraggedItemId(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItemId(null);
   };
 
 
@@ -566,28 +680,58 @@ function App() {
                 </div>
 
                 <ul style={styles.checklist}>
-                  {data.steps[activeStep].items.map(item => (
+                  {data.steps[activeStep].items.map((item, index) => (
                     <li
                       key={item.id}
                       className="checklist-item"
+                      draggable={editingItemId !== item.id}
+                      onDragStart={(e) => handleDragStart(e, item.id)}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(e, activeStep, item.id)}
+                      onDragEnd={handleDragEnd}
                       style={{
                         ...styles.checklistItem,
-                        ...(item.done ? styles.checklistItemDone : {})
+                        ...(item.done ? styles.checklistItemDone : {}),
+                        ...(draggedItemId === item.id ? styles.checklistItemDragging : {})
                       }}
-                      onClick={() => toggleItem(activeStep, item.id)}
                     >
+                      {/* Drag Handle */}
+                      <span style={styles.dragHandle} title="Drag to reorder">⋮⋮</span>
+
+                      {/* Checkbox */}
                       <span
                         className="checkbox"
                         style={item.done ? styles.checkboxDone : styles.checkbox}
+                        onClick={() => toggleItem(activeStep, item.id)}
                       >
                         {item.done ? '✓' : ''}
                       </span>
-                      <span
-                        className="checklist-text"
-                        style={item.done ? styles.checklistTextDone : styles.checklistText}
-                      >
-                        {item.text}
-                      </span>
+
+                      {/* Item Text or Edit Input */}
+                      {editingItemId === item.id ? (
+                        <div style={styles.itemEditForm}>
+                          <input
+                            type="text"
+                            value={editItemText}
+                            onChange={(e) => setEditItemText(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && updateItemText(activeStep, item.id)}
+                            onBlur={() => updateItemText(activeStep, item.id)}
+                            style={styles.itemEditInput}
+                            autoFocus
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      ) : (
+                        <span
+                          className="checklist-text"
+                          style={item.done ? styles.checklistTextDone : styles.checklistText}
+                          onClick={() => toggleItem(activeStep, item.id)}
+                        >
+                          {item.text}
+                        </span>
+                      )}
+
+                      {/* Category Badge */}
                       {item.category && (
                         <span
                           className="category-badge"
@@ -599,9 +743,84 @@ function App() {
                           {item.category === 'must' ? 'MUST' : 'HIGH'}
                         </span>
                       )}
+
+                      {/* Action Buttons */}
+                      {editingItemId !== item.id && (
+                        <div style={styles.itemActions}>
+                          {confirmDeleteItemId === item.id ? (
+                            <>
+                              <span style={styles.confirmDeleteText}>Delete?</span>
+                              <button
+                                style={styles.confirmYesBtn}
+                                onClick={(e) => { e.stopPropagation(); deleteItem(activeStep, item.id); }}
+                              >
+                                Yes
+                              </button>
+                              <button
+                                style={styles.confirmNoBtn}
+                                onClick={(e) => { e.stopPropagation(); setConfirmDeleteItemId(null); }}
+                              >
+                                No
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                style={styles.itemActionBtn}
+                                onClick={(e) => { e.stopPropagation(); setEditingItemId(item.id); setEditItemText(item.text); }}
+                                title="Edit"
+                              >
+                                ✏️
+                              </button>
+                              <button
+                                style={styles.itemActionBtn}
+                                onClick={(e) => { e.stopPropagation(); setConfirmDeleteItemId(item.id); }}
+                                title="Delete"
+                              >
+                                🗑️
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ul>
+
+                {/* Add New Item */}
+                {newItemStepId === activeStep ? (
+                  <div style={styles.addItemForm}>
+                    <input
+                      type="text"
+                      value={newItemText}
+                      onChange={(e) => setNewItemText(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && addNewItem(activeStep)}
+                      placeholder="Enter new task..."
+                      style={styles.addItemInput}
+                      autoFocus
+                    />
+                    <button
+                      style={styles.addItemSaveBtn}
+                      onClick={() => addNewItem(activeStep)}
+                      disabled={!newItemText.trim()}
+                    >
+                      Add
+                    </button>
+                    <button
+                      style={styles.addItemCancelBtn}
+                      onClick={() => { setNewItemStepId(null); setNewItemText(''); }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    style={styles.addItemBtn}
+                    onClick={() => setNewItemStepId(activeStep)}
+                  >
+                    + Add task
+                  </button>
+                )}
 
                 {/* Step Notes */}
                 <div style={styles.stepNotesSection}>
@@ -1032,7 +1251,11 @@ function App() {
                     notes_edit: '📝',
                     note_added: '➕',
                     note_edited: '✏️',
-                    note_deleted: '🗑️'
+                    note_deleted: '🗑️',
+                    item_added: '➕',
+                    item_edited: '✏️',
+                    item_deleted: '🗑️',
+                    item_reordered: '↕️'
                   };
                   const typeColors = {
                     task_toggle: colors.complete,
@@ -1041,7 +1264,11 @@ function App() {
                     notes_edit: colors.sage,
                     note_added: colors.forest,
                     note_edited: colors.duskBlue,
-                    note_deleted: colors.salmon
+                    note_deleted: colors.salmon,
+                    item_added: colors.forest,
+                    item_edited: colors.duskBlue,
+                    item_deleted: colors.salmon,
+                    item_reordered: colors.mountain
                   };
 
                   return (
@@ -1590,14 +1817,30 @@ const styles = {
   checklistItem: {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
+    gap: '8px',
     padding: '10px',
     borderRadius: '8px',
-    cursor: 'pointer',
-    transition: 'background 0.2s'
+    transition: 'all 0.2s',
+    background: 'white',
+    marginBottom: '6px',
+    border: `1px solid ${colors.mist}`
   },
   checklistItemDone: {
     opacity: 0.6
+  },
+  checklistItemDragging: {
+    opacity: 0.5,
+    background: colors.paleBlue,
+    border: `2px dashed ${colors.skyBlue}`
+  },
+  dragHandle: {
+    cursor: 'grab',
+    color: colors.rain,
+    fontSize: '0.9rem',
+    padding: '4px',
+    userSelect: 'none',
+    opacity: 0.5,
+    transition: 'opacity 0.2s'
   },
   checkbox: {
     width: '22px',
@@ -1642,6 +1885,84 @@ const styles = {
     color: 'white',
     fontWeight: 'bold',
     textTransform: 'uppercase'
+  },
+  itemActions: {
+    display: 'flex',
+    gap: '4px',
+    marginLeft: 'auto',
+    flexShrink: 0
+  },
+  itemActionBtn: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '0.85rem',
+    padding: '4px',
+    borderRadius: '4px',
+    transition: 'background 0.2s',
+    opacity: 0.6
+  },
+  itemEditForm: {
+    flex: 1,
+    display: 'flex'
+  },
+  itemEditInput: {
+    flex: 1,
+    padding: '8px 12px',
+    border: `2px solid ${colors.skyBlue}`,
+    borderRadius: '6px',
+    fontSize: '0.9rem',
+    outline: 'none'
+  },
+  addItemBtn: {
+    width: '100%',
+    padding: '12px',
+    marginTop: '8px',
+    background: 'transparent',
+    border: `2px dashed ${colors.mist}`,
+    borderRadius: '8px',
+    color: colors.slate,
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.2s'
+  },
+  addItemForm: {
+    display: 'flex',
+    gap: '8px',
+    marginTop: '8px',
+    padding: '12px',
+    background: colors.fog,
+    borderRadius: '8px',
+    border: `1px solid ${colors.mist}`
+  },
+  addItemInput: {
+    flex: 1,
+    padding: '10px 12px',
+    border: `1px solid ${colors.mist}`,
+    borderRadius: '6px',
+    fontSize: '0.9rem',
+    outline: 'none'
+  },
+  addItemSaveBtn: {
+    padding: '10px 16px',
+    background: `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`,
+    color: 'white',
+    border: 'none',
+    borderRadius: '6px',
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    cursor: 'pointer'
+  },
+  addItemCancelBtn: {
+    padding: '10px 16px',
+    background: colors.mist,
+    color: colors.slate,
+    border: 'none',
+    borderRadius: '6px',
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    cursor: 'pointer'
   },
 
   // Budget
