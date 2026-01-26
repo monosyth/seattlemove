@@ -824,24 +824,171 @@ function App() {
                     </span>
                     {data.steps[activeStep].title}
                   </h2>
-                  <span style={{
-                    ...styles.stepContentProgress,
-                    color: getStepProgress(activeStep) === 100 ? colors.complete : colors.evergreen
-                  }}>
-                    {data.steps[activeStep].items.filter(i => i.done).length}/{data.steps[activeStep].items.length} tasks
-                  </span>
+                  {activeStep !== '3' && (
+                    <span style={{
+                      ...styles.stepContentProgress,
+                      color: getStepProgress(activeStep) === 100 ? colors.complete : colors.evergreen
+                    }}>
+                      {data.steps[activeStep].items.filter(i => i.done).length}/{data.steps[activeStep].items.length} tasks
+                    </span>
+                  )}
                 </div>
                 <p style={styles.stepContentDesc}>{data.steps[activeStep].description}</p>
 
-                <div style={styles.stepProgressBar}>
-                  <div style={{
-                    ...styles.stepProgressFill,
-                    width: `${getStepProgress(activeStep)}%`,
-                    background: getStepProgress(activeStep) === 100 ? colors.complete : colors.sage
-                  }}></div>
-                </div>
+                {/* Special Repairs View for Step 3 */}
+                {activeStep === '3' ? (
+                  <div style={styles.repairsContainer}>
+                    {[
+                      { key: 'must', title: 'Must Do (Safety/Inspection)', color: colors.salmon },
+                      { key: 'high', title: 'High Impact (Buyers Notice)', color: colors.goldenHour },
+                      { key: 'nice', title: 'Nice to Have', color: colors.duskBlue }
+                    ].map(({ key, title, color }) => {
+                      const progress = getBudgetCategoryProgress(key);
+                      return (
+                        <div key={key} style={{...styles.repairSection, borderColor: color}}>
+                          <div style={{...styles.repairSectionHeader, background: color}}>
+                            <h4 style={styles.repairSectionTitle}>{title}</h4>
+                            <span style={styles.repairSectionProgress}>{progress.done}/{progress.total}</span>
+                          </div>
 
-                <ul style={styles.checklist}>
+                          <div style={styles.repairItemsList}>
+                            {data.budget[key].map(item => (
+                              <div
+                                key={item.id}
+                                draggable={editingBudgetItemId !== item.id}
+                                onDragStart={(e) => handleBudgetDragStart(e, item.id)}
+                                onDragOver={(e) => handleBudgetDragOver(e, item.id)}
+                                onDragLeave={handleBudgetDragLeave}
+                                onDrop={(e) => handleBudgetDrop(e, key, item.id)}
+                                onDragEnd={handleBudgetDragEnd}
+                                style={{
+                                  ...styles.repairItem,
+                                  ...(item.done ? styles.repairItemDone : {}),
+                                  ...(draggedBudgetItemId === item.id ? styles.repairItemDragging : {}),
+                                  ...(dragOverBudgetItemId === item.id && draggedBudgetItemId !== item.id ? styles.repairItemDropTarget : {})
+                                }}
+                              >
+                                <span style={styles.dragHandle} title="Drag to reorder">⋮⋮</span>
+
+                                <span
+                                  style={item.done ? styles.checkboxDone : styles.checkbox}
+                                  onClick={() => toggleBudgetItem(key, item.id)}
+                                >
+                                  {item.done ? '✓' : ''}
+                                </span>
+
+                                {editingBudgetItemId === item.id ? (
+                                  <div style={styles.itemEditForm}>
+                                    <input
+                                      type="text"
+                                      value={editBudgetItemText}
+                                      onChange={(e) => setEditBudgetItemText(e.target.value)}
+                                      onKeyPress={(e) => e.key === 'Enter' && updateBudgetItemText(key, item.id)}
+                                      onBlur={() => updateBudgetItemText(key, item.id)}
+                                      style={styles.itemEditInput}
+                                      autoFocus
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
+                                  </div>
+                                ) : (
+                                  <span
+                                    style={item.done ? styles.repairItemTextDone : styles.repairItemText}
+                                    onClick={() => toggleBudgetItem(key, item.id)}
+                                  >
+                                    {item.item}
+                                  </span>
+                                )}
+
+                                {editingBudgetItemId !== item.id && (
+                                  <div style={styles.itemActions}>
+                                    {confirmDeleteBudgetItemId === item.id ? (
+                                      <>
+                                        <span style={styles.confirmDeleteText}>Delete?</span>
+                                        <button
+                                          style={styles.confirmYesBtn}
+                                          onClick={(e) => { e.stopPropagation(); deleteBudgetItem(key, item.id); }}
+                                        >
+                                          Yes
+                                        </button>
+                                        <button
+                                          style={styles.confirmNoBtn}
+                                          onClick={(e) => { e.stopPropagation(); setConfirmDeleteBudgetItemId(null); }}
+                                        >
+                                          No
+                                        </button>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <button
+                                          style={styles.itemActionBtn}
+                                          onClick={(e) => { e.stopPropagation(); setEditingBudgetItemId(item.id); setEditBudgetItemText(item.item); }}
+                                          title="Edit"
+                                        >
+                                          ✏️
+                                        </button>
+                                        <button
+                                          style={styles.itemActionBtn}
+                                          onClick={(e) => { e.stopPropagation(); setConfirmDeleteBudgetItemId(item.id); }}
+                                          title="Delete"
+                                        >
+                                          🗑️
+                                        </button>
+                                      </>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+
+                          {newBudgetItemCategory === key ? (
+                            <div style={styles.addRepairItemForm}>
+                              <input
+                                type="text"
+                                value={newBudgetItemText}
+                                onChange={(e) => setNewBudgetItemText(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && addNewBudgetItem(key)}
+                                placeholder="Enter new repair item..."
+                                style={styles.addItemInput}
+                                autoFocus
+                              />
+                              <button
+                                style={styles.addItemSaveBtn}
+                                onClick={() => addNewBudgetItem(key)}
+                                disabled={!newBudgetItemText.trim()}
+                              >
+                                Add
+                              </button>
+                              <button
+                                style={styles.addItemCancelBtn}
+                                onClick={() => { setNewBudgetItemCategory(null); setNewBudgetItemText(''); }}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              style={styles.addRepairItemBtn}
+                              onClick={() => setNewBudgetItemCategory(key)}
+                            >
+                              + Add repair
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <>
+                    <div style={styles.stepProgressBar}>
+                      <div style={{
+                        ...styles.stepProgressFill,
+                        width: `${getStepProgress(activeStep)}%`,
+                        background: getStepProgress(activeStep) === 100 ? colors.complete : colors.sage
+                      }}></div>
+                    </div>
+
+                    <ul style={styles.checklist}>
                   {data.steps[activeStep].items.map((item, index) => (
                     <li
                       key={item.id}
@@ -985,6 +1132,8 @@ function App() {
                     + Add task
                   </button>
                 )}
+                  </>
+                )}
 
                 {/* Step Notes */}
                 <div style={styles.stepNotesSection}>
@@ -1119,197 +1268,149 @@ function App() {
           <div style={styles.budgetContainer}>
             {/* Budget Summary Card */}
             <div style={styles.budgetSummary}>
-              <h3 style={styles.budgetSummaryTitle}>Budget & Repairs Summary</h3>
+              <h3 style={styles.budgetSummaryTitle}>💰 Project Budget Overview</h3>
               <div style={styles.budgetSummaryGrid}>
                 {[
-                  { key: 'must', label: 'Must Do', color: colors.salmon },
-                  { key: 'high', label: 'High Impact', color: colors.goldenHour },
+                  { key: 'must', label: 'Must Do Repairs', color: colors.salmon },
+                  { key: 'high', label: 'High Impact Repairs', color: colors.goldenHour },
                   { key: 'nice', label: 'Nice to Have', color: colors.duskBlue },
                   { key: 'other', label: 'Moving & Housing', color: colors.deepBlue }
-                ].map(({ key, label, color }) => {
-                  const progress = getBudgetCategoryProgress(key);
-                  return (
-                    <div key={key} style={styles.summaryItem}>
-                      <div style={{ ...styles.summaryDot, background: color }}></div>
-                      <div style={styles.summaryDetails}>
-                        <span style={styles.summaryLabel}>{label}</span>
-                        <span style={styles.summaryProgress}>{progress.done}/{progress.total} done</span>
-                      </div>
-                      <span style={styles.summaryValue}>${getBudgetTotal(key).toLocaleString()}</span>
-                    </div>
-                  );
-                })}
+                ].map(({ key, label, color }) => (
+                  <div key={key} style={styles.summaryItem}>
+                    <div style={{ ...styles.summaryDot, background: color }}></div>
+                    <span style={styles.summaryLabel}>{label}</span>
+                    <span style={styles.summaryValue}>${getBudgetTotal(key).toLocaleString()}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Budget Sections */}
+            {/* Budget Sections - Clean table view for cost tracking */}
             {[
-              { key: 'must', title: 'Must Do (Safety/Inspection)', color: colors.salmon },
-              { key: 'high', title: 'High Impact (Buyers Notice)', color: colors.goldenHour },
-              { key: 'nice', title: 'Nice to Have', color: colors.duskBlue },
-              { key: 'other', title: 'Moving & Housing Costs', color: colors.deepBlue }
-            ].map(({ key, title, color }) => {
-              const progress = getBudgetCategoryProgress(key);
-              return (
-                <div key={key} className="budget-section" style={{...styles.budgetSection, borderColor: color}}>
-                  <div style={{...styles.budgetTitle, background: color}}>
+              { key: 'must', title: '🔧 Must Do Repairs', color: colors.salmon, desc: 'Safety & inspection requirements' },
+              { key: 'high', title: '✨ High Impact Repairs', color: colors.goldenHour, desc: 'Improvements buyers notice' },
+              { key: 'nice', title: '💫 Nice to Have', color: colors.duskBlue, desc: 'Optional improvements' },
+              { key: 'other', title: '🚚 Moving & Housing Costs', color: colors.deepBlue, desc: 'Temporary housing, movers, storage, etc.' }
+            ].map(({ key, title, color, desc }) => (
+              <div key={key} className="budget-section" style={{...styles.budgetSection, borderColor: color}}>
+                <div style={{...styles.budgetTitle, background: color}}>
+                  <div>
                     <h3 style={styles.budgetTitleText}>{title}</h3>
-                    <span style={styles.budgetTitleProgress}>{progress.done}/{progress.total}</span>
+                    <p style={styles.budgetTitleDesc}>{desc}</p>
                   </div>
+                  <span style={styles.budgetTitleTotal}>${getBudgetTotal(key).toLocaleString()}</span>
+                </div>
 
-                  <div style={styles.budgetItemsList}>
+                <table style={styles.budgetTable}>
+                  <thead>
+                    <tr>
+                      <th style={styles.budgetTh}>Item</th>
+                      <th style={{...styles.budgetTh, width: '120px', textAlign: 'right'}}>Cost</th>
+                      <th style={{...styles.budgetTh, width: '80px', textAlign: 'center'}}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
                     {data.budget[key].map(item => (
-                      <div
-                        key={item.id}
-                        draggable={editingBudgetItemId !== item.id}
-                        onDragStart={(e) => handleBudgetDragStart(e, item.id)}
-                        onDragOver={(e) => handleBudgetDragOver(e, item.id)}
-                        onDragLeave={handleBudgetDragLeave}
-                        onDrop={(e) => handleBudgetDrop(e, key, item.id)}
-                        onDragEnd={handleBudgetDragEnd}
-                        style={{
-                          ...styles.budgetItem,
-                          ...(item.done ? styles.budgetItemDone : {}),
-                          ...(draggedBudgetItemId === item.id ? styles.budgetItemDragging : {}),
-                          ...(dragOverBudgetItemId === item.id && draggedBudgetItemId !== item.id ? styles.budgetItemDropTarget : {})
-                        }}
-                      >
-                        {/* Drag Handle */}
-                        <span style={styles.dragHandle} title="Drag to reorder">⋮⋮</span>
-
-                        {/* Checkbox */}
-                        <span
-                          style={item.done ? styles.checkboxDone : styles.checkbox}
-                          onClick={() => toggleBudgetItem(key, item.id)}
-                        >
-                          {item.done ? '✓' : ''}
-                        </span>
-
-                        {/* Item Text or Edit Input */}
-                        {editingBudgetItemId === item.id ? (
-                          <div style={styles.budgetItemEditForm}>
+                      <tr key={item.id} style={item.done ? styles.budgetRowDone : {}}>
+                        <td style={styles.budgetTd}>
+                          {editingBudgetItemId === item.id ? (
                             <input
                               type="text"
                               value={editBudgetItemText}
                               onChange={(e) => setEditBudgetItemText(e.target.value)}
                               onKeyPress={(e) => e.key === 'Enter' && updateBudgetItemText(key, item.id)}
                               onBlur={() => updateBudgetItemText(key, item.id)}
-                              style={styles.itemEditInput}
+                              style={styles.budgetTableInput}
                               autoFocus
-                              onClick={(e) => e.stopPropagation()}
+                            />
+                          ) : (
+                            <span style={item.done ? styles.budgetItemNameDone : styles.budgetItemName}>
+                              {item.done && <span style={styles.budgetDoneCheck}>✓</span>}
+                              {item.item}
+                            </span>
+                          )}
+                        </td>
+                        <td style={{...styles.budgetTd, textAlign: 'right'}}>
+                          <div style={styles.costInputWrapper}>
+                            <span style={styles.dollarSign}>$</span>
+                            <input
+                              type="number"
+                              value={item.cost}
+                              onChange={(e) => updateBudgetCost(key, item.id, e.target.value)}
+                              placeholder="0"
+                              style={styles.costField}
                             />
                           </div>
-                        ) : (
-                          <span
-                            style={item.done ? styles.budgetItemTextDone : styles.budgetItemText}
-                            onClick={() => toggleBudgetItem(key, item.id)}
-                          >
-                            {item.item}
-                          </span>
-                        )}
-
-                        {/* Cost Input */}
-                        <div style={styles.budgetCostWrapper}>
-                          <span style={styles.dollarSign}>$</span>
-                          <input
-                            type="number"
-                            value={item.cost}
-                            onChange={(e) => updateBudgetCost(key, item.id, e.target.value)}
-                            placeholder="0"
-                            style={styles.costField}
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        </div>
-
-                        {/* Action Buttons */}
-                        {editingBudgetItemId !== item.id && (
-                          <div style={styles.budgetItemActions}>
-                            {confirmDeleteBudgetItemId === item.id ? (
-                              <>
-                                <span style={styles.confirmDeleteText}>Delete?</span>
-                                <button
-                                  style={styles.confirmYesBtn}
-                                  onClick={(e) => { e.stopPropagation(); deleteBudgetItem(key, item.id); }}
-                                >
-                                  Yes
-                                </button>
-                                <button
-                                  style={styles.confirmNoBtn}
-                                  onClick={(e) => { e.stopPropagation(); setConfirmDeleteBudgetItemId(null); }}
-                                >
-                                  No
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <button
-                                  style={styles.itemActionBtn}
-                                  onClick={(e) => { e.stopPropagation(); setEditingBudgetItemId(item.id); setEditBudgetItemText(item.item); }}
-                                  title="Edit"
-                                >
-                                  ✏️
-                                </button>
-                                <button
-                                  style={styles.itemActionBtn}
-                                  onClick={(e) => { e.stopPropagation(); setConfirmDeleteBudgetItemId(item.id); }}
-                                  title="Delete"
-                                >
-                                  🗑️
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                        </td>
+                        <td style={{...styles.budgetTd, textAlign: 'center'}}>
+                          {confirmDeleteBudgetItemId === item.id ? (
+                            <div style={styles.budgetTableActions}>
+                              <button style={styles.confirmYesBtn} onClick={() => deleteBudgetItem(key, item.id)}>Yes</button>
+                              <button style={styles.confirmNoBtn} onClick={() => setConfirmDeleteBudgetItemId(null)}>No</button>
+                            </div>
+                          ) : (
+                            <div style={styles.budgetTableActions}>
+                              <button
+                                style={styles.budgetTableBtn}
+                                onClick={() => { setEditingBudgetItemId(item.id); setEditBudgetItemText(item.item); }}
+                                title="Edit"
+                              >
+                                ✏️
+                              </button>
+                              <button
+                                style={styles.budgetTableBtn}
+                                onClick={() => setConfirmDeleteBudgetItemId(item.id)}
+                                title="Delete"
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
                     ))}
-                  </div>
+                  </tbody>
+                </table>
 
-                  {/* Add New Item */}
-                  {newBudgetItemCategory === key ? (
-                    <div style={styles.addItemForm}>
-                      <input
-                        type="text"
-                        value={newBudgetItemText}
-                        onChange={(e) => setNewBudgetItemText(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && addNewBudgetItem(key)}
-                        placeholder="Enter new item..."
-                        style={styles.addItemInput}
-                        autoFocus
-                      />
-                      <button
-                        style={styles.addItemSaveBtn}
-                        onClick={() => addNewBudgetItem(key)}
-                        disabled={!newBudgetItemText.trim()}
-                      >
-                        Add
-                      </button>
-                      <button
-                        style={styles.addItemCancelBtn}
-                        onClick={() => { setNewBudgetItemCategory(null); setNewBudgetItemText(''); }}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  ) : (
+                {/* Add New Item */}
+                {newBudgetItemCategory === key ? (
+                  <div style={styles.addBudgetRowForm}>
+                    <input
+                      type="text"
+                      value={newBudgetItemText}
+                      onChange={(e) => setNewBudgetItemText(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && addNewBudgetItem(key)}
+                      placeholder="Enter item name..."
+                      style={styles.addBudgetInput}
+                      autoFocus
+                    />
                     <button
-                      style={styles.addBudgetItemBtn}
-                      onClick={() => setNewBudgetItemCategory(key)}
+                      style={styles.addItemSaveBtn}
+                      onClick={() => addNewBudgetItem(key)}
+                      disabled={!newBudgetItemText.trim()}
                     >
-                      + Add item
+                      Add
                     </button>
-                  )}
-
-                  {/* Subtotal */}
-                  <div style={styles.budgetSubtotal}>
-                    <span>Subtotal</span>
-                    <span style={styles.budgetSubtotalAmount}>${getBudgetTotal(key).toLocaleString()}</span>
+                    <button
+                      style={styles.addItemCancelBtn}
+                      onClick={() => { setNewBudgetItemCategory(null); setNewBudgetItemText(''); }}
+                    >
+                      Cancel
+                    </button>
                   </div>
-                </div>
-              );
-            })}
+                ) : (
+                  <button
+                    style={styles.addBudgetItemBtn}
+                    onClick={() => setNewBudgetItemCategory(key)}
+                  >
+                    + Add line item
+                  </button>
+                )}
+              </div>
+            ))}
 
             <div className="grand-total" style={styles.grandTotal}>
-              <span>GRAND TOTAL</span>
+              <span>TOTAL PROJECT BUDGET</span>
               <span className="grand-total-amount" style={styles.grandTotalAmount}>
                 ${getGrandTotal().toLocaleString()}
               </span>
@@ -2272,6 +2373,95 @@ const styles = {
     cursor: 'pointer'
   },
 
+  // Repairs Section (Step 3)
+  repairsContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px'
+  },
+  repairSection: {
+    borderRadius: '10px',
+    border: '2px solid',
+    overflow: 'hidden',
+    background: 'white'
+  },
+  repairSectionHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '10px 14px',
+    color: 'white'
+  },
+  repairSectionTitle: {
+    margin: 0,
+    fontSize: '0.9rem',
+    fontWeight: '600'
+  },
+  repairSectionProgress: {
+    fontSize: '0.8rem',
+    opacity: 0.9
+  },
+  repairItemsList: {
+    padding: '10px'
+  },
+  repairItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '8px 10px',
+    borderRadius: '6px',
+    transition: 'all 0.2s',
+    background: colors.fog,
+    marginBottom: '6px',
+    border: `1px solid ${colors.mist}`
+  },
+  repairItemDone: {
+    opacity: 0.6
+  },
+  repairItemDragging: {
+    opacity: 0.4,
+    background: colors.paleBlue,
+    border: `2px dashed ${colors.slate}`,
+    transform: 'scale(0.98)'
+  },
+  repairItemDropTarget: {
+    borderTop: `3px solid ${colors.evergreen}`,
+    background: `linear-gradient(180deg, ${colors.mist}40 0%, ${colors.fog} 20%)`,
+    transform: 'translateY(2px)'
+  },
+  repairItemText: {
+    flex: 1,
+    color: colors.mountain,
+    fontSize: '0.85rem',
+    cursor: 'pointer'
+  },
+  repairItemTextDone: {
+    flex: 1,
+    color: colors.rain,
+    textDecoration: 'line-through',
+    fontSize: '0.85rem',
+    cursor: 'pointer'
+  },
+  addRepairItemForm: {
+    display: 'flex',
+    gap: '8px',
+    padding: '10px',
+    background: colors.fog,
+    borderTop: `1px solid ${colors.mist}`
+  },
+  addRepairItemBtn: {
+    margin: '0 10px 10px 10px',
+    padding: '8px',
+    background: 'transparent',
+    border: `2px dashed ${colors.mist}`,
+    borderRadius: '6px',
+    color: colors.slate,
+    fontSize: '0.8rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.2s'
+  },
+
   // Budget
   budgetContainer: {},
   budgetSummary: {
@@ -2346,9 +2536,92 @@ const styles = {
     fontSize: '0.95rem',
     fontWeight: '600'
   },
-  budgetTitleProgress: {
+  budgetTitleDesc: {
+    margin: '4px 0 0 0',
+    fontSize: '0.75rem',
+    opacity: 0.85
+  },
+  budgetTitleTotal: {
+    fontSize: '1.2rem',
+    fontWeight: 'bold'
+  },
+  budgetTable: {
+    width: '100%',
+    borderCollapse: 'collapse'
+  },
+  budgetTh: {
+    textAlign: 'left',
+    padding: '12px 16px',
+    background: colors.fog,
+    fontWeight: '600',
     fontSize: '0.8rem',
-    opacity: 0.9
+    color: colors.forest,
+    borderBottom: `1px solid ${colors.mist}`
+  },
+  budgetTd: {
+    padding: '10px 16px',
+    borderBottom: `1px solid ${colors.fog}`,
+    fontSize: '0.9rem',
+    verticalAlign: 'middle'
+  },
+  budgetRowDone: {
+    background: colors.fog,
+    opacity: 0.7
+  },
+  budgetItemName: {
+    color: colors.mountain
+  },
+  budgetItemNameDone: {
+    color: colors.rain,
+    textDecoration: 'line-through'
+  },
+  budgetDoneCheck: {
+    color: colors.complete,
+    marginRight: '6px',
+    fontWeight: 'bold'
+  },
+  budgetTableInput: {
+    width: '100%',
+    padding: '8px 10px',
+    border: `2px solid ${colors.skyBlue}`,
+    borderRadius: '6px',
+    fontSize: '0.9rem',
+    outline: 'none'
+  },
+  costInputWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end'
+  },
+  budgetTableActions: {
+    display: 'flex',
+    gap: '4px',
+    justifyContent: 'center'
+  },
+  budgetTableBtn: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '0.85rem',
+    padding: '4px',
+    borderRadius: '4px',
+    opacity: 0.6,
+    transition: 'opacity 0.2s'
+  },
+  addBudgetRowForm: {
+    display: 'flex',
+    gap: '8px',
+    padding: '12px 16px',
+    background: colors.fog,
+    borderTop: `1px solid ${colors.mist}`
+  },
+  addBudgetInput: {
+    flex: 1,
+    padding: '10px 12px',
+    border: `1px solid ${colors.mist}`,
+    borderRadius: '6px',
+    fontSize: '0.9rem',
+    outline: 'none'
   },
   budgetItemsList: {
     padding: '12px'
