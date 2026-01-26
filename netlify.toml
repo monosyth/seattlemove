@@ -4,7 +4,6 @@
 
 [build.environment]
   NODE_VERSION = "18"
-
-# Disable secret scanning for false positives
-[secrets-scanning]
-  enabled = false
+  # Disable secret scanning - Firebase API keys are designed to be public
+  # Security is enforced via Firebase Security Rules, not by hiding the key
+  SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
