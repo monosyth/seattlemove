@@ -364,7 +364,7 @@ function App() {
             <div style={{
               ...styles.progressBarInner,
               width: `${getOverallProgress()}%`,
-              background: getOverallProgress() === 100 ? '#27ae60' : 'linear-gradient(90deg, #667eea, #764ba2)'
+              background: getOverallProgress() === 100 ? colors.complete : `linear-gradient(90deg, ${colors.evergreen}, ${colors.sage})`
             }}></div>
           </div>
         </div>
@@ -448,7 +448,7 @@ function App() {
                   <h2 style={styles.stepContentTitle}>
                     <span style={{
                       ...styles.stepContentNumber,
-                      background: getStepProgress(activeStep) === 100 ? '#27ae60' : 'linear-gradient(135deg, #667eea, #764ba2)'
+                      background: getStepProgress(activeStep) === 100 ? colors.complete : `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`
                     }}>
                       {getStepProgress(activeStep) === 100 ? '✓' : activeStep}
                     </span>
@@ -456,7 +456,7 @@ function App() {
                   </h2>
                   <span style={{
                     ...styles.stepContentProgress,
-                    color: getStepProgress(activeStep) === 100 ? '#27ae60' : '#667eea'
+                    color: getStepProgress(activeStep) === 100 ? colors.complete : colors.evergreen
                   }}>
                     {data.steps[activeStep].items.filter(i => i.done).length}/{data.steps[activeStep].items.length} tasks
                   </span>
@@ -467,7 +467,7 @@ function App() {
                   <div style={{
                     ...styles.stepProgressFill,
                     width: `${getStepProgress(activeStep)}%`,
-                    background: getStepProgress(activeStep) === 100 ? '#27ae60' : '#667eea'
+                    background: getStepProgress(activeStep) === 100 ? colors.complete : colors.sage
                   }}></div>
                 </div>
 
@@ -499,7 +499,7 @@ function App() {
                           className="category-badge"
                           style={{
                             ...styles.categoryBadge,
-                            background: item.category === 'must' ? '#e74c3c' : '#f39c12'
+                            background: item.category === 'must' ? colors.salmon : colors.sunset
                           }}
                         >
                           {item.category === 'must' ? 'MUST' : 'HIGH'}
@@ -625,10 +625,10 @@ function App() {
               <h3 style={styles.budgetSummaryTitle}>Budget Summary</h3>
               <div style={styles.budgetSummaryGrid}>
                 {[
-                  { key: 'must', label: 'Must Do', color: '#e74c3c' },
-                  { key: 'high', label: 'High Impact', color: '#f39c12' },
-                  { key: 'nice', label: 'Nice to Have', color: '#3498db' },
-                  { key: 'other', label: 'Moving & Housing', color: '#9b59b6' }
+                  { key: 'must', label: 'Must Do', color: colors.salmon },
+                  { key: 'high', label: 'High Impact', color: colors.sunset },
+                  { key: 'nice', label: 'Nice to Have', color: colors.slate },
+                  { key: 'other', label: 'Moving & Housing', color: colors.forest }
                 ].map(({ key, label, color }) => (
                   <div key={key} style={styles.summaryItem}>
                     <div style={{ ...styles.summaryDot, background: color }}></div>
@@ -641,10 +641,10 @@ function App() {
 
             {/* Budget Sections */}
             {[
-              { key: 'must', title: 'Must Do (Safety/Inspection)', color: '#e74c3c' },
-              { key: 'high', title: 'High Impact (Buyers Notice)', color: '#f39c12' },
-              { key: 'nice', title: 'Nice to Have', color: '#3498db' },
-              { key: 'other', title: 'Moving & Housing Costs', color: '#9b59b6' }
+              { key: 'must', title: 'Must Do (Safety/Inspection)', color: colors.salmon },
+              { key: 'high', title: 'High Impact (Buyers Notice)', color: colors.sunset },
+              { key: 'nice', title: 'Nice to Have', color: colors.slate },
+              { key: 'other', title: 'Moving & Housing Costs', color: colors.forest }
             ].map(({ key, title, color }) => (
               <div key={key} className="budget-section" style={{...styles.budgetSection, borderColor: color}}>
                 <h3 className="budget-title" style={{...styles.budgetTitle, background: color}}>{title}</h3>
@@ -716,7 +716,7 @@ function App() {
                       className="timeline-dot"
                       style={{
                         ...styles.timelineDot,
-                        background: isComplete ? '#27ae60' : 'linear-gradient(135deg, #667eea, #764ba2)'
+                        background: isComplete ? colors.complete : `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`
                       }}
                     >
                       {isComplete ? '✓' : stepId}
@@ -745,7 +745,7 @@ function App() {
                           <div style={{
                             ...styles.timelineProgressFill,
                             width: `${progress}%`,
-                            background: isComplete ? '#27ae60' : '#667eea'
+                            background: isComplete ? colors.complete : colors.sage
                           }}></div>
                         </div>
                         <span className="timeline-progress-text" style={styles.timelineProgressText}>
@@ -874,6 +874,24 @@ function App() {
   );
 }
 
+// PNW Color Palette
+const colors = {
+  evergreen: '#2d5a4a',
+  forest: '#3d6b5a',
+  sage: '#6b9b8a',
+  mist: '#a8c5b8',
+  fog: '#e8f0ec',
+  mountain: '#4a6670',
+  slate: '#5a7a8a',
+  rain: '#7a9aa8',
+  cloud: '#f5f8f7',
+  bark: '#5c4a3d',
+  cedar: '#8b7355',
+  salmon: '#d4836a',
+  sunset: '#e8a87c',
+  complete: '#4a9a7c'
+};
+
 const styles = {
   // Container
   container: {
@@ -882,7 +900,9 @@ const styles = {
     padding: '20px',
     minHeight: '100vh',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    position: 'relative',
+    zIndex: 1
   },
 
   // Loading
@@ -898,7 +918,7 @@ const styles = {
     width: '48px',
     height: '48px',
     border: '4px solid rgba(255,255,255,0.3)',
-    borderTop: '4px solid white',
+    borderTop: `4px solid ${colors.mist}`,
     borderRadius: '50%',
     animation: 'spin 1s linear infinite'
   },
@@ -909,11 +929,12 @@ const styles = {
 
   // Header
   header: {
-    background: 'white',
+    background: `linear-gradient(135deg, ${colors.cloud} 0%, #fff 100%)`,
     borderRadius: '16px',
     padding: '24px',
     marginBottom: '16px',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.12)'
+    boxShadow: '0 4px 20px rgba(45,90,74,0.15)',
+    borderTop: `4px solid ${colors.evergreen}`
   },
   headerTop: {
     display: 'flex',
@@ -927,16 +948,16 @@ const styles = {
   headerRight: {},
   title: {
     fontSize: '1.8rem',
-    color: '#2c3e50',
+    color: colors.evergreen,
     marginBottom: '4px',
     fontWeight: '700'
   },
   subtitle: {
-    color: '#7f8c8d',
+    color: colors.slate,
     fontSize: '0.95rem'
   },
   statsBox: {
-    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+    background: `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`,
     color: 'white',
     padding: '12px 20px',
     borderRadius: '12px',
@@ -966,19 +987,20 @@ const styles = {
   },
   progressPercent: {
     fontWeight: 'bold',
-    color: '#667eea',
+    color: colors.evergreen,
     fontSize: '0.9rem'
   },
   progressBarOuter: {
     height: '10px',
-    background: '#e8e8e8',
+    background: colors.fog,
     borderRadius: '5px',
     overflow: 'hidden'
   },
   progressBarInner: {
     height: '100%',
     borderRadius: '5px',
-    transition: 'width 0.4s ease'
+    transition: 'width 0.4s ease',
+    background: `linear-gradient(90deg, ${colors.evergreen}, ${colors.sage})`
   },
   saveStatus: {
     textAlign: 'right',
@@ -987,11 +1009,11 @@ const styles = {
   },
   savingIndicator: {
     fontSize: '0.8rem',
-    color: '#f39c12'
+    color: colors.salmon
   },
   savedIndicator: {
     fontSize: '0.8rem',
-    color: '#27ae60'
+    color: colors.complete
   },
 
   // Tab Navigation
@@ -1008,7 +1030,7 @@ const styles = {
     border: 'none',
     borderRadius: '12px',
     background: 'rgba(255,255,255,0.85)',
-    color: '#666',
+    color: colors.slate,
     fontSize: '0.9rem',
     fontWeight: '600',
     cursor: 'pointer',
@@ -1020,8 +1042,8 @@ const styles = {
   },
   tabBtnActive: {
     background: 'white',
-    color: '#667eea',
-    boxShadow: '0 4px 15px rgba(0,0,0,0.12)'
+    color: colors.evergreen,
+    boxShadow: '0 4px 15px rgba(45,90,74,0.15)'
   },
   tabIcon: {
     fontSize: '1rem'
@@ -1030,10 +1052,10 @@ const styles = {
 
   // Main Content
   main: {
-    background: 'white',
+    background: `linear-gradient(180deg, #fff 0%, ${colors.cloud} 100%)`,
     borderRadius: '16px',
     padding: '24px',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+    boxShadow: '0 4px 20px rgba(45,90,74,0.12)',
     flex: 1
   },
 
@@ -1044,7 +1066,7 @@ const styles = {
     gap: '6px',
     marginBottom: '20px',
     padding: '6px',
-    background: '#f0f0f0',
+    background: colors.fog,
     borderRadius: '12px',
     overflowX: 'auto',
     WebkitOverflowScrolling: 'touch'
@@ -1054,7 +1076,7 @@ const styles = {
     border: 'none',
     borderRadius: '8px',
     background: 'transparent',
-    color: '#666',
+    color: colors.slate,
     fontSize: '0.8rem',
     fontWeight: '600',
     cursor: 'pointer',
@@ -1068,11 +1090,11 @@ const styles = {
   },
   stepTabActive: {
     background: 'white',
-    color: '#667eea',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+    color: colors.evergreen,
+    boxShadow: '0 2px 8px rgba(45,90,74,0.15)'
   },
   stepTabComplete: {
-    color: '#27ae60'
+    color: colors.complete
   },
   stepTabCheck: {
     fontSize: '0.75rem',
@@ -1080,9 +1102,10 @@ const styles = {
   },
   stepTabLabel: {},
   stepContent: {
-    background: '#f8f9fa',
+    background: colors.fog,
     borderRadius: '12px',
-    padding: '20px'
+    padding: '20px',
+    border: `1px solid ${colors.mist}`
   },
   stepContentHeader: {
     display: 'flex',
@@ -1094,7 +1117,7 @@ const styles = {
   },
   stepContentTitle: {
     fontSize: '1.25rem',
-    color: '#2c3e50',
+    color: colors.evergreen,
     fontWeight: '700',
     display: 'flex',
     alignItems: 'center',
@@ -1118,12 +1141,12 @@ const styles = {
   },
   stepContentDesc: {
     fontSize: '0.9rem',
-    color: '#7f8c8d',
+    color: colors.slate,
     marginBottom: '16px'
   },
   stepProgressBar: {
     height: '6px',
-    background: '#e0e0e0',
+    background: colors.mist,
     borderRadius: '3px',
     overflow: 'hidden',
     marginBottom: '16px'
@@ -1137,21 +1160,21 @@ const styles = {
     justifyContent: 'space-between',
     marginTop: '20px',
     paddingTop: '16px',
-    borderTop: '1px solid #e0e0e0'
+    borderTop: `1px solid ${colors.mist}`
   },
   stepNavBtn: {
     padding: '10px 20px',
-    border: '2px solid #e0e0e0',
+    border: `2px solid ${colors.mist}`,
     borderRadius: '8px',
     background: 'white',
-    color: '#666',
+    color: colors.slate,
     fontSize: '0.9rem',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.2s ease'
   },
   stepNavBtnPrimary: {
-    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+    background: `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`,
     color: 'white',
     border: 'none'
   },
@@ -1164,11 +1187,11 @@ const styles = {
   stepNotesSection: {
     marginTop: '20px',
     paddingTop: '16px',
-    borderTop: '1px solid #e0e0e0'
+    borderTop: `1px solid ${colors.mist}`
   },
   stepNotesTitle: {
     fontSize: '0.95rem',
-    color: '#555',
+    color: colors.forest,
     marginBottom: '12px',
     fontWeight: '600'
   },
@@ -1183,12 +1206,12 @@ const styles = {
     background: 'white',
     borderRadius: '8px',
     marginBottom: '8px',
-    border: '1px solid #e8e8e8'
+    border: `1px solid ${colors.mist}`
   },
   noteText: {
     flex: 1,
     fontSize: '0.9rem',
-    color: '#333'
+    color: colors.mountain
   },
   noteActions: {
     display: 'flex',
@@ -1211,14 +1234,14 @@ const styles = {
   noteInput: {
     flex: 1,
     padding: '10px 12px',
-    border: '1px solid #ddd',
+    border: `1px solid ${colors.mist}`,
     borderRadius: '8px',
     fontSize: '0.9rem',
     outline: 'none'
   },
   addNoteBtn: {
     padding: '10px 16px',
-    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+    background: `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`,
     color: 'white',
     border: 'none',
     borderRadius: '8px',
@@ -1239,7 +1262,7 @@ const styles = {
   },
   noteSaveBtn: {
     padding: '6px 12px',
-    background: '#27ae60',
+    background: colors.complete,
     color: 'white',
     border: 'none',
     borderRadius: '6px',
@@ -1249,8 +1272,8 @@ const styles = {
   },
   noteCancelBtn: {
     padding: '6px 12px',
-    background: '#e0e0e0',
-    color: '#666',
+    background: colors.mist,
+    color: colors.slate,
     border: 'none',
     borderRadius: '6px',
     fontSize: '0.8rem',
@@ -1262,12 +1285,13 @@ const styles = {
   allNotesSection: {
     marginBottom: '24px',
     padding: '20px',
-    background: '#f8f9fa',
-    borderRadius: '12px'
+    background: colors.fog,
+    borderRadius: '12px',
+    border: `1px solid ${colors.mist}`
   },
   allNotesTitle: {
     fontSize: '1.1rem',
-    color: '#2c3e50',
+    color: colors.evergreen,
     marginBottom: '16px',
     fontWeight: '600'
   },
@@ -1276,7 +1300,7 @@ const styles = {
   },
   allNotesStepTitle: {
     fontSize: '0.95rem',
-    color: '#555',
+    color: colors.forest,
     marginBottom: '8px',
     fontWeight: '600',
     display: 'flex',
@@ -1286,7 +1310,7 @@ const styles = {
   allNotesStepBadge: {
     width: '24px',
     height: '24px',
-    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+    background: `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`,
     color: 'white',
     borderRadius: '50%',
     display: 'flex',
@@ -1304,7 +1328,7 @@ const styles = {
     background: 'white',
     borderRadius: '8px',
     marginBottom: '6px',
-    border: '1px solid #e8e8e8'
+    border: `1px solid ${colors.mist}`
   },
 
   checklist: {
@@ -1327,7 +1351,7 @@ const styles = {
   checkbox: {
     width: '22px',
     height: '22px',
-    border: '2px solid #ccc',
+    border: `2px solid ${colors.mist}`,
     borderRadius: '6px',
     display: 'flex',
     alignItems: 'center',
@@ -1338,8 +1362,8 @@ const styles = {
   checkboxDone: {
     width: '22px',
     height: '22px',
-    border: '2px solid #27ae60',
-    background: '#27ae60',
+    border: `2px solid ${colors.complete}`,
+    background: colors.complete,
     color: 'white',
     borderRadius: '6px',
     display: 'flex',
@@ -1351,12 +1375,12 @@ const styles = {
   },
   checklistText: {
     flex: 1,
-    color: '#333',
+    color: colors.mountain,
     fontSize: '0.9rem'
   },
   checklistTextDone: {
     flex: 1,
-    color: '#999',
+    color: colors.rain,
     textDecoration: 'line-through',
     fontSize: '0.9rem'
   },
@@ -1372,15 +1396,15 @@ const styles = {
   // Budget
   budgetContainer: {},
   budgetSummary: {
-    background: 'linear-gradient(135deg, #f8f9fa, #fff)',
+    background: `linear-gradient(135deg, ${colors.fog}, #fff)`,
     borderRadius: '12px',
     padding: '20px',
     marginBottom: '24px',
-    border: '1px solid #e8e8e8'
+    border: `1px solid ${colors.mist}`
   },
   budgetSummaryTitle: {
     fontSize: '1rem',
-    color: '#555',
+    color: colors.forest,
     marginBottom: '16px',
     fontWeight: '600'
   },
@@ -1406,11 +1430,11 @@ const styles = {
   summaryLabel: {
     flex: 1,
     fontSize: '0.8rem',
-    color: '#666'
+    color: colors.slate
   },
   summaryValue: {
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.evergreen,
     fontSize: '0.9rem'
   },
   budgetSection: {
@@ -1433,14 +1457,14 @@ const styles = {
   budgetTh: {
     textAlign: 'left',
     padding: '12px 16px',
-    background: '#f8f9fa',
+    background: colors.fog,
     fontWeight: '600',
     fontSize: '0.85rem',
-    color: '#555'
+    color: colors.forest
   },
   budgetTd: {
     padding: '10px 16px',
-    borderBottom: '1px solid #eee',
+    borderBottom: `1px solid ${colors.fog}`,
     fontSize: '0.9rem'
   },
   costInput: {
@@ -1449,25 +1473,25 @@ const styles = {
     justifyContent: 'flex-end'
   },
   dollarSign: {
-    color: '#888',
+    color: colors.slate,
     marginRight: '4px'
   },
   costField: {
     width: '80px',
     padding: '8px 10px',
-    border: '1px solid #ddd',
+    border: `1px solid ${colors.mist}`,
     borderRadius: '6px',
     fontSize: '0.9rem',
     textAlign: 'right'
   },
   subtotalRow: {
-    background: '#f8f9fa'
+    background: colors.fog
   },
   grandTotal: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+    background: `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`,
     color: 'white',
     padding: '20px 24px',
     borderRadius: '12px',
@@ -1504,9 +1528,10 @@ const styles = {
     fontSize: '0.85rem'
   },
   timelineContent: {
-    background: '#f8f9fa',
+    background: colors.fog,
     borderRadius: '12px',
-    padding: '16px'
+    padding: '16px',
+    border: `1px solid ${colors.mist}`
   },
   timelineHeader: {
     display: 'flex',
@@ -1518,12 +1543,12 @@ const styles = {
   },
   timelineTitle: {
     fontSize: '1rem',
-    color: '#2c3e50',
+    color: colors.evergreen,
     fontWeight: '600',
     margin: 0
   },
   timelineDateBadge: {
-    background: '#667eea',
+    background: colors.sage,
     color: 'white',
     padding: '4px 10px',
     borderRadius: '12px',
@@ -1538,11 +1563,11 @@ const styles = {
   },
   timelineLabel: {
     fontSize: '0.85rem',
-    color: '#666'
+    color: colors.slate
   },
   dateInput: {
     padding: '8px 12px',
-    border: '1px solid #ddd',
+    border: `1px solid ${colors.mist}`,
     borderRadius: '8px',
     fontSize: '0.9rem'
   },
@@ -1554,7 +1579,7 @@ const styles = {
   timelineProgressBar: {
     flex: 1,
     height: '6px',
-    background: '#e0e0e0',
+    background: colors.mist,
     borderRadius: '3px',
     overflow: 'hidden'
   },
@@ -1564,7 +1589,7 @@ const styles = {
   },
   timelineProgressText: {
     fontSize: '0.8rem',
-    color: '#888',
+    color: colors.slate,
     whiteSpace: 'nowrap'
   },
 
@@ -1572,7 +1597,7 @@ const styles = {
   notesContainer: {},
   notesTitle: {
     fontSize: '1.3rem',
-    color: '#2c3e50',
+    color: colors.evergreen,
     marginBottom: '20px',
     fontWeight: '600'
   },
@@ -1583,13 +1608,13 @@ const styles = {
     marginBottom: '24px'
   },
   reminderBox: {
-    background: 'linear-gradient(135deg, #e8f8f5, #d5f5e3)',
-    border: '2px solid #27ae60',
+    background: `linear-gradient(135deg, ${colors.fog}, ${colors.mist})`,
+    border: `2px solid ${colors.sage}`,
     borderRadius: '12px',
     padding: '16px'
   },
   reminderTitle: {
-    color: '#27ae60',
+    color: colors.forest,
     marginBottom: '12px',
     fontSize: '1rem',
     fontWeight: '600'
@@ -1602,36 +1627,36 @@ const styles = {
   reminderItem: {
     marginBottom: '10px',
     fontSize: '0.9rem',
-    color: '#333',
+    color: colors.mountain,
     lineHeight: '1.5'
   },
   realtorBox: {
-    background: 'linear-gradient(135deg, #e8f4fd, #d6eaf8)',
-    border: '2px solid #3498db',
+    background: `linear-gradient(135deg, #f0f5f3, ${colors.fog})`,
+    border: `2px solid ${colors.cedar}`,
     borderRadius: '12px',
     padding: '16px'
   },
   realtorTitle: {
-    color: '#3498db',
+    color: colors.bark,
     marginBottom: '8px',
     fontSize: '1rem',
     fontWeight: '600'
   },
   realtorName: {
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.evergreen,
     marginBottom: '4px',
     fontSize: '0.95rem'
   },
   realtorInfo: {
     fontSize: '0.85rem',
-    color: '#666'
+    color: colors.slate
   },
   notesInputSection: {},
   notesLabel: {
     display: 'block',
     fontSize: '0.9rem',
-    color: '#555',
+    color: colors.forest,
     marginBottom: '8px',
     fontWeight: '500'
   },
@@ -1639,7 +1664,7 @@ const styles = {
     width: '100%',
     minHeight: '180px',
     padding: '16px',
-    border: '2px solid #e0e0e0',
+    border: `2px solid ${colors.mist}`,
     borderRadius: '12px',
     fontSize: '1rem',
     fontFamily: 'inherit',
@@ -1655,7 +1680,7 @@ const styles = {
     marginTop: '16px'
   },
   footerText: {
-    color: 'rgba(255,255,255,0.8)',
+    color: 'rgba(255,255,255,0.9)',
     fontSize: '0.85rem'
   }
 };
