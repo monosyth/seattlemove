@@ -15,3 +15,323 @@ body {
 #root {
   min-height: 100vh;
 }
+
+/* Loading spinner animation */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Smooth transitions for interactive elements */
+.step-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(0,0,0,0.12);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Focus states for accessibility */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* Responsive breakpoints */
+
+/* Tablet and below */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 12px !important;
+  }
+
+  .app-header {
+    padding: 16px !important;
+    border-radius: 12px !important;
+  }
+
+  .app-title {
+    font-size: 1.4rem !important;
+  }
+
+  .tab-nav {
+    gap: 6px !important;
+  }
+
+  .tab-btn {
+    padding: 10px 12px !important;
+    font-size: 0.8rem !important;
+    min-width: 70px !important;
+  }
+
+  .main-content {
+    padding: 16px !important;
+    border-radius: 12px !important;
+  }
+
+  .step-card {
+    padding: 12px !important;
+  }
+
+  .step-header {
+    flex-wrap: wrap !important;
+  }
+
+  .step-number {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 0.9rem !important;
+  }
+
+  .step-title {
+    font-size: 1rem !important;
+  }
+
+  .step-desc {
+    font-size: 0.8rem !important;
+  }
+
+  .checklist-item {
+    padding: 8px !important;
+  }
+
+  .checklist-text {
+    font-size: 0.85rem !important;
+  }
+
+  .budget-table th,
+  .budget-table td {
+    padding: 8px 12px !important;
+    font-size: 0.85rem !important;
+  }
+
+  .cost-field {
+    width: 70px !important;
+  }
+
+  .grand-total {
+    padding: 16px !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    text-align: center !important;
+  }
+
+  .timeline-item {
+    padding-left: 24px !important;
+  }
+
+  .timeline-content {
+    padding: 12px !important;
+  }
+
+  .timeline-date-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+  }
+
+  .date-input {
+    width: 100% !important;
+  }
+
+  .notes-textarea {
+    min-height: 150px !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+  .app-container {
+    padding: 8px !important;
+  }
+
+  .app-header {
+    padding: 12px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .app-title {
+    font-size: 1.2rem !important;
+  }
+
+  .app-subtitle {
+    font-size: 0.85rem !important;
+  }
+
+  .progress-label {
+    font-size: 0.8rem !important;
+  }
+
+  .tab-nav {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .tab-btn {
+    min-width: unset !important;
+    padding: 10px 8px !important;
+    font-size: 0.75rem !important;
+    flex: unset !important;
+  }
+
+  .main-content {
+    padding: 12px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .step-card {
+    padding: 10px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .step-header {
+    gap: 10px !important;
+  }
+
+  .step-info {
+    min-width: 0 !important;
+  }
+
+  .step-title {
+    font-size: 0.95rem !important;
+    word-wrap: break-word !important;
+  }
+
+  .step-desc {
+    font-size: 0.75rem !important;
+  }
+
+  .checklist-item {
+    gap: 8px !important;
+  }
+
+  .checkbox {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .checklist-text {
+    font-size: 0.8rem !important;
+  }
+
+  .category-badge {
+    font-size: 0.6rem !important;
+    padding: 2px 4px !important;
+  }
+
+  .budget-section {
+    margin-bottom: 16px !important;
+  }
+
+  .budget-title {
+    padding: 10px 12px !important;
+    font-size: 0.9rem !important;
+  }
+
+  .budget-table th,
+  .budget-table td {
+    padding: 6px 10px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .cost-field {
+    width: 60px !important;
+    padding: 4px 6px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .grand-total {
+    padding: 12px !important;
+    font-size: 0.95rem !important;
+  }
+
+  .grand-total-amount {
+    font-size: 1.3rem !important;
+  }
+
+  .timeline-container {
+    padding-left: 20px !important;
+  }
+
+  .timeline-item {
+    padding-left: 20px !important;
+    margin-left: 10px !important;
+    padding-bottom: 20px !important;
+  }
+
+  .timeline-dot {
+    width: 26px !important;
+    height: 26px !important;
+    left: -13px !important;
+    font-size: 0.75rem !important;
+  }
+
+  .timeline-title {
+    font-size: 0.9rem !important;
+  }
+
+  .timeline-progress-text {
+    font-size: 0.75rem !important;
+  }
+
+  .notes-title {
+    font-size: 1.1rem !important;
+  }
+
+  .reminder-box,
+  .realtor-box {
+    padding: 12px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .reminder-title,
+  .realtor-title {
+    font-size: 0.9rem !important;
+  }
+
+  .reminder-list li {
+    font-size: 0.85rem !important;
+    margin-bottom: 8px !important;
+  }
+
+  .notes-textarea {
+    padding: 12px !important;
+    min-height: 120px !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: white;
+  }
+
+  .tab-nav {
+    display: none !important;
+  }
+
+  .app-container {
+    max-width: 100% !important;
+  }
+}

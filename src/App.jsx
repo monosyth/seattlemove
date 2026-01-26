@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db } from './firebase';
-import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 
 const initialData = {
   currentStep: 1,
@@ -178,6 +178,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
+  const [expandedSteps, setExpandedSteps] = useState({});
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
@@ -211,6 +212,13 @@ function App() {
       setData(newData);
       saveData(newData);
     }
+  };
+
+  const toggleStepExpanded = (stepId) => {
+    setExpandedSteps(prev => ({
+      ...prev,
+      [stepId]: !prev[stepId]
+    }));
   };
 
   const updateTargetDate = (stepId, date) => {
@@ -253,6 +261,14 @@ function App() {
     return total ? Math.round((done / total) * 100) : 0;
   };
 
+  const getTotalTasks = () => {
+    return Object.values(data.steps).reduce((sum, step) => sum + step.items.length, 0);
+  };
+
+  const getCompletedTasks = () => {
+    return Object.values(data.steps).reduce((sum, step) => sum + step.items.filter(i => i.done).length, 0);
+  };
+
   const getBudgetTotal = (category) => {
     return data.budget[category].reduce((sum, item) => {
       const cost = parseFloat(item.cost) || 0;
@@ -268,78 +284,207 @@ function App() {
     return (
       <div style={styles.loadingContainer}>
         <div style={styles.loadingSpinner}></div>
-        <p>Loading your move plan...</p>
+        <p style={styles.loadingText}>Loading your move plan...</p>
       </div>
     );
   }
 
   return (
-    <div style={styles.container}>
-      <header style={styles.header}>
-        <h1 style={styles.title}>🏠 Seattle Move Planner</h1>
-        <p style={styles.subtitle}>San Diego → Seattle</p>
+    <div className="app-container" style={styles.container}>
+      {/* Header Section */}
+      <header className="app-header" style={styles.header}>
+        <div style={styles.headerTop}>
+          <div style={styles.headerLeft}>
+            <h1 className="app-title" style={styles.title}>🏠 Seattle Move Planner</h1>
+            <p className="app-subtitle" style={styles.subtitle}>San Diego → Seattle</p>
+          </div>
+          <div style={styles.headerRight}>
+            <div style={styles.statsBox}>
+              <span style={styles.statNumber}>{getCompletedTasks()}</span>
+              <span style={styles.statLabel}>of {getTotalTasks()} tasks</span>
+            </div>
+          </div>
+        </div>
+
         <div style={styles.overallProgress}>
-          <div style={styles.progressLabel}>
-            <span>Overall Progress</span>
+          <div className="progress-label" style={styles.progressLabel}>
+            <span style={styles.progressTitle}>Overall Progress</span>
             <span style={styles.progressPercent}>{getOverallProgress()}%</span>
           </div>
           <div style={styles.progressBarOuter}>
-            <div style={{...styles.progressBarInner, width: `${getOverallProgress()}%`, background: getOverallProgress() === 100 ? '#27ae60' : 'linear-gradient(90deg, #667eea, #764ba2)'}}></div>
+            <div style={{
+              ...styles.progressBarInner,
+              width: `${getOverallProgress()}%`,
+              background: getOverallProgress() === 100 ? '#27ae60' : 'linear-gradient(90deg, #667eea, #764ba2)'
+            }}></div>
           </div>
         </div>
+
         <div style={styles.saveStatus}>
-          {saving ? '💾 Saving...' : lastSaved ? `✓ Saved ${lastSaved.toLocaleTimeString()}` : ''}
+          {saving ? (
+            <span style={styles.savingIndicator}>💾 Saving...</span>
+          ) : lastSaved ? (
+            <span style={styles.savedIndicator}>✓ Saved {lastSaved.toLocaleTimeString()}</span>
+          ) : null}
         </div>
       </header>
 
-      <nav style={styles.tabNav}>
-        {['checklist', 'budget', 'timeline', 'notes'].map(tab => (
-          <button key={tab} style={activeTab === tab ? {...styles.tabBtn, ...styles.tabBtnActive} : styles.tabBtn} onClick={() => setActiveTab(tab)}>
-            {tab === 'checklist' && '✓ Checklist'}
-            {tab === 'budget' && '💰 Budget'}
-            {tab === 'timeline' && '📅 Timeline'}
-            {tab === 'notes' && '📝 Notes'}
+      {/* Tab Navigation */}
+      <nav className="tab-nav" style={styles.tabNav}>
+        {[
+          { id: 'checklist', icon: '✓', label: 'Checklist' },
+          { id: 'budget', icon: '💰', label: 'Budget' },
+          { id: 'timeline', icon: '📅', label: 'Timeline' },
+          { id: 'notes', icon: '📝', label: 'Notes' }
+        ].map(tab => (
+          <button
+            key={tab.id}
+            className="tab-btn"
+            style={activeTab === tab.id ? {...styles.tabBtn, ...styles.tabBtnActive} : styles.tabBtn}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            <span style={styles.tabIcon}>{tab.icon}</span>
+            <span style={styles.tabLabel}>{tab.label}</span>
           </button>
         ))}
       </nav>
 
-      <main style={styles.main}>
+      {/* Main Content Area */}
+      <main className="main-content" style={styles.main}>
+
+        {/* Checklist Tab */}
         {activeTab === 'checklist' && (
-          <div>
-            {Object.entries(data.steps).map(([stepId, step]) => (
-              <div key={stepId} style={styles.stepCard}>
-                <div style={styles.stepHeader}>
-                  <div style={styles.stepNumber}>{stepId}</div>
-                  <div style={styles.stepInfo}>
-                    <h2 style={styles.stepTitle}>{step.title}</h2>
-                    <p style={styles.stepDesc}>{step.description}</p>
+          <div style={styles.checklistContainer}>
+            {Object.entries(data.steps).map(([stepId, step]) => {
+              const progress = getStepProgress(stepId);
+              const isComplete = progress === 100;
+              const isExpanded = expandedSteps[stepId] !== false; // Default to expanded
+
+              return (
+                <div
+                  key={stepId}
+                  className="step-card"
+                  style={{
+                    ...styles.stepCard,
+                    borderLeft: isComplete ? '4px solid #27ae60' : '4px solid #667eea'
+                  }}
+                >
+                  <div
+                    style={styles.stepHeader}
+                    onClick={() => toggleStepExpanded(stepId)}
+                  >
+                    <div className="step-number" style={{
+                      ...styles.stepNumber,
+                      background: isComplete ? '#27ae60' : 'linear-gradient(135deg, #667eea, #764ba2)'
+                    }}>
+                      {isComplete ? '✓' : stepId}
+                    </div>
+                    <div className="step-info" style={styles.stepInfo}>
+                      <h2 className="step-title" style={styles.stepTitle}>{step.title}</h2>
+                      <p className="step-desc" style={styles.stepDesc}>{step.description}</p>
+                    </div>
+                    <div style={styles.stepMeta}>
+                      <span className="step-progress-text" style={{
+                        ...styles.stepProgressText,
+                        color: isComplete ? '#27ae60' : '#667eea'
+                      }}>
+                        {step.items.filter(i => i.done).length}/{step.items.length}
+                      </span>
+                      <span style={styles.expandIcon}>{isExpanded ? '▼' : '▶'}</span>
+                    </div>
                   </div>
-                  <div style={styles.stepProgress}><span style={styles.stepProgressText}>{getStepProgress(stepId)}%</span></div>
+
+                  <div style={styles.stepProgressBar}>
+                    <div style={{
+                      ...styles.stepProgressFill,
+                      width: `${progress}%`,
+                      background: isComplete ? '#27ae60' : '#667eea'
+                    }}></div>
+                  </div>
+
+                  {isExpanded && (
+                    <ul style={styles.checklist}>
+                      {step.items.map(item => (
+                        <li
+                          key={item.id}
+                          className="checklist-item"
+                          style={{
+                            ...styles.checklistItem,
+                            ...(item.done ? styles.checklistItemDone : {})
+                          }}
+                          onClick={() => toggleItem(stepId, item.id)}
+                        >
+                          <span
+                            className="checkbox"
+                            style={item.done ? styles.checkboxDone : styles.checkbox}
+                          >
+                            {item.done ? '✓' : ''}
+                          </span>
+                          <span
+                            className="checklist-text"
+                            style={item.done ? styles.checklistTextDone : styles.checklistText}
+                          >
+                            {item.text}
+                          </span>
+                          {item.category && (
+                            <span
+                              className="category-badge"
+                              style={{
+                                ...styles.categoryBadge,
+                                background: item.category === 'must' ? '#e74c3c' : '#f39c12'
+                              }}
+                            >
+                              {item.category === 'must' ? 'MUST' : 'HIGH'}
+                            </span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-                <div style={styles.stepProgressBar}>
-                  <div style={{...styles.stepProgressFill, width: `${getStepProgress(stepId)}%`, background: getStepProgress(stepId) === 100 ? '#27ae60' : '#667eea'}}></div>
-                </div>
-                <ul style={styles.checklist}>
-                  {step.items.map(item => (
-                    <li key={item.id} style={{...styles.checklistItem, ...(item.done ? styles.checklistItemDone : {})}} onClick={() => toggleItem(stepId, item.id)}>
-                      <span style={item.done ? styles.checkboxDone : styles.checkbox}>{item.done ? '✓' : ''}</span>
-                      <span style={item.done ? styles.checklistTextDone : styles.checklistText}>{item.text}</span>
-                      {item.category && <span style={{...styles.categoryBadge, background: item.category === 'must' ? '#e74c3c' : '#f39c12'}}>{item.category === 'must' ? 'MUST' : 'HIGH'}</span>}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
+        {/* Budget Tab */}
         {activeTab === 'budget' && (
-          <div>
-            {[{ key: 'must', title: 'Must Do (Safety/Inspection)', color: '#e74c3c' }, { key: 'high', title: 'High Impact (Buyers Notice)', color: '#f39c12' }, { key: 'nice', title: 'Nice to Have', color: '#3498db' }, { key: 'other', title: 'Moving & Housing Costs', color: '#9b59b6' }].map(({ key, title, color }) => (
-              <div key={key} style={{...styles.budgetSection, borderColor: color}}>
-                <h3 style={{...styles.budgetTitle, background: color}}>{title}</h3>
-                <table style={styles.budgetTable}>
-                  <thead><tr><th style={styles.budgetTh}>Item</th><th style={{...styles.budgetTh, width: '120px', textAlign: 'right'}}>Cost</th></tr></thead>
+          <div style={styles.budgetContainer}>
+            {/* Budget Summary Card */}
+            <div style={styles.budgetSummary}>
+              <h3 style={styles.budgetSummaryTitle}>Budget Summary</h3>
+              <div style={styles.budgetSummaryGrid}>
+                {[
+                  { key: 'must', label: 'Must Do', color: '#e74c3c' },
+                  { key: 'high', label: 'High Impact', color: '#f39c12' },
+                  { key: 'nice', label: 'Nice to Have', color: '#3498db' },
+                  { key: 'other', label: 'Moving & Housing', color: '#9b59b6' }
+                ].map(({ key, label, color }) => (
+                  <div key={key} style={styles.summaryItem}>
+                    <div style={{ ...styles.summaryDot, background: color }}></div>
+                    <span style={styles.summaryLabel}>{label}</span>
+                    <span style={styles.summaryValue}>${getBudgetTotal(key).toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Budget Sections */}
+            {[
+              { key: 'must', title: 'Must Do (Safety/Inspection)', color: '#e74c3c' },
+              { key: 'high', title: 'High Impact (Buyers Notice)', color: '#f39c12' },
+              { key: 'nice', title: 'Nice to Have', color: '#3498db' },
+              { key: 'other', title: 'Moving & Housing Costs', color: '#9b59b6' }
+            ].map(({ key, title, color }) => (
+              <div key={key} className="budget-section" style={{...styles.budgetSection, borderColor: color}}>
+                <h3 className="budget-title" style={{...styles.budgetTitle, background: color}}>{title}</h3>
+                <table className="budget-table" style={styles.budgetTable}>
+                  <thead>
+                    <tr>
+                      <th style={styles.budgetTh}>Item</th>
+                      <th style={{...styles.budgetTh, width: '120px', textAlign: 'right'}}>Cost</th>
+                    </tr>
+                  </thead>
                   <tbody>
                     {data.budget[key].map(item => (
                       <tr key={item.id}>
@@ -347,135 +492,729 @@ function App() {
                         <td style={{...styles.budgetTd, textAlign: 'right'}}>
                           <div style={styles.costInput}>
                             <span style={styles.dollarSign}>$</span>
-                            <input type="number" value={item.cost} onChange={(e) => updateBudgetCost(key, item.id, e.target.value)} placeholder="0" style={styles.costField} />
+                            <input
+                              type="number"
+                              className="cost-field"
+                              value={item.cost}
+                              onChange={(e) => updateBudgetCost(key, item.id, e.target.value)}
+                              placeholder="0"
+                              style={styles.costField}
+                            />
                           </div>
                         </td>
                       </tr>
                     ))}
-                    <tr style={styles.subtotalRow}><td style={styles.budgetTd}><strong>Subtotal</strong></td><td style={{...styles.budgetTd, textAlign: 'right'}}><strong>${getBudgetTotal(key).toLocaleString()}</strong></td></tr>
+                    <tr style={styles.subtotalRow}>
+                      <td style={styles.budgetTd}><strong>Subtotal</strong></td>
+                      <td style={{...styles.budgetTd, textAlign: 'right'}}>
+                        <strong>${getBudgetTotal(key).toLocaleString()}</strong>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
             ))}
-            <div style={styles.grandTotal}><span>GRAND TOTAL</span><span style={styles.grandTotalAmount}>${getGrandTotal().toLocaleString()}</span></div>
+
+            <div className="grand-total" style={styles.grandTotal}>
+              <span>GRAND TOTAL</span>
+              <span className="grand-total-amount" style={styles.grandTotalAmount}>
+                ${getGrandTotal().toLocaleString()}
+              </span>
+            </div>
           </div>
         )}
 
+        {/* Timeline Tab */}
         {activeTab === 'timeline' && (
-          <div>
-            <div style={styles.timelineContainer}>
-              {Object.entries(data.steps).map(([stepId, step]) => (
-                <div key={stepId} style={styles.timelineItem}>
-                  <div style={styles.timelineDot}>{getStepProgress(stepId) === 100 ? '✓' : stepId}</div>
-                  <div style={styles.timelineContent}>
-                    <h3 style={styles.timelineTitle}>{step.title}</h3>
-                    <div style={styles.timelineDateRow}>
-                      <label style={styles.timelineLabel}>Target Date:</label>
-                      <input type="date" value={step.targetDate || ''} onChange={(e) => updateTargetDate(stepId, e.target.value)} style={styles.dateInput} />
+          <div style={styles.timelineWrapper}>
+            <div className="timeline-container" style={styles.timelineContainer}>
+              {Object.entries(data.steps).map(([stepId, step], index) => {
+                const progress = getStepProgress(stepId);
+                const isComplete = progress === 100;
+                const isLast = index === Object.keys(data.steps).length - 1;
+
+                return (
+                  <div
+                    key={stepId}
+                    className="timeline-item"
+                    style={{
+                      ...styles.timelineItem,
+                      borderLeft: isLast ? 'none' : '2px solid #e0e0e0'
+                    }}
+                  >
+                    <div
+                      className="timeline-dot"
+                      style={{
+                        ...styles.timelineDot,
+                        background: isComplete ? '#27ae60' : 'linear-gradient(135deg, #667eea, #764ba2)'
+                      }}
+                    >
+                      {isComplete ? '✓' : stepId}
                     </div>
-                    <div style={styles.timelineProgress}>
-                      <div style={styles.timelineProgressBar}><div style={{...styles.timelineProgressFill, width: `${getStepProgress(stepId)}%`, background: getStepProgress(stepId) === 100 ? '#27ae60' : '#667eea'}}></div></div>
-                      <span style={styles.timelineProgressText}>{step.items.filter(i => i.done).length}/{step.items.length} tasks</span>
+                    <div className="timeline-content" style={styles.timelineContent}>
+                      <div style={styles.timelineHeader}>
+                        <h3 className="timeline-title" style={styles.timelineTitle}>{step.title}</h3>
+                        {step.targetDate && (
+                          <span style={styles.timelineDateBadge}>
+                            {new Date(step.targetDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                        )}
+                      </div>
+                      <div className="timeline-date-row" style={styles.timelineDateRow}>
+                        <label style={styles.timelineLabel}>Target Date:</label>
+                        <input
+                          type="date"
+                          className="date-input"
+                          value={step.targetDate || ''}
+                          onChange={(e) => updateTargetDate(stepId, e.target.value)}
+                          style={styles.dateInput}
+                        />
+                      </div>
+                      <div style={styles.timelineProgress}>
+                        <div style={styles.timelineProgressBar}>
+                          <div style={{
+                            ...styles.timelineProgressFill,
+                            width: `${progress}%`,
+                            background: isComplete ? '#27ae60' : '#667eea'
+                          }}></div>
+                        </div>
+                        <span className="timeline-progress-text" style={styles.timelineProgressText}>
+                          {step.items.filter(i => i.done).length}/{step.items.length} tasks
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
 
+        {/* Notes Tab */}
         {activeTab === 'notes' && (
-          <div style={styles.notesContainer}>
-            <h2 style={styles.notesTitle}>📝 Notes & Reminders</h2>
-            <div style={styles.reminderBox}>
-              <h3 style={styles.reminderTitle}>Key Reminders</h3>
-              <ul style={styles.reminderList}>
-                <li>🐕 Two extremely fluffy dogs + senior cat need pet-friendly accommodations</li>
-                <li>🏠 House will be empty during showings = less stress, better presentation</li>
-                <li>📍 You're nearby in San Diego if any issues arise during sale</li>
-              </ul>
+          <div className="notes-container" style={styles.notesContainer}>
+            <h2 className="notes-title" style={styles.notesTitle}>📝 Notes & Reminders</h2>
+
+            <div style={styles.notesGrid}>
+              <div className="reminder-box" style={styles.reminderBox}>
+                <h3 className="reminder-title" style={styles.reminderTitle}>🐾 Key Reminders</h3>
+                <ul className="reminder-list" style={styles.reminderList}>
+                  <li style={styles.reminderItem}>🐕 Two extremely fluffy dogs + senior cat need pet-friendly accommodations</li>
+                  <li style={styles.reminderItem}>🏠 House will be empty during showings = less stress, better presentation</li>
+                  <li style={styles.reminderItem}>📍 You're nearby in San Diego if any issues arise during sale</li>
+                </ul>
+              </div>
+
+              <div className="realtor-box" style={styles.realtorBox}>
+                <h3 className="realtor-title" style={styles.realtorTitle}>👤 Recommended Realtor</h3>
+                <p style={styles.realtorName}>Caitlin Thill - O'Byrne Team / Compass</p>
+                <p style={styles.realtorInfo}>$95M+ sales | Compass Concierge available</p>
+              </div>
             </div>
-            <div style={styles.realtorBox}>
-              <h3 style={styles.realtorTitle}>Recommended Realtor</h3>
-              <p style={styles.realtorName}>Caitlin Thill - O'Byrne Team / Compass</p>
-              <p style={styles.realtorInfo}>$95M+ sales | Compass Concierge available</p>
+
+            <div style={styles.notesInputSection}>
+              <label style={styles.notesLabel}>Your Notes</label>
+              <textarea
+                className="notes-textarea"
+                value={data.notes}
+                onChange={(e) => updateNotes(e.target.value)}
+                placeholder="Add your notes, thoughts, and reminders here..."
+                style={styles.notesTextarea}
+              />
             </div>
-            <textarea value={data.notes} onChange={(e) => updateNotes(e.target.value)} placeholder="Add your notes, thoughts, and reminders here..." style={styles.notesTextarea} />
           </div>
         )}
       </main>
+
+      {/* Footer */}
+      <footer style={styles.footer}>
+        <p style={styles.footerText}>Data syncs automatically to cloud ☁️</p>
+      </footer>
     </div>
   );
 }
 
 const styles = {
-  container: { maxWidth: '800px', margin: '0 auto', padding: '20px', minHeight: '100vh' },
-  loadingContainer: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', color: 'white' },
-  loadingSpinner: { width: '40px', height: '40px', border: '4px solid rgba(255,255,255,0.3)', borderTop: '4px solid white', borderRadius: '50%', animation: 'spin 1s linear infinite' },
-  header: { background: 'white', borderRadius: '16px', padding: '24px', marginBottom: '20px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' },
-  title: { fontSize: '1.8rem', color: '#2c3e50', marginBottom: '4px' },
-  subtitle: { color: '#7f8c8d', marginBottom: '20px' },
-  overallProgress: { marginBottom: '10px' },
-  progressLabel: { display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem', color: '#555' },
-  progressPercent: { fontWeight: 'bold', color: '#667eea' },
-  progressBarOuter: { height: '12px', background: '#e0e0e0', borderRadius: '6px', overflow: 'hidden' },
-  progressBarInner: { height: '100%', borderRadius: '6px', transition: 'width 0.3s ease' },
-  saveStatus: { textAlign: 'right', fontSize: '0.8rem', color: '#888', marginTop: '10px' },
-  tabNav: { display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' },
-  tabBtn: { flex: 1, minWidth: '80px', padding: '12px 16px', border: 'none', borderRadius: '12px', background: 'rgba(255,255,255,0.9)', color: '#555', fontSize: '0.9rem', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease' },
-  tabBtnActive: { background: 'white', color: '#667eea', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' },
-  main: { background: 'white', borderRadius: '16px', padding: '20px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' },
-  stepCard: { background: '#f8f9fa', borderRadius: '12px', padding: '16px', marginBottom: '16px' },
-  stepHeader: { display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' },
-  stepNumber: { width: '36px', height: '36px', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', flexShrink: 0 },
-  stepInfo: { flex: 1 },
-  stepTitle: { fontSize: '1.1rem', color: '#2c3e50', marginBottom: '4px' },
-  stepDesc: { fontSize: '0.85rem', color: '#7f8c8d' },
-  stepProgress: { flexShrink: 0 },
-  stepProgressText: { fontSize: '0.9rem', fontWeight: 'bold', color: '#667eea' },
-  stepProgressBar: { height: '4px', background: '#e0e0e0', borderRadius: '2px', overflow: 'hidden', marginBottom: '12px' },
-  stepProgressFill: { height: '100%', transition: 'width 0.3s ease' },
-  checklist: { listStyle: 'none', padding: 0, margin: 0 },
-  checklistItem: { display: 'flex', alignItems: 'center', gap: '12px', padding: '10px', borderRadius: '8px', cursor: 'pointer', transition: 'background 0.2s' },
-  checklistItemDone: { opacity: 0.6 },
-  checkbox: { width: '24px', height: '24px', border: '2px solid #ccc', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.2s' },
-  checkboxDone: { width: '24px', height: '24px', border: '2px solid #27ae60', background: '#27ae60', color: 'white', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontWeight: 'bold' },
-  checklistText: { flex: 1, color: '#333' },
-  checklistTextDone: { flex: 1, color: '#888', textDecoration: 'line-through' },
-  categoryBadge: { fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', color: 'white', fontWeight: 'bold' },
-  budgetSection: { marginBottom: '24px', borderRadius: '12px', border: '2px solid', overflow: 'hidden' },
-  budgetTitle: { color: 'white', padding: '12px 16px', margin: 0, fontSize: '1rem' },
-  budgetTable: { width: '100%', borderCollapse: 'collapse' },
-  budgetTh: { textAlign: 'left', padding: '12px 16px', background: '#f8f9fa', fontWeight: '600', fontSize: '0.85rem', color: '#555' },
-  budgetTd: { padding: '10px 16px', borderBottom: '1px solid #eee', fontSize: '0.9rem' },
-  costInput: { display: 'flex', alignItems: 'center', justifyContent: 'flex-end' },
-  dollarSign: { color: '#888', marginRight: '4px' },
-  costField: { width: '80px', padding: '6px 8px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '0.9rem', textAlign: 'right' },
-  subtotalRow: { background: '#f8f9fa' },
-  grandTotal: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', padding: '20px 24px', borderRadius: '12px', fontSize: '1.1rem', fontWeight: 'bold' },
-  grandTotalAmount: { fontSize: '1.5rem' },
-  timelineContainer: { position: 'relative', paddingLeft: '30px' },
-  timelineItem: { position: 'relative', paddingBottom: '30px', borderLeft: '2px solid #e0e0e0', paddingLeft: '30px', marginLeft: '15px' },
-  timelineDot: { position: 'absolute', left: '-15px', width: '30px', height: '30px', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.85rem' },
-  timelineContent: { background: '#f8f9fa', borderRadius: '12px', padding: '16px' },
-  timelineTitle: { fontSize: '1rem', color: '#2c3e50', marginBottom: '12px' },
-  timelineDateRow: { display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' },
-  timelineLabel: { fontSize: '0.85rem', color: '#666' },
-  dateInput: { padding: '8px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '0.9rem' },
-  timelineProgress: { display: 'flex', alignItems: 'center', gap: '12px' },
-  timelineProgressBar: { flex: 1, height: '6px', background: '#e0e0e0', borderRadius: '3px', overflow: 'hidden' },
-  timelineProgressFill: { height: '100%', transition: 'width 0.3s ease' },
-  timelineProgressText: { fontSize: '0.8rem', color: '#888', whiteSpace: 'nowrap' },
-  notesContainer: { padding: '10px' },
-  notesTitle: { fontSize: '1.3rem', color: '#2c3e50', marginBottom: '20px' },
-  reminderBox: { background: '#e8f8f5', border: '2px solid #27ae60', borderRadius: '12px', padding: '16px', marginBottom: '20px' },
-  reminderTitle: { color: '#27ae60', marginBottom: '12px', fontSize: '1rem' },
-  reminderList: { listStyle: 'none', padding: 0, margin: 0 },
-  realtorBox: { background: '#f0f9ff', border: '2px solid #3498db', borderRadius: '12px', padding: '16px', marginBottom: '20px' },
-  realtorTitle: { color: '#3498db', marginBottom: '8px', fontSize: '1rem' },
-  realtorName: { fontWeight: 'bold', color: '#2c3e50', marginBottom: '4px' },
-  realtorInfo: { fontSize: '0.85rem', color: '#666' },
-  notesTextarea: { width: '100%', minHeight: '200px', padding: '16px', border: '2px solid #e0e0e0', borderRadius: '12px', fontSize: '1rem', fontFamily: 'inherit', resize: 'vertical', outline: 'none' },
+  // Container
+  container: {
+    maxWidth: '900px',
+    margin: '0 auto',
+    padding: '20px',
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column'
+  },
+
+  // Loading
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100vh',
+    color: 'white'
+  },
+  loadingSpinner: {
+    width: '48px',
+    height: '48px',
+    border: '4px solid rgba(255,255,255,0.3)',
+    borderTop: '4px solid white',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite'
+  },
+  loadingText: {
+    marginTop: '16px',
+    fontSize: '1.1rem'
+  },
+
+  // Header
+  header: {
+    background: 'white',
+    borderRadius: '16px',
+    padding: '24px',
+    marginBottom: '16px',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.12)'
+  },
+  headerTop: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: '20px',
+    flexWrap: 'wrap',
+    gap: '12px'
+  },
+  headerLeft: {},
+  headerRight: {},
+  title: {
+    fontSize: '1.8rem',
+    color: '#2c3e50',
+    marginBottom: '4px',
+    fontWeight: '700'
+  },
+  subtitle: {
+    color: '#7f8c8d',
+    fontSize: '0.95rem'
+  },
+  statsBox: {
+    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+    color: 'white',
+    padding: '12px 20px',
+    borderRadius: '12px',
+    textAlign: 'center'
+  },
+  statNumber: {
+    display: 'block',
+    fontSize: '1.5rem',
+    fontWeight: 'bold'
+  },
+  statLabel: {
+    fontSize: '0.75rem',
+    opacity: 0.9
+  },
+  overallProgress: {
+    marginBottom: '12px'
+  },
+  progressLabel: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginBottom: '8px'
+  },
+  progressTitle: {
+    fontSize: '0.9rem',
+    color: '#555',
+    fontWeight: '500'
+  },
+  progressPercent: {
+    fontWeight: 'bold',
+    color: '#667eea',
+    fontSize: '0.9rem'
+  },
+  progressBarOuter: {
+    height: '10px',
+    background: '#e8e8e8',
+    borderRadius: '5px',
+    overflow: 'hidden'
+  },
+  progressBarInner: {
+    height: '100%',
+    borderRadius: '5px',
+    transition: 'width 0.4s ease'
+  },
+  saveStatus: {
+    textAlign: 'right',
+    minHeight: '20px',
+    marginTop: '8px'
+  },
+  savingIndicator: {
+    fontSize: '0.8rem',
+    color: '#f39c12'
+  },
+  savedIndicator: {
+    fontSize: '0.8rem',
+    color: '#27ae60'
+  },
+
+  // Tab Navigation
+  tabNav: {
+    display: 'flex',
+    gap: '8px',
+    marginBottom: '16px',
+    flexWrap: 'wrap'
+  },
+  tabBtn: {
+    flex: 1,
+    minWidth: '80px',
+    padding: '12px 16px',
+    border: 'none',
+    borderRadius: '12px',
+    background: 'rgba(255,255,255,0.85)',
+    color: '#666',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '6px'
+  },
+  tabBtnActive: {
+    background: 'white',
+    color: '#667eea',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.12)'
+  },
+  tabIcon: {
+    fontSize: '1rem'
+  },
+  tabLabel: {},
+
+  // Main Content
+  main: {
+    background: 'white',
+    borderRadius: '16px',
+    padding: '24px',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+    flex: 1
+  },
+
+  // Checklist
+  checklistContainer: {},
+  stepCard: {
+    background: '#f8f9fa',
+    borderRadius: '12px',
+    padding: '16px',
+    marginBottom: '16px',
+    transition: 'all 0.2s ease'
+  },
+  stepHeader: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '12px',
+    marginBottom: '12px',
+    cursor: 'pointer'
+  },
+  stepNumber: {
+    width: '36px',
+    height: '36px',
+    color: 'white',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight: 'bold',
+    flexShrink: 0,
+    fontSize: '0.9rem'
+  },
+  stepInfo: {
+    flex: 1,
+    minWidth: 0
+  },
+  stepTitle: {
+    fontSize: '1.05rem',
+    color: '#2c3e50',
+    marginBottom: '4px',
+    fontWeight: '600'
+  },
+  stepDesc: {
+    fontSize: '0.85rem',
+    color: '#7f8c8d'
+  },
+  stepMeta: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    flexShrink: 0
+  },
+  stepProgressText: {
+    fontSize: '0.9rem',
+    fontWeight: 'bold'
+  },
+  expandIcon: {
+    color: '#999',
+    fontSize: '0.8rem'
+  },
+  stepProgressBar: {
+    height: '4px',
+    background: '#e0e0e0',
+    borderRadius: '2px',
+    overflow: 'hidden',
+    marginBottom: '12px'
+  },
+  stepProgressFill: {
+    height: '100%',
+    transition: 'width 0.3s ease'
+  },
+  checklist: {
+    listStyle: 'none',
+    padding: 0,
+    margin: 0
+  },
+  checklistItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    padding: '10px',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    transition: 'background 0.2s'
+  },
+  checklistItemDone: {
+    opacity: 0.6
+  },
+  checkbox: {
+    width: '22px',
+    height: '22px',
+    border: '2px solid #ccc',
+    borderRadius: '6px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    transition: 'all 0.2s'
+  },
+  checkboxDone: {
+    width: '22px',
+    height: '22px',
+    border: '2px solid #27ae60',
+    background: '#27ae60',
+    color: 'white',
+    borderRadius: '6px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    fontWeight: 'bold',
+    fontSize: '0.8rem'
+  },
+  checklistText: {
+    flex: 1,
+    color: '#333',
+    fontSize: '0.9rem'
+  },
+  checklistTextDone: {
+    flex: 1,
+    color: '#999',
+    textDecoration: 'line-through',
+    fontSize: '0.9rem'
+  },
+  categoryBadge: {
+    fontSize: '0.65rem',
+    padding: '3px 8px',
+    borderRadius: '4px',
+    color: 'white',
+    fontWeight: 'bold',
+    textTransform: 'uppercase'
+  },
+
+  // Budget
+  budgetContainer: {},
+  budgetSummary: {
+    background: 'linear-gradient(135deg, #f8f9fa, #fff)',
+    borderRadius: '12px',
+    padding: '20px',
+    marginBottom: '24px',
+    border: '1px solid #e8e8e8'
+  },
+  budgetSummaryTitle: {
+    fontSize: '1rem',
+    color: '#555',
+    marginBottom: '16px',
+    fontWeight: '600'
+  },
+  budgetSummaryGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+    gap: '12px'
+  },
+  summaryItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '8px 12px',
+    background: 'white',
+    borderRadius: '8px'
+  },
+  summaryDot: {
+    width: '10px',
+    height: '10px',
+    borderRadius: '50%',
+    flexShrink: 0
+  },
+  summaryLabel: {
+    flex: 1,
+    fontSize: '0.8rem',
+    color: '#666'
+  },
+  summaryValue: {
+    fontWeight: 'bold',
+    color: '#333',
+    fontSize: '0.9rem'
+  },
+  budgetSection: {
+    marginBottom: '20px',
+    borderRadius: '12px',
+    border: '2px solid',
+    overflow: 'hidden'
+  },
+  budgetTitle: {
+    color: 'white',
+    padding: '12px 16px',
+    margin: 0,
+    fontSize: '0.95rem',
+    fontWeight: '600'
+  },
+  budgetTable: {
+    width: '100%',
+    borderCollapse: 'collapse'
+  },
+  budgetTh: {
+    textAlign: 'left',
+    padding: '12px 16px',
+    background: '#f8f9fa',
+    fontWeight: '600',
+    fontSize: '0.85rem',
+    color: '#555'
+  },
+  budgetTd: {
+    padding: '10px 16px',
+    borderBottom: '1px solid #eee',
+    fontSize: '0.9rem'
+  },
+  costInput: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end'
+  },
+  dollarSign: {
+    color: '#888',
+    marginRight: '4px'
+  },
+  costField: {
+    width: '80px',
+    padding: '8px 10px',
+    border: '1px solid #ddd',
+    borderRadius: '6px',
+    fontSize: '0.9rem',
+    textAlign: 'right'
+  },
+  subtotalRow: {
+    background: '#f8f9fa'
+  },
+  grandTotal: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+    color: 'white',
+    padding: '20px 24px',
+    borderRadius: '12px',
+    fontSize: '1.1rem',
+    fontWeight: 'bold'
+  },
+  grandTotalAmount: {
+    fontSize: '1.5rem'
+  },
+
+  // Timeline
+  timelineWrapper: {},
+  timelineContainer: {
+    position: 'relative',
+    paddingLeft: '30px'
+  },
+  timelineItem: {
+    position: 'relative',
+    paddingBottom: '24px',
+    paddingLeft: '30px',
+    marginLeft: '15px'
+  },
+  timelineDot: {
+    position: 'absolute',
+    left: '-15px',
+    width: '30px',
+    height: '30px',
+    color: 'white',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight: 'bold',
+    fontSize: '0.85rem'
+  },
+  timelineContent: {
+    background: '#f8f9fa',
+    borderRadius: '12px',
+    padding: '16px'
+  },
+  timelineHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '12px',
+    flexWrap: 'wrap',
+    gap: '8px'
+  },
+  timelineTitle: {
+    fontSize: '1rem',
+    color: '#2c3e50',
+    fontWeight: '600',
+    margin: 0
+  },
+  timelineDateBadge: {
+    background: '#667eea',
+    color: 'white',
+    padding: '4px 10px',
+    borderRadius: '12px',
+    fontSize: '0.75rem',
+    fontWeight: '500'
+  },
+  timelineDateRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    marginBottom: '12px'
+  },
+  timelineLabel: {
+    fontSize: '0.85rem',
+    color: '#666'
+  },
+  dateInput: {
+    padding: '8px 12px',
+    border: '1px solid #ddd',
+    borderRadius: '8px',
+    fontSize: '0.9rem'
+  },
+  timelineProgress: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px'
+  },
+  timelineProgressBar: {
+    flex: 1,
+    height: '6px',
+    background: '#e0e0e0',
+    borderRadius: '3px',
+    overflow: 'hidden'
+  },
+  timelineProgressFill: {
+    height: '100%',
+    transition: 'width 0.3s ease'
+  },
+  timelineProgressText: {
+    fontSize: '0.8rem',
+    color: '#888',
+    whiteSpace: 'nowrap'
+  },
+
+  // Notes
+  notesContainer: {},
+  notesTitle: {
+    fontSize: '1.3rem',
+    color: '#2c3e50',
+    marginBottom: '20px',
+    fontWeight: '600'
+  },
+  notesGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+    gap: '16px',
+    marginBottom: '24px'
+  },
+  reminderBox: {
+    background: 'linear-gradient(135deg, #e8f8f5, #d5f5e3)',
+    border: '2px solid #27ae60',
+    borderRadius: '12px',
+    padding: '16px'
+  },
+  reminderTitle: {
+    color: '#27ae60',
+    marginBottom: '12px',
+    fontSize: '1rem',
+    fontWeight: '600'
+  },
+  reminderList: {
+    listStyle: 'none',
+    padding: 0,
+    margin: 0
+  },
+  reminderItem: {
+    marginBottom: '10px',
+    fontSize: '0.9rem',
+    color: '#333',
+    lineHeight: '1.5'
+  },
+  realtorBox: {
+    background: 'linear-gradient(135deg, #e8f4fd, #d6eaf8)',
+    border: '2px solid #3498db',
+    borderRadius: '12px',
+    padding: '16px'
+  },
+  realtorTitle: {
+    color: '#3498db',
+    marginBottom: '8px',
+    fontSize: '1rem',
+    fontWeight: '600'
+  },
+  realtorName: {
+    fontWeight: 'bold',
+    color: '#2c3e50',
+    marginBottom: '4px',
+    fontSize: '0.95rem'
+  },
+  realtorInfo: {
+    fontSize: '0.85rem',
+    color: '#666'
+  },
+  notesInputSection: {},
+  notesLabel: {
+    display: 'block',
+    fontSize: '0.9rem',
+    color: '#555',
+    marginBottom: '8px',
+    fontWeight: '500'
+  },
+  notesTextarea: {
+    width: '100%',
+    minHeight: '180px',
+    padding: '16px',
+    border: '2px solid #e0e0e0',
+    borderRadius: '12px',
+    fontSize: '1rem',
+    fontFamily: 'inherit',
+    resize: 'vertical',
+    outline: 'none',
+    transition: 'border-color 0.2s'
+  },
+
+  // Footer
+  footer: {
+    textAlign: 'center',
+    padding: '16px',
+    marginTop: '16px'
+  },
+  footerText: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: '0.85rem'
+  }
 };
 
 export default App;
