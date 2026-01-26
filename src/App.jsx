@@ -140,6 +140,7 @@ const initialData = {
       { id: 'b4', item: 'Sealant around toilet', cost: '' },
       { id: 'b5', item: 'Reseal primary shower tile', cost: '' },
       { id: 'b6', item: 'Secure side gate/fence corner', cost: '' },
+      { id: 'b28', item: 'Handrail installation (lower stairs)', cost: '' },
     ],
     high: [
       { id: 'b7', item: 'Pressure wash concrete, exterior, windows', cost: '' },
@@ -151,6 +152,8 @@ const initialData = {
       { id: 'b13', item: 'Reface guest bathtub', cost: '' },
       { id: 'b14', item: 'Weeds - spray/remove all', cost: '' },
       { id: 'b15', item: 'Clean and deodorize turf', cost: '' },
+      { id: 'b29', item: 'Patch and paint above living room TV', cost: '' },
+      { id: 'b30', item: 'Sand & paint wooden handrail (upper stairs)', cost: '' },
     ],
     nice: [
       { id: 'b16', item: 'Replace primary bathroom faucet', cost: '' },
@@ -160,6 +163,8 @@ const initialData = {
       { id: 'b20', item: 'Sand and paint pergola', cost: '' },
       { id: 'b21', item: 'Replace window screens (4)', cost: '' },
       { id: 'b22', item: 'Install stairwell hand railing', cost: '' },
+      { id: 'b31', item: 'Professional landscaping', cost: '' },
+      { id: 'b32', item: 'Painting gazebo and pergola', cost: '' },
     ],
     other: [
       { id: 'b23', item: 'Temporary housing (est. 4-6 weeks)', cost: '' },
