@@ -562,6 +562,40 @@ function App() {
     setDragOverBudgetItemId(null);
   };
 
+  // Move budget item to a different category
+  const moveBudgetItem = (fromCategory, toCategory, itemId) => {
+    if (fromCategory === toCategory) return;
+
+    const newData = { ...data };
+    const fromItems = newData.budget[fromCategory];
+    const itemIndex = fromItems.findIndex(i => i.id === itemId);
+
+    if (itemIndex === -1) return;
+
+    // Remove from source category
+    const [movedItem] = fromItems.splice(itemIndex, 1);
+
+    // Add to destination category
+    newData.budget[toCategory].push(movedItem);
+
+    setData(newData);
+    saveData(newData);
+
+    const categoryNames = {
+      must: 'Must Do',
+      high: 'High Impact',
+      nice: 'Nice to Have',
+      other: 'Moving & Housing'
+    };
+
+    addChangelogEntry(
+      'budget_item_moved',
+      `Moved "${movedItem.item}" from ${categoryNames[fromCategory]} to ${categoryNames[toCategory]}`,
+      categoryNames[fromCategory],
+      categoryNames[toCategory]
+    );
+  };
+
   // Get budget category completion stats
   const getBudgetCategoryProgress = (category) => {
     const items = data.budget[category];
@@ -919,6 +953,34 @@ function App() {
                                       </>
                                     ) : (
                                       <>
+                                        {/* Move to higher priority (Must < High < Nice) */}
+                                        {key !== 'must' && (
+                                          <button
+                                            style={styles.moveBtn}
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              const targetCategory = key === 'high' ? 'must' : 'high';
+                                              moveBudgetItem(key, targetCategory, item.id);
+                                            }}
+                                            title={key === 'high' ? 'Move to Must Do' : 'Move to High Impact'}
+                                          >
+                                            ⬆️
+                                          </button>
+                                        )}
+                                        {/* Move to lower priority */}
+                                        {key !== 'nice' && (
+                                          <button
+                                            style={styles.moveBtn}
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              const targetCategory = key === 'must' ? 'high' : 'nice';
+                                              moveBudgetItem(key, targetCategory, item.id);
+                                            }}
+                                            title={key === 'must' ? 'Move to High Impact' : 'Move to Nice to Have'}
+                                          >
+                                            ⬇️
+                                          </button>
+                                        )}
                                         <button
                                           style={styles.itemActionBtn}
                                           onClick={(e) => { e.stopPropagation(); setEditingBudgetItemId(item.id); setEditBudgetItemText(item.item); }}
@@ -2307,6 +2369,16 @@ const styles = {
     borderRadius: '4px',
     transition: 'background 0.2s',
     opacity: 0.6
+  },
+  moveBtn: {
+    background: colors.fog,
+    border: `1px solid ${colors.mist}`,
+    cursor: 'pointer',
+    fontSize: '0.75rem',
+    padding: '2px 4px',
+    borderRadius: '4px',
+    transition: 'all 0.2s',
+    opacity: 0.7
   },
   itemEditForm: {
     flex: 1,
