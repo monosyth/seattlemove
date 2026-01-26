@@ -194,6 +194,14 @@ function App() {
   const [dragOverItemId, setDragOverItemId] = useState(null);
   const [newItemStepId, setNewItemStepId] = useState(null);
   const [newItemText, setNewItemText] = useState('');
+  // Budget item editing/reordering state
+  const [editingBudgetItemId, setEditingBudgetItemId] = useState(null);
+  const [editBudgetItemText, setEditBudgetItemText] = useState('');
+  const [confirmDeleteBudgetItemId, setConfirmDeleteBudgetItemId] = useState(null);
+  const [draggedBudgetItemId, setDraggedBudgetItemId] = useState(null);
+  const [dragOverBudgetItemId, setDragOverBudgetItemId] = useState(null);
+  const [newBudgetItemCategory, setNewBudgetItemCategory] = useState(null);
+  const [newBudgetItemText, setNewBudgetItemText] = useState('');
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
@@ -416,6 +424,150 @@ function App() {
         );
       }
     }
+  };
+
+  // Toggle budget item completion
+  const toggleBudgetItem = (category, itemId) => {
+    const newData = { ...data };
+    const item = newData.budget[category].find(i => i.id === itemId);
+    if (item) {
+      const oldValue = item.done || false;
+      item.done = !oldValue;
+      setData(newData);
+      saveData(newData);
+      addChangelogEntry(
+        'budget_toggle',
+        `${item.done ? 'Completed' : 'Uncompleted'}: "${item.item}"`,
+        oldValue,
+        item.done
+      );
+    }
+  };
+
+  // Update budget item text
+  const updateBudgetItemText = (category, itemId) => {
+    if (!editBudgetItemText.trim()) return;
+    const newData = { ...data };
+    const item = newData.budget[category].find(i => i.id === itemId);
+    if (item && item.item !== editBudgetItemText.trim()) {
+      const oldText = item.item;
+      item.item = editBudgetItemText.trim();
+      setData(newData);
+      saveData(newData);
+      addChangelogEntry(
+        'budget_item_edited',
+        `Edited budget item`,
+        oldText,
+        editBudgetItemText.trim()
+      );
+    }
+    setEditingBudgetItemId(null);
+    setEditBudgetItemText('');
+  };
+
+  // Add new budget item
+  const addNewBudgetItem = (category) => {
+    if (!newBudgetItemText.trim()) return;
+    const newData = { ...data };
+    const newId = `b-${Date.now()}`;
+    newData.budget[category].push({
+      id: newId,
+      item: newBudgetItemText.trim(),
+      cost: '',
+      done: false
+    });
+    setData(newData);
+    saveData(newData);
+    addChangelogEntry(
+      'budget_item_added',
+      `Added budget item to ${category}`,
+      null,
+      newBudgetItemText.trim()
+    );
+    setNewBudgetItemCategory(null);
+    setNewBudgetItemText('');
+  };
+
+  // Delete budget item
+  const deleteBudgetItem = (category, itemId) => {
+    const newData = { ...data };
+    const item = newData.budget[category].find(i => i.id === itemId);
+    const deletedText = item?.item || '';
+    newData.budget[category] = newData.budget[category].filter(i => i.id !== itemId);
+    setData(newData);
+    saveData(newData);
+    addChangelogEntry(
+      'budget_item_deleted',
+      `Deleted budget item`,
+      deletedText,
+      null
+    );
+    setConfirmDeleteBudgetItemId(null);
+  };
+
+  // Drag and drop for budget items
+  const handleBudgetDragStart = (e, itemId) => {
+    setDraggedBudgetItemId(itemId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleBudgetDragOver = (e, itemId) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (itemId !== dragOverBudgetItemId) {
+      setDragOverBudgetItemId(itemId);
+    }
+  };
+
+  const handleBudgetDragLeave = () => {
+    setDragOverBudgetItemId(null);
+  };
+
+  const handleBudgetDrop = (e, category, targetItemId) => {
+    e.preventDefault();
+    if (!draggedBudgetItemId || draggedBudgetItemId === targetItemId) {
+      setDraggedBudgetItemId(null);
+      setDragOverBudgetItemId(null);
+      return;
+    }
+
+    const newData = { ...data };
+    const items = newData.budget[category];
+    const draggedIndex = items.findIndex(i => i.id === draggedBudgetItemId);
+    const targetIndex = items.findIndex(i => i.id === targetItemId);
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedBudgetItemId(null);
+      setDragOverBudgetItemId(null);
+      return;
+    }
+
+    const [draggedItem] = items.splice(draggedIndex, 1);
+    items.splice(targetIndex, 0, draggedItem);
+
+    setData(newData);
+    saveData(newData);
+    addChangelogEntry(
+      'budget_item_reordered',
+      `Reordered "${draggedItem.item}"`,
+      `Position ${draggedIndex + 1}`,
+      `Position ${targetIndex + 1}`
+    );
+    setDraggedBudgetItemId(null);
+    setDragOverBudgetItemId(null);
+  };
+
+  const handleBudgetDragEnd = () => {
+    setDraggedBudgetItemId(null);
+    setDragOverBudgetItemId(null);
+  };
+
+  // Get budget category completion stats
+  const getBudgetCategoryProgress = (category) => {
+    const items = data.budget[category];
+    if (!items || items.length === 0) return { done: 0, total: 0 };
+    const done = items.filter(i => i.done).length;
+    return { done, total: items.length };
   };
 
   const updateNotes = (notes) => {
@@ -967,20 +1119,26 @@ function App() {
           <div style={styles.budgetContainer}>
             {/* Budget Summary Card */}
             <div style={styles.budgetSummary}>
-              <h3 style={styles.budgetSummaryTitle}>Budget Summary</h3>
+              <h3 style={styles.budgetSummaryTitle}>Budget & Repairs Summary</h3>
               <div style={styles.budgetSummaryGrid}>
                 {[
                   { key: 'must', label: 'Must Do', color: colors.salmon },
                   { key: 'high', label: 'High Impact', color: colors.goldenHour },
                   { key: 'nice', label: 'Nice to Have', color: colors.duskBlue },
                   { key: 'other', label: 'Moving & Housing', color: colors.deepBlue }
-                ].map(({ key, label, color }) => (
-                  <div key={key} style={styles.summaryItem}>
-                    <div style={{ ...styles.summaryDot, background: color }}></div>
-                    <span style={styles.summaryLabel}>{label}</span>
-                    <span style={styles.summaryValue}>${getBudgetTotal(key).toLocaleString()}</span>
-                  </div>
-                ))}
+                ].map(({ key, label, color }) => {
+                  const progress = getBudgetCategoryProgress(key);
+                  return (
+                    <div key={key} style={styles.summaryItem}>
+                      <div style={{ ...styles.summaryDot, background: color }}></div>
+                      <div style={styles.summaryDetails}>
+                        <span style={styles.summaryLabel}>{label}</span>
+                        <span style={styles.summaryProgress}>{progress.done}/{progress.total} done</span>
+                      </div>
+                      <span style={styles.summaryValue}>${getBudgetTotal(key).toLocaleString()}</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -990,45 +1148,165 @@ function App() {
               { key: 'high', title: 'High Impact (Buyers Notice)', color: colors.goldenHour },
               { key: 'nice', title: 'Nice to Have', color: colors.duskBlue },
               { key: 'other', title: 'Moving & Housing Costs', color: colors.deepBlue }
-            ].map(({ key, title, color }) => (
-              <div key={key} className="budget-section" style={{...styles.budgetSection, borderColor: color}}>
-                <h3 className="budget-title" style={{...styles.budgetTitle, background: color}}>{title}</h3>
-                <table className="budget-table" style={styles.budgetTable}>
-                  <thead>
-                    <tr>
-                      <th style={styles.budgetTh}>Item</th>
-                      <th style={{...styles.budgetTh, width: '120px', textAlign: 'right'}}>Cost</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+            ].map(({ key, title, color }) => {
+              const progress = getBudgetCategoryProgress(key);
+              return (
+                <div key={key} className="budget-section" style={{...styles.budgetSection, borderColor: color}}>
+                  <div style={{...styles.budgetTitle, background: color}}>
+                    <h3 style={styles.budgetTitleText}>{title}</h3>
+                    <span style={styles.budgetTitleProgress}>{progress.done}/{progress.total}</span>
+                  </div>
+
+                  <div style={styles.budgetItemsList}>
                     {data.budget[key].map(item => (
-                      <tr key={item.id}>
-                        <td style={styles.budgetTd}>{item.item}</td>
-                        <td style={{...styles.budgetTd, textAlign: 'right'}}>
-                          <div style={styles.costInput}>
-                            <span style={styles.dollarSign}>$</span>
+                      <div
+                        key={item.id}
+                        draggable={editingBudgetItemId !== item.id}
+                        onDragStart={(e) => handleBudgetDragStart(e, item.id)}
+                        onDragOver={(e) => handleBudgetDragOver(e, item.id)}
+                        onDragLeave={handleBudgetDragLeave}
+                        onDrop={(e) => handleBudgetDrop(e, key, item.id)}
+                        onDragEnd={handleBudgetDragEnd}
+                        style={{
+                          ...styles.budgetItem,
+                          ...(item.done ? styles.budgetItemDone : {}),
+                          ...(draggedBudgetItemId === item.id ? styles.budgetItemDragging : {}),
+                          ...(dragOverBudgetItemId === item.id && draggedBudgetItemId !== item.id ? styles.budgetItemDropTarget : {})
+                        }}
+                      >
+                        {/* Drag Handle */}
+                        <span style={styles.dragHandle} title="Drag to reorder">⋮⋮</span>
+
+                        {/* Checkbox */}
+                        <span
+                          style={item.done ? styles.checkboxDone : styles.checkbox}
+                          onClick={() => toggleBudgetItem(key, item.id)}
+                        >
+                          {item.done ? '✓' : ''}
+                        </span>
+
+                        {/* Item Text or Edit Input */}
+                        {editingBudgetItemId === item.id ? (
+                          <div style={styles.budgetItemEditForm}>
                             <input
-                              type="number"
-                              className="cost-field"
-                              value={item.cost}
-                              onChange={(e) => updateBudgetCost(key, item.id, e.target.value)}
-                              placeholder="0"
-                              style={styles.costField}
+                              type="text"
+                              value={editBudgetItemText}
+                              onChange={(e) => setEditBudgetItemText(e.target.value)}
+                              onKeyPress={(e) => e.key === 'Enter' && updateBudgetItemText(key, item.id)}
+                              onBlur={() => updateBudgetItemText(key, item.id)}
+                              style={styles.itemEditInput}
+                              autoFocus
+                              onClick={(e) => e.stopPropagation()}
                             />
                           </div>
-                        </td>
-                      </tr>
+                        ) : (
+                          <span
+                            style={item.done ? styles.budgetItemTextDone : styles.budgetItemText}
+                            onClick={() => toggleBudgetItem(key, item.id)}
+                          >
+                            {item.item}
+                          </span>
+                        )}
+
+                        {/* Cost Input */}
+                        <div style={styles.budgetCostWrapper}>
+                          <span style={styles.dollarSign}>$</span>
+                          <input
+                            type="number"
+                            value={item.cost}
+                            onChange={(e) => updateBudgetCost(key, item.id, e.target.value)}
+                            placeholder="0"
+                            style={styles.costField}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+
+                        {/* Action Buttons */}
+                        {editingBudgetItemId !== item.id && (
+                          <div style={styles.budgetItemActions}>
+                            {confirmDeleteBudgetItemId === item.id ? (
+                              <>
+                                <span style={styles.confirmDeleteText}>Delete?</span>
+                                <button
+                                  style={styles.confirmYesBtn}
+                                  onClick={(e) => { e.stopPropagation(); deleteBudgetItem(key, item.id); }}
+                                >
+                                  Yes
+                                </button>
+                                <button
+                                  style={styles.confirmNoBtn}
+                                  onClick={(e) => { e.stopPropagation(); setConfirmDeleteBudgetItemId(null); }}
+                                >
+                                  No
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  style={styles.itemActionBtn}
+                                  onClick={(e) => { e.stopPropagation(); setEditingBudgetItemId(item.id); setEditBudgetItemText(item.item); }}
+                                  title="Edit"
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  style={styles.itemActionBtn}
+                                  onClick={(e) => { e.stopPropagation(); setConfirmDeleteBudgetItemId(item.id); }}
+                                  title="Delete"
+                                >
+                                  🗑️
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     ))}
-                    <tr style={styles.subtotalRow}>
-                      <td style={styles.budgetTd}><strong>Subtotal</strong></td>
-                      <td style={{...styles.budgetTd, textAlign: 'right'}}>
-                        <strong>${getBudgetTotal(key).toLocaleString()}</strong>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            ))}
+                  </div>
+
+                  {/* Add New Item */}
+                  {newBudgetItemCategory === key ? (
+                    <div style={styles.addItemForm}>
+                      <input
+                        type="text"
+                        value={newBudgetItemText}
+                        onChange={(e) => setNewBudgetItemText(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && addNewBudgetItem(key)}
+                        placeholder="Enter new item..."
+                        style={styles.addItemInput}
+                        autoFocus
+                      />
+                      <button
+                        style={styles.addItemSaveBtn}
+                        onClick={() => addNewBudgetItem(key)}
+                        disabled={!newBudgetItemText.trim()}
+                      >
+                        Add
+                      </button>
+                      <button
+                        style={styles.addItemCancelBtn}
+                        onClick={() => { setNewBudgetItemCategory(null); setNewBudgetItemText(''); }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      style={styles.addBudgetItemBtn}
+                      onClick={() => setNewBudgetItemCategory(key)}
+                    >
+                      + Add item
+                    </button>
+                  )}
+
+                  {/* Subtotal */}
+                  <div style={styles.budgetSubtotal}>
+                    <span>Subtotal</span>
+                    <span style={styles.budgetSubtotalAmount}>${getBudgetTotal(key).toLocaleString()}</span>
+                  </div>
+                </div>
+              );
+            })}
 
             <div className="grand-total" style={styles.grandTotal}>
               <span>GRAND TOTAL</span>
@@ -1260,6 +1538,11 @@ function App() {
                     task_toggle: '✓',
                     date_change: '📅',
                     budget_change: '💰',
+                    budget_toggle: '✓',
+                    budget_item_added: '➕',
+                    budget_item_edited: '✏️',
+                    budget_item_deleted: '🗑️',
+                    budget_item_reordered: '↕️',
                     notes_edit: '📝',
                     note_added: '➕',
                     note_edited: '✏️',
@@ -1273,6 +1556,11 @@ function App() {
                     task_toggle: colors.complete,
                     date_change: colors.skyBlue,
                     budget_change: colors.goldenHour,
+                    budget_toggle: colors.complete,
+                    budget_item_added: colors.goldenHour,
+                    budget_item_edited: colors.honey,
+                    budget_item_deleted: colors.salmon,
+                    budget_item_reordered: colors.cedar,
                     notes_edit: colors.sage,
                     note_added: colors.forest,
                     note_edited: colors.duskBlue,
@@ -2001,82 +2289,166 @@ const styles = {
   },
   budgetSummaryGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
     gap: '12px'
   },
   summaryItem: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
-    padding: '8px 12px',
+    gap: '10px',
+    padding: '10px 14px',
     background: 'white',
     borderRadius: '8px'
   },
   summaryDot: {
-    width: '10px',
-    height: '10px',
+    width: '12px',
+    height: '12px',
     borderRadius: '50%',
     flexShrink: 0
   },
-  summaryLabel: {
+  summaryDetails: {
     flex: 1,
-    fontSize: '0.8rem',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2px'
+  },
+  summaryLabel: {
+    fontSize: '0.85rem',
+    color: colors.mountain,
+    fontWeight: '500'
+  },
+  summaryProgress: {
+    fontSize: '0.7rem',
     color: colors.slate
   },
   summaryValue: {
     fontWeight: 'bold',
     color: colors.evergreen,
-    fontSize: '0.9rem'
+    fontSize: '0.95rem'
   },
   budgetSection: {
     marginBottom: '20px',
     borderRadius: '12px',
     border: '2px solid',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    background: 'white'
   },
   budgetTitle: {
     color: 'white',
     padding: '12px 16px',
     margin: 0,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  budgetTitleText: {
+    margin: 0,
     fontSize: '0.95rem',
     fontWeight: '600'
   },
-  budgetTable: {
-    width: '100%',
-    borderCollapse: 'collapse'
+  budgetTitleProgress: {
+    fontSize: '0.8rem',
+    opacity: 0.9
   },
-  budgetTh: {
-    textAlign: 'left',
-    padding: '12px 16px',
-    background: colors.fog,
-    fontWeight: '600',
-    fontSize: '0.85rem',
-    color: colors.forest
+  budgetItemsList: {
+    padding: '12px'
   },
-  budgetTd: {
-    padding: '10px 16px',
-    borderBottom: `1px solid ${colors.fog}`,
-    fontSize: '0.9rem'
-  },
-  costInput: {
+  budgetItem: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'flex-end'
+    gap: '8px',
+    padding: '10px 12px',
+    borderRadius: '8px',
+    transition: 'all 0.2s',
+    background: colors.fog,
+    marginBottom: '8px',
+    border: `1px solid ${colors.mist}`
+  },
+  budgetItemDone: {
+    opacity: 0.6
+  },
+  budgetItemDragging: {
+    opacity: 0.4,
+    background: colors.paleBlue,
+    border: `2px dashed ${colors.slate}`,
+    transform: 'scale(0.98)'
+  },
+  budgetItemDropTarget: {
+    borderTop: `3px solid ${colors.evergreen}`,
+    background: `linear-gradient(180deg, ${colors.mist}40 0%, ${colors.fog} 20%)`,
+    transform: 'translateY(2px)'
+  },
+  budgetItemText: {
+    flex: 1,
+    color: colors.mountain,
+    fontSize: '0.9rem',
+    cursor: 'pointer'
+  },
+  budgetItemTextDone: {
+    flex: 1,
+    color: colors.rain,
+    textDecoration: 'line-through',
+    fontSize: '0.9rem',
+    cursor: 'pointer'
+  },
+  budgetItemEditForm: {
+    flex: 1,
+    display: 'flex'
+  },
+  budgetCostWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    marginLeft: '8px'
+  },
+  budgetItemActions: {
+    display: 'flex',
+    gap: '4px',
+    marginLeft: '8px',
+    flexShrink: 0
+  },
+  addBudgetItemBtn: {
+    width: '100%',
+    padding: '10px',
+    margin: '0 12px 12px 12px',
+    background: 'transparent',
+    border: `2px dashed ${colors.mist}`,
+    borderRadius: '8px',
+    color: colors.slate,
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    boxSizing: 'border-box',
+    width: 'calc(100% - 24px)'
+  },
+  budgetSubtotal: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '12px 16px',
+    background: colors.fog,
+    borderTop: `1px solid ${colors.mist}`,
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    color: colors.mountain
+  },
+  budgetSubtotalAmount: {
+    color: colors.evergreen,
+    fontSize: '1rem'
   },
   dollarSign: {
     color: colors.slate,
-    marginRight: '4px'
+    marginRight: '4px',
+    fontSize: '0.85rem'
   },
   costField: {
-    width: '80px',
-    padding: '8px 10px',
+    width: '70px',
+    padding: '6px 8px',
     border: `1px solid ${colors.mist}`,
     borderRadius: '6px',
-    fontSize: '0.9rem',
-    textAlign: 'right'
-  },
-  subtotalRow: {
-    background: colors.fog
+    fontSize: '0.85rem',
+    textAlign: 'right',
+    background: 'white'
   },
   grandTotal: {
     display: 'flex',
