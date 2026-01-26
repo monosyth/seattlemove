@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db } from './firebase';
-import { doc, setDoc, onSnapshot } from 'firebase/firestore';
+import { doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, limit, getDocs } from 'firebase/firestore';
 
 const initialData = {
   currentStep: 1,
@@ -184,6 +184,8 @@ function App() {
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [editNoteText, setEditNoteText] = useState('');
   const [confirmDeleteNoteId, setConfirmDeleteNoteId] = useState(null);
+  const [changelog, setChangelog] = useState([]);
+  const [changelogLoading, setChangelogLoading] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
@@ -197,6 +199,37 @@ function App() {
     });
     return () => unsubscribe();
   }, []);
+
+  // Load changelog entries
+  const loadChangelog = async () => {
+    setChangelogLoading(true);
+    try {
+      const changelogRef = collection(db, 'seattle-move', DOCUMENT_ID, 'changelog');
+      const q = query(changelogRef, orderBy('timestamp', 'desc'), limit(100));
+      const snapshot = await getDocs(q);
+      const entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setChangelog(entries);
+    } catch (error) {
+      console.error('Error loading changelog:', error);
+    }
+    setChangelogLoading(false);
+  };
+
+  // Add a changelog entry
+  const addChangelogEntry = async (type, description, oldValue = null, newValue = null) => {
+    try {
+      const changelogRef = collection(db, 'seattle-move', DOCUMENT_ID, 'changelog');
+      await addDoc(changelogRef, {
+        type,
+        description,
+        oldValue,
+        newValue,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error adding changelog entry:', error);
+    }
+  };
 
   const saveData = async (newData) => {
     setSaving(true);
@@ -213,34 +246,68 @@ function App() {
     const newData = { ...data };
     const item = newData.steps[stepId].items.find(i => i.id === itemId);
     if (item) {
+      const oldValue = item.done;
       item.done = !item.done;
       setData(newData);
       saveData(newData);
+      addChangelogEntry(
+        'task_toggle',
+        `${item.done ? 'Completed' : 'Uncompleted'}: "${item.text}" in Step ${stepId}`,
+        oldValue,
+        item.done
+      );
     }
   };
 
 
   const updateTargetDate = (stepId, date) => {
     const newData = { ...data };
+    const oldDate = newData.steps[stepId].targetDate;
     newData.steps[stepId].targetDate = date;
     setData(newData);
     saveData(newData);
+    addChangelogEntry(
+      'date_change',
+      `Updated target date for "${newData.steps[stepId].title}"`,
+      oldDate || 'Not set',
+      date || 'Cleared'
+    );
   };
 
   const updateBudgetCost = (category, itemId, cost) => {
     const newData = { ...data };
     const item = newData.budget[category].find(i => i.id === itemId);
     if (item) {
+      const oldCost = item.cost;
       item.cost = cost;
       setData(newData);
       saveData(newData);
+      // Only log significant changes (not every keystroke)
+      if (oldCost !== cost && cost !== '') {
+        addChangelogEntry(
+          'budget_change',
+          `Updated budget for "${item.item}"`,
+          oldCost ? `$${oldCost}` : 'Not set',
+          `$${cost}`
+        );
+      }
     }
   };
 
   const updateNotes = (notes) => {
+    const oldNotes = data.notes;
     const newData = { ...data, notes };
     setData(newData);
     saveData(newData);
+    // Only log if notes actually changed significantly
+    if (oldNotes !== notes && notes.length > 0 && Math.abs(notes.length - oldNotes.length) > 10) {
+      addChangelogEntry(
+        'notes_edit',
+        'Updated general notes',
+        oldNotes.substring(0, 100) + (oldNotes.length > 100 ? '...' : ''),
+        notes.substring(0, 100) + (notes.length > 100 ? '...' : '')
+      );
+    }
   };
 
   const addStepNote = (stepId) => {
@@ -248,14 +315,21 @@ function App() {
     const newData = { ...data };
     if (!newData.stepNotes) newData.stepNotes = {};
     if (!newData.stepNotes[stepId]) newData.stepNotes[stepId] = [];
+    const noteText = newNoteText.trim();
     newData.stepNotes[stepId].push({
       id: Date.now().toString(),
-      text: newNoteText.trim(),
+      text: noteText,
       createdAt: new Date().toISOString()
     });
     setData(newData);
     saveData(newData);
     setNewNoteText('');
+    addChangelogEntry(
+      'note_added',
+      `Added note to "${data.steps[stepId].title}"`,
+      null,
+      noteText
+    );
   };
 
   const updateStepNote = (stepId, noteId) => {
@@ -263,9 +337,16 @@ function App() {
     const newData = { ...data };
     const note = newData.stepNotes[stepId]?.find(n => n.id === noteId);
     if (note) {
+      const oldText = note.text;
       note.text = editNoteText.trim();
       setData(newData);
       saveData(newData);
+      addChangelogEntry(
+        'note_edited',
+        `Edited note in "${data.steps[stepId].title}"`,
+        oldText,
+        editNoteText.trim()
+      );
     }
     setEditingNoteId(null);
     setEditNoteText('');
@@ -273,9 +354,17 @@ function App() {
 
   const deleteStepNote = (stepId, noteId) => {
     const newData = { ...data };
+    const note = newData.stepNotes[stepId]?.find(n => n.id === noteId);
+    const deletedText = note?.text || '';
     newData.stepNotes[stepId] = newData.stepNotes[stepId].filter(n => n.id !== noteId);
     setData(newData);
     saveData(newData);
+    addChangelogEntry(
+      'note_deleted',
+      `Deleted note from "${data.steps[stepId].title}"`,
+      deletedText,
+      null
+    );
   };
 
   const getAllNotes = () => {
@@ -385,13 +474,17 @@ function App() {
           { id: 'checklist', icon: '✓', label: 'Checklist' },
           { id: 'budget', icon: '💰', label: 'Budget' },
           { id: 'timeline', icon: '📅', label: 'Timeline' },
-          { id: 'notes', icon: '📝', label: 'Notes' }
+          { id: 'notes', icon: '📝', label: 'Notes' },
+          { id: 'history', icon: '📜', label: 'History' }
         ].map(tab => (
           <button
             key={tab.id}
             className="tab-btn"
             style={activeTab === tab.id ? {...styles.tabBtn, ...styles.tabBtnActive} : styles.tabBtn}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => {
+              setActiveTab(tab.id);
+              if (tab.id === 'history') loadChangelog();
+            }}
           >
             <span style={styles.tabIcon}>{tab.icon}</span>
             <span style={styles.tabLabel}>{tab.label}</span>
@@ -903,6 +996,87 @@ function App() {
                 style={styles.notesTextarea}
               />
             </div>
+          </div>
+        )}
+
+        {/* History Tab */}
+        {activeTab === 'history' && (
+          <div style={styles.historyContainer}>
+            <div style={styles.historyHeader}>
+              <h2 style={styles.historyTitle}>📜 Change History</h2>
+              <button
+                style={styles.refreshBtn}
+                onClick={loadChangelog}
+                disabled={changelogLoading}
+              >
+                {changelogLoading ? '⏳ Loading...' : '🔄 Refresh'}
+              </button>
+            </div>
+            <p style={styles.historySubtitle}>All changes are automatically saved so you never lose information</p>
+
+            {changelogLoading ? (
+              <div style={styles.historyLoading}>Loading change history...</div>
+            ) : changelog.length === 0 ? (
+              <div style={styles.historyEmpty}>
+                <p>📝 No changes recorded yet.</p>
+                <p style={styles.historyEmptyHint}>Changes to tasks, notes, budget, and dates will appear here.</p>
+              </div>
+            ) : (
+              <div style={styles.historyList}>
+                {changelog.map((entry) => {
+                  const date = new Date(entry.timestamp);
+                  const typeIcons = {
+                    task_toggle: '✓',
+                    date_change: '📅',
+                    budget_change: '💰',
+                    notes_edit: '📝',
+                    note_added: '➕',
+                    note_edited: '✏️',
+                    note_deleted: '🗑️'
+                  };
+                  const typeColors = {
+                    task_toggle: colors.complete,
+                    date_change: colors.skyBlue,
+                    budget_change: colors.goldenHour,
+                    notes_edit: colors.sage,
+                    note_added: colors.forest,
+                    note_edited: colors.duskBlue,
+                    note_deleted: colors.salmon
+                  };
+
+                  return (
+                    <div key={entry.id} style={styles.historyItem}>
+                      <div style={styles.historyItemHeader}>
+                        <span style={{
+                          ...styles.historyIcon,
+                          background: typeColors[entry.type] || colors.slate
+                        }}>
+                          {typeIcons[entry.type] || '📋'}
+                        </span>
+                        <span style={styles.historyDescription}>{entry.description}</span>
+                        <span style={styles.historyTime}>
+                          {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      {(entry.oldValue || entry.newValue) && (
+                        <div style={styles.historyDetails}>
+                          {entry.oldValue && (
+                            <div style={styles.historyOldValue}>
+                              <span style={styles.historyValueLabel}>Before:</span> {entry.oldValue}
+                            </div>
+                          )}
+                          {entry.newValue && (
+                            <div style={styles.historyNewValue}>
+                              <span style={styles.historyValueLabel}>After:</span> {entry.newValue}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </main>
@@ -1748,6 +1922,118 @@ const styles = {
     resize: 'vertical',
     outline: 'none',
     transition: 'border-color 0.2s'
+  },
+
+  // History
+  historyContainer: {},
+  historyHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '8px',
+    flexWrap: 'wrap',
+    gap: '12px'
+  },
+  historyTitle: {
+    fontSize: '1.3rem',
+    color: colors.evergreen,
+    fontWeight: '600',
+    margin: 0
+  },
+  historySubtitle: {
+    fontSize: '0.9rem',
+    color: colors.slate,
+    marginBottom: '20px'
+  },
+  refreshBtn: {
+    padding: '8px 16px',
+    background: `linear-gradient(135deg, ${colors.skyBlue}, ${colors.duskBlue})`,
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    cursor: 'pointer'
+  },
+  historyLoading: {
+    textAlign: 'center',
+    padding: '40px',
+    color: colors.slate,
+    fontSize: '1rem'
+  },
+  historyEmpty: {
+    textAlign: 'center',
+    padding: '40px',
+    background: colors.fog,
+    borderRadius: '12px',
+    color: colors.mountain
+  },
+  historyEmptyHint: {
+    fontSize: '0.85rem',
+    color: colors.slate,
+    marginTop: '8px'
+  },
+  historyList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px'
+  },
+  historyItem: {
+    background: colors.fog,
+    borderRadius: '10px',
+    padding: '14px',
+    border: `1px solid ${colors.mist}`
+  },
+  historyItemHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    flexWrap: 'wrap'
+  },
+  historyIcon: {
+    width: '28px',
+    height: '28px',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    fontSize: '0.85rem',
+    flexShrink: 0
+  },
+  historyDescription: {
+    flex: 1,
+    fontSize: '0.9rem',
+    color: colors.mountain,
+    fontWeight: '500'
+  },
+  historyTime: {
+    fontSize: '0.75rem',
+    color: colors.slate,
+    whiteSpace: 'nowrap'
+  },
+  historyDetails: {
+    marginTop: '10px',
+    paddingTop: '10px',
+    borderTop: `1px solid ${colors.mist}`,
+    fontSize: '0.85rem'
+  },
+  historyOldValue: {
+    color: colors.salmon,
+    marginBottom: '4px',
+    padding: '6px 10px',
+    background: `${colors.salmon}15`,
+    borderRadius: '6px'
+  },
+  historyNewValue: {
+    color: colors.forest,
+    padding: '6px 10px',
+    background: `${colors.forest}15`,
+    borderRadius: '6px'
+  },
+  historyValueLabel: {
+    fontWeight: '600',
+    marginRight: '6px'
   },
 
   // Footer
