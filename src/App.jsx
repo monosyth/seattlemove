@@ -1641,31 +1641,46 @@ function App() {
             {/* Budget Summary Card */}
             <div style={styles.budgetSummary}>
               <h3 style={styles.budgetSummaryTitle}>💰 Project Budget</h3>
-              <div style={styles.budgetOverviewGrid}>
-                <div style={styles.budgetOverviewItem}>
-                  <span style={styles.budgetOverviewLabel}>Repairs (Must Do)</span>
-                  <span style={styles.budgetOverviewValue}>${getBudgetTotal('must').toLocaleString()}</span>
+
+              {/* Repairs Summary (read-only) */}
+              <div style={styles.budgetCategorySection}>
+                <div style={styles.budgetCategoryHeader}>
+                  <span style={styles.budgetCategoryName}>🔧 Repairs</span>
+                  <span style={styles.budgetCategoryTotal}>${(getBudgetTotal('must') + getBudgetTotal('high') + getBudgetTotal('nice')).toLocaleString()}</span>
                 </div>
-                <div style={styles.budgetOverviewItem}>
-                  <span style={styles.budgetOverviewLabel}>Repairs (High Impact)</span>
-                  <span style={styles.budgetOverviewValue}>${getBudgetTotal('high').toLocaleString()}</span>
+                <div style={styles.budgetCategoryBreakdown}>
+                  <div style={styles.budgetBreakdownItem}>
+                    <span style={styles.budgetBreakdownLabel}>Must Do (Safety/Inspection)</span>
+                    <span style={styles.budgetBreakdownValue}>${getBudgetTotal('must').toLocaleString()}</span>
+                  </div>
+                  <div style={styles.budgetBreakdownItem}>
+                    <span style={styles.budgetBreakdownLabel}>High Impact (Buyers Notice)</span>
+                    <span style={styles.budgetBreakdownValue}>${getBudgetTotal('high').toLocaleString()}</span>
+                  </div>
+                  <div style={styles.budgetBreakdownItem}>
+                    <span style={styles.budgetBreakdownLabel}>Nice to Have</span>
+                    <span style={styles.budgetBreakdownValue}>${getBudgetTotal('nice').toLocaleString()}</span>
+                  </div>
                 </div>
-                <div style={styles.budgetOverviewItem}>
-                  <span style={styles.budgetOverviewLabel}>Repairs (Nice to Have)</span>
-                  <span style={styles.budgetOverviewValue}>${getBudgetTotal('nice').toLocaleString()}</span>
+                <p style={styles.budgetCategoryNote}>Edit repair costs in Checklist → Repairs</p>
+              </div>
+
+              {/* Moving & Housing Summary */}
+              <div style={styles.budgetCategorySection}>
+                <div style={styles.budgetCategoryHeader}>
+                  <span style={styles.budgetCategoryName}>🚚 Moving & Housing</span>
+                  <span style={styles.budgetCategoryTotal}>${getBudgetTotal('other').toLocaleString()}</span>
                 </div>
-                <div style={styles.budgetOverviewItem}>
-                  <span style={styles.budgetOverviewLabel}>Moving & Housing</span>
-                  <span style={styles.budgetOverviewValue}>${getBudgetTotal('other').toLocaleString()}</span>
-                </div>
-                <div style={{...styles.budgetOverviewItem, ...styles.budgetOverviewTotal}}>
-                  <span style={styles.budgetOverviewLabelTotal}>Total Budget</span>
-                  <span style={styles.budgetOverviewTotalValue}>${getGrandTotal().toLocaleString()}</span>
-                </div>
+              </div>
+
+              {/* Grand Total */}
+              <div style={styles.budgetGrandTotal}>
+                <span style={styles.budgetGrandTotalLabel}>Total Project Budget</span>
+                <span style={styles.budgetGrandTotalValue}>${getGrandTotal().toLocaleString()}</span>
               </div>
             </div>
 
-            {/* Moving & Housing Section */}
+            {/* Moving & Housing Section (Editable) */}
             <div className="budget-section" style={{...styles.budgetSection, borderColor: colors.deepBlue}}>
               <div style={{...styles.budgetTitle, background: colors.deepBlue}}>
                 <div>
@@ -1782,9 +1797,6 @@ function App() {
               )}
             </div>
 
-            <p style={styles.budgetNote}>
-              💡 Repair costs are managed in the Checklist → Repairs step
-            </p>
           </div>
         )}
 
@@ -3038,56 +3050,75 @@ const styles = {
     border: `1px solid ${colors.mist}`
   },
   budgetSummaryTitle: {
-    fontSize: '1rem',
+    fontSize: '1.1rem',
     color: colors.forest,
     marginBottom: '16px',
     fontWeight: '600'
   },
-  budgetOverviewGrid: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px'
+  budgetCategorySection: {
+    background: 'white',
+    borderRadius: '10px',
+    padding: '14px',
+    marginBottom: '12px'
   },
-  budgetOverviewItem: {
+  budgetCategoryHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  budgetCategoryName: {
+    fontSize: '0.95rem',
+    fontWeight: '600',
+    color: colors.charcoal
+  },
+  budgetCategoryTotal: {
+    fontSize: '1rem',
+    fontWeight: '700',
+    color: colors.evergreen
+  },
+  budgetCategoryBreakdown: {
+    marginTop: '10px',
+    paddingTop: '10px',
+    borderTop: `1px solid ${colors.mist}`
+  },
+  budgetBreakdownItem: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '10px 14px',
-    background: 'white',
-    borderRadius: '8px'
+    padding: '6px 0',
+    fontSize: '0.85rem'
   },
-  budgetOverviewLabel: {
-    fontSize: '0.9rem',
+  budgetBreakdownLabel: {
     color: colors.slate
   },
-  budgetOverviewLabelTotal: {
-    fontSize: '0.95rem',
-    color: colors.evergreen,
-    fontWeight: '600'
-  },
-  budgetOverviewValue: {
-    fontWeight: '600',
+  budgetBreakdownValue: {
     color: colors.mountain,
-    fontSize: '0.95rem'
+    fontWeight: '500'
   },
-  budgetOverviewTotal: {
-    background: `linear-gradient(135deg, ${colors.fog}, white)`,
-    borderTop: `2px solid ${colors.evergreen}`,
+  budgetCategoryNote: {
+    fontSize: '0.75rem',
+    color: colors.slate,
+    marginTop: '10px',
+    fontStyle: 'italic'
+  },
+  budgetGrandTotal: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '16px',
+    background: `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`,
+    borderRadius: '10px',
     marginTop: '4px'
   },
-  budgetOverviewTotalValue: {
-    fontWeight: 'bold',
-    color: colors.evergreen,
-    fontSize: '1.1rem'
+  budgetGrandTotalLabel: {
+    fontSize: '1rem',
+    fontWeight: '600',
+    color: 'white'
   },
-  budgetNote: {
-    textAlign: 'center',
-    color: colors.slate,
-    fontSize: '0.85rem',
-    marginTop: '16px',
-    padding: '12px',
-    background: colors.fog,
-    borderRadius: '8px'
+  budgetGrandTotalValue: {
+    fontSize: '1.25rem',
+    fontWeight: '700',
+    color: 'white'
   },
   budgetSection: {
     marginBottom: '20px',
