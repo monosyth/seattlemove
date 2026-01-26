@@ -1265,137 +1265,6 @@ function App() {
                         + Add Realtor
                       </button>
                     )}
-
-                    {/* Realtor Questions Section */}
-                    <div style={styles.questionsSection}>
-                      <h3 style={styles.questionsSectionTitle}>❓ Questions to Ask</h3>
-
-                      <div style={styles.questionsList}>
-                        {(data.realtorQuestions || []).map((q, index) => (
-                          <div key={q.id} style={styles.questionCard}>
-                            {editingQuestionId === q.id ? (
-                              // Edit Mode
-                              <div style={styles.questionEditForm}>
-                                <label style={styles.questionLabel}>Question:</label>
-                                <textarea
-                                  value={editingQuestionData.question || ''}
-                                  onChange={(e) => setEditingQuestionData({...editingQuestionData, question: e.target.value})}
-                                  style={styles.questionTextarea}
-                                  rows={2}
-                                />
-                                <label style={styles.questionLabel}>Ideal Answer / What to look for:</label>
-                                <textarea
-                                  value={editingQuestionData.idealAnswer || ''}
-                                  onChange={(e) => setEditingQuestionData({...editingQuestionData, idealAnswer: e.target.value})}
-                                  style={styles.questionTextarea}
-                                  rows={2}
-                                />
-                                <label style={styles.questionLabel}>Notes / Their Answer:</label>
-                                <textarea
-                                  value={editingQuestionData.answer || ''}
-                                  onChange={(e) => setEditingQuestionData({...editingQuestionData, answer: e.target.value})}
-                                  style={styles.questionTextarea}
-                                  rows={2}
-                                />
-                                <div style={styles.questionEditActions}>
-                                  <button style={styles.questionSaveBtn} onClick={() => updateQuestion(q.id)}>Save</button>
-                                  <button style={styles.questionCancelBtn} onClick={() => { setEditingQuestionId(null); setEditingQuestionData({}); }}>Cancel</button>
-                                </div>
-                              </div>
-                            ) : (
-                              // View Mode
-                              <>
-                                <div style={styles.questionHeader}>
-                                  <span style={styles.questionNumber}>{index + 1}</span>
-                                  <p style={styles.questionText}>{q.question}</p>
-                                </div>
-                                {q.idealAnswer && (
-                                  <div style={styles.idealAnswerBox}>
-                                    <span style={styles.idealAnswerLabel}>Look for:</span>
-                                    <p style={styles.idealAnswerText}>{q.idealAnswer}</p>
-                                  </div>
-                                )}
-                                {q.answer && (
-                                  <div style={styles.answerBox}>
-                                    <span style={styles.answerLabel}>Notes:</span>
-                                    <p style={styles.answerText}>{q.answer}</p>
-                                  </div>
-                                )}
-                                <div style={styles.questionActions}>
-                                  {confirmDeleteQuestionId === q.id ? (
-                                    <>
-                                      <span style={styles.confirmDeleteText}>Delete?</span>
-                                      <button style={styles.confirmYesBtn} onClick={() => deleteQuestion(q.id)}>Yes</button>
-                                      <button style={styles.confirmNoBtn} onClick={() => setConfirmDeleteQuestionId(null)}>No</button>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <button
-                                        style={styles.questionEditBtn}
-                                        onClick={() => { setEditingQuestionId(q.id); setEditingQuestionData({...q}); }}
-                                        title="Edit"
-                                      >
-                                        ✏️
-                                      </button>
-                                      <button
-                                        style={styles.questionDeleteBtn}
-                                        onClick={() => setConfirmDeleteQuestionId(q.id)}
-                                        title="Delete"
-                                      >
-                                        🗑️
-                                      </button>
-                                    </>
-                                  )}
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Add New Question */}
-                      {addingQuestion ? (
-                        <div style={styles.addQuestionForm}>
-                          <h4 style={styles.addQuestionTitle}>Add New Question</h4>
-                          <label style={styles.questionLabel}>Question:</label>
-                          <textarea
-                            value={newQuestionData.question}
-                            onChange={(e) => setNewQuestionData({...newQuestionData, question: e.target.value})}
-                            placeholder="What do you want to ask?"
-                            style={styles.questionTextarea}
-                            rows={2}
-                            autoFocus
-                          />
-                          <label style={styles.questionLabel}>Ideal Answer / What to look for:</label>
-                          <textarea
-                            value={newQuestionData.idealAnswer}
-                            onChange={(e) => setNewQuestionData({...newQuestionData, idealAnswer: e.target.value})}
-                            placeholder="What should a good answer include?"
-                            style={styles.questionTextarea}
-                            rows={2}
-                          />
-                          <div style={styles.questionEditActions}>
-                            <button
-                              style={styles.questionSaveBtn}
-                              onClick={addQuestion}
-                              disabled={!newQuestionData.question.trim()}
-                            >
-                              Add Question
-                            </button>
-                            <button
-                              style={styles.questionCancelBtn}
-                              onClick={() => { setAddingQuestion(false); setNewQuestionData({ question: '', idealAnswer: '', answer: '' }); }}
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <button style={styles.addQuestionBtn} onClick={() => setAddingQuestion(true)}>
-                          + Add Question
-                        </button>
-                      )}
-                    </div>
                   </div>
                 )}
 
@@ -1825,6 +1694,139 @@ function App() {
                     </button>
                   </div>
                 </div>
+
+                {/* Realtor Questions Section - Only for Step 1 */}
+                {activeStep === '1' && (
+                  <div style={styles.questionsSection}>
+                    <h3 style={styles.questionsSectionTitle}>❓ Questions to Ask</h3>
+
+                    <div style={styles.questionsList}>
+                      {(data.realtorQuestions || []).map((q, index) => (
+                        <div key={q.id} style={styles.questionCard}>
+                          {editingQuestionId === q.id ? (
+                            // Edit Mode
+                            <div style={styles.questionEditForm}>
+                              <label style={styles.questionLabel}>Question:</label>
+                              <textarea
+                                value={editingQuestionData.question || ''}
+                                onChange={(e) => setEditingQuestionData({...editingQuestionData, question: e.target.value})}
+                                style={styles.questionTextarea}
+                                rows={2}
+                              />
+                              <label style={styles.questionLabel}>Ideal Answer / What to look for:</label>
+                              <textarea
+                                value={editingQuestionData.idealAnswer || ''}
+                                onChange={(e) => setEditingQuestionData({...editingQuestionData, idealAnswer: e.target.value})}
+                                style={styles.questionTextarea}
+                                rows={2}
+                              />
+                              <label style={styles.questionLabel}>Notes / Their Answer:</label>
+                              <textarea
+                                value={editingQuestionData.answer || ''}
+                                onChange={(e) => setEditingQuestionData({...editingQuestionData, answer: e.target.value})}
+                                style={styles.questionTextarea}
+                                rows={2}
+                              />
+                              <div style={styles.questionEditActions}>
+                                <button style={styles.questionSaveBtn} onClick={() => updateQuestion(q.id)}>Save</button>
+                                <button style={styles.questionCancelBtn} onClick={() => { setEditingQuestionId(null); setEditingQuestionData({}); }}>Cancel</button>
+                              </div>
+                            </div>
+                          ) : (
+                            // View Mode
+                            <>
+                              <div style={styles.questionHeader}>
+                                <span style={styles.questionNumber}>{index + 1}</span>
+                                <p style={styles.questionText}>{q.question}</p>
+                              </div>
+                              {q.idealAnswer && (
+                                <div style={styles.idealAnswerBox}>
+                                  <span style={styles.idealAnswerLabel}>Look for:</span>
+                                  <p style={styles.idealAnswerText}>{q.idealAnswer}</p>
+                                </div>
+                              )}
+                              {q.answer && (
+                                <div style={styles.answerBox}>
+                                  <span style={styles.answerLabel}>Notes:</span>
+                                  <p style={styles.answerText}>{q.answer}</p>
+                                </div>
+                              )}
+                              <div style={styles.questionActions}>
+                                {confirmDeleteQuestionId === q.id ? (
+                                  <>
+                                    <span style={styles.confirmDeleteText}>Delete?</span>
+                                    <button style={styles.confirmYesBtn} onClick={() => deleteQuestion(q.id)}>Yes</button>
+                                    <button style={styles.confirmNoBtn} onClick={() => setConfirmDeleteQuestionId(null)}>No</button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button
+                                      style={styles.questionEditBtn}
+                                      onClick={() => { setEditingQuestionId(q.id); setEditingQuestionData({...q}); }}
+                                      title="Edit"
+                                    >
+                                      ✏️
+                                    </button>
+                                    <button
+                                      style={styles.questionDeleteBtn}
+                                      onClick={() => setConfirmDeleteQuestionId(q.id)}
+                                      title="Delete"
+                                    >
+                                      🗑️
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add New Question */}
+                    {addingQuestion ? (
+                      <div style={styles.addQuestionForm}>
+                        <h4 style={styles.addQuestionTitle}>Add New Question</h4>
+                        <label style={styles.questionLabel}>Question:</label>
+                        <textarea
+                          value={newQuestionData.question}
+                          onChange={(e) => setNewQuestionData({...newQuestionData, question: e.target.value})}
+                          placeholder="What do you want to ask?"
+                          style={styles.questionTextarea}
+                          rows={2}
+                          autoFocus
+                        />
+                        <label style={styles.questionLabel}>Ideal Answer / What to look for:</label>
+                        <textarea
+                          value={newQuestionData.idealAnswer}
+                          onChange={(e) => setNewQuestionData({...newQuestionData, idealAnswer: e.target.value})}
+                          placeholder="What should a good answer include?"
+                          style={styles.questionTextarea}
+                          rows={2}
+                        />
+                        <div style={styles.questionEditActions}>
+                          <button
+                            style={styles.questionSaveBtn}
+                            onClick={addQuestion}
+                            disabled={!newQuestionData.question.trim()}
+                          >
+                            Add Question
+                          </button>
+                          <button
+                            style={styles.questionCancelBtn}
+                            onClick={() => { setAddingQuestion(false); setNewQuestionData({ question: '', idealAnswer: '', answer: '' }); }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button style={styles.addQuestionBtn} onClick={() => setAddingQuestion(true)}>
+                        + Add Question
+                      </button>
+                    )}
+                  </div>
+                )}
 
                 {/* Step Navigation */}
                 <div style={styles.stepNavigation}>
