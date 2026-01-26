@@ -12,13 +12,13 @@ const initialData = {
       description: 'Talk to realtor first to get real numbers for repair budget, timeline, and funding needs.',
       targetDate: '',
       items: [
-        { id: '1-1', text: 'Research realtors experienced with remote/vacant home sales', done: false },
-        { id: '1-2', text: 'Interview candidates', done: false },
-        { id: '1-3', text: 'Verify they will use their inspector before listing', done: false },
-        { id: '1-4', text: 'Confirm their strategy for maximizing home value', done: false },
-        { id: '1-5', text: 'Get realistic sale price estimate', done: false },
-        { id: '1-6', text: 'Get repair recommendations and cost estimates', done: false },
-        { id: '1-7', text: 'Sign listing agreement', done: false },
+        { id: '1-1', text: '🔍 Research realtors experienced with remote/vacant home sales', done: false },
+        { id: '1-2', text: '🗣️ Interview candidates', done: false },
+        { id: '1-3', text: '🔎 Verify they will use their inspector before listing', done: false },
+        { id: '1-4', text: '📈 Confirm their strategy for maximizing home value', done: false },
+        { id: '1-5', text: '💵 Get realistic sale price estimate', done: false },
+        { id: '1-6', text: '🔧 Get repair recommendations and cost estimates', done: false },
+        { id: '1-7', text: '✍️ Sign listing agreement', done: false },
       ]
     },
     2: {
@@ -26,10 +26,10 @@ const initialData = {
       description: 'Now that you have real numbers from the realtor, determine how much you need.',
       targetDate: '',
       items: [
-        { id: '2-1', text: 'Calculate total needed (repairs + temp housing + moving + buffer)', done: false },
-        { id: '2-2', text: 'Decide on 401k loan amount (or Compass Concierge)', done: false },
-        { id: '2-3', text: 'Apply for and secure the loan', done: false },
-        { id: '2-4', text: 'Open separate account to manage these funds', done: false },
+        { id: '2-1', text: '🧮 Calculate total needed (repairs + temp housing + moving + buffer)', done: false },
+        { id: '2-2', text: '💰 Decide on 401k loan amount (or Compass Concierge)', done: false },
+        { id: '2-3', text: '📝 Apply for and secure the loan', done: false },
+        { id: '2-4', text: '🏦 Open separate account to manage these funds', done: false },
       ]
     },
     3: {
@@ -37,21 +37,21 @@ const initialData = {
       description: 'Complete necessary repairs to maximize sale price.',
       targetDate: '',
       items: [
-        { id: '3-1', text: 'Fix garage exterior light (electrical issue)', done: false, category: 'must' },
-        { id: '3-2', text: 'Install GFCI outlet in bathroom', done: false, category: 'must' },
-        { id: '3-3', text: 'Unclog primary bathroom sink', done: false, category: 'must' },
-        { id: '3-4', text: 'Sealant around toilet', done: false, category: 'must' },
-        { id: '3-5', text: 'Reseal primary shower tile', done: false, category: 'must' },
-        { id: '3-6', text: 'Secure side gate/fence corner', done: false, category: 'must' },
-        { id: '3-7', text: 'Pressure wash concrete, exterior, windows', done: false, category: 'high' },
-        { id: '3-8', text: 'Professional carpet cleaning', done: false, category: 'high' },
-        { id: '3-9', text: 'Professional move-out cleaning', done: false, category: 'high' },
-        { id: '3-10', text: 'Replace bathroom light fixtures x3', done: false, category: 'high' },
-        { id: '3-11', text: 'Replace mirrors (primary + guest)', done: false, category: 'high' },
-        { id: '3-12', text: 'Patch and paint walls/baseboards', done: false, category: 'high' },
-        { id: '3-13', text: 'Reface guest bathtub', done: false, category: 'high' },
-        { id: '3-14', text: 'Weeds - spray/remove all', done: false, category: 'high' },
-        { id: '3-15', text: 'Clean and deodorize turf', done: false, category: 'high' },
+        { id: '3-1', text: '💡 Fix garage exterior light (electrical issue)', done: false, category: 'must' },
+        { id: '3-2', text: '🔌 Install GFCI outlet in bathroom', done: false, category: 'must' },
+        { id: '3-3', text: '🚰 Unclog primary bathroom sink', done: false, category: 'must' },
+        { id: '3-4', text: '🚽 Sealant around toilet', done: false, category: 'must' },
+        { id: '3-5', text: '🚿 Reseal primary shower tile', done: false, category: 'must' },
+        { id: '3-6', text: '🚪 Secure side gate/fence corner', done: false, category: 'must' },
+        { id: '3-7', text: '💦 Pressure wash concrete, exterior, windows', done: false, category: 'high' },
+        { id: '3-8', text: '🧹 Professional carpet cleaning', done: false, category: 'high' },
+        { id: '3-9', text: '✨ Professional move-out cleaning', done: false, category: 'high' },
+        { id: '3-10', text: '💡 Replace bathroom light fixtures x3', done: false, category: 'high' },
+        { id: '3-11', text: '🪞 Replace mirrors (primary + guest)', done: false, category: 'high' },
+        { id: '3-12', text: '🎨 Patch and paint walls/baseboards', done: false, category: 'high' },
+        { id: '3-13', text: '🛁 Reface guest bathtub', done: false, category: 'high' },
+        { id: '3-14', text: '🌿 Weeds - spray/remove all', done: false, category: 'high' },
+        { id: '3-15', text: '🌱 Clean and deodorize turf', done: false, category: 'high' },
       ]
     },
     4: {
@@ -59,11 +59,11 @@ const initialData = {
       description: 'Decide what to keep, sell, donate, or discard.',
       targetDate: '',
       items: [
-        { id: '4-1', text: 'Decide what goes to Seattle (storage unit)', done: false },
-        { id: '4-2', text: 'Sell items (Marketplace, OfferUp, etc.)', done: false },
-        { id: '4-3', text: 'Donate items', done: false },
-        { id: '4-4', text: 'Discard/junk removal for bulky items', done: false },
-        { id: '4-5', text: 'Move items for Seattle to storage unit', done: false },
+        { id: '4-1', text: '📦 Decide what goes to Seattle (storage unit)', done: false },
+        { id: '4-2', text: '🏷️ Sell items (Marketplace, OfferUp, etc.)', done: false },
+        { id: '4-3', text: '🎁 Donate items', done: false },
+        { id: '4-4', text: '🗑️ Discard/junk removal for bulky items', done: false },
+        { id: '4-5', text: '🚚 Move items for Seattle to storage unit', done: false },
       ]
     },
     5: {
@@ -71,10 +71,10 @@ const initialData = {
       description: 'Find pet-friendly short-term rental in San Diego area.',
       targetDate: '',
       items: [
-        { id: '5-1', text: 'Research pet-friendly short-term rentals in San Diego area', done: false },
-        { id: '5-2', text: 'Confirm availability and pricing (2 dogs + senior cat)', done: false },
-        { id: '5-3', text: 'Secure the temporary rental', done: false },
-        { id: '5-4', text: 'Coordinate move-in date with house vacate date', done: false },
+        { id: '5-1', text: '🔍 Research pet-friendly short-term rentals in San Diego area', done: false },
+        { id: '5-2', text: '🐕 Confirm availability and pricing (2 dogs + senior cat)', done: false },
+        { id: '5-3', text: '🏡 Secure the temporary rental', done: false },
+        { id: '5-4', text: '📅 Coordinate move-in date with house vacate date', done: false },
       ]
     },
     6: {
@@ -82,11 +82,11 @@ const initialData = {
       description: 'Leave the house empty and ready for showings.',
       targetDate: '',
       items: [
-        { id: '6-1', text: 'Schedule professional carpet cleaning', done: false },
-        { id: '6-2', text: 'Schedule professional move-out cleaning', done: false },
-        { id: '6-3', text: 'Final walkthrough with realtor', done: false },
-        { id: '6-4', text: 'Hand over keys / lockbox setup', done: false },
-        { id: '6-5', text: 'Move into temporary San Diego rental', done: false },
+        { id: '6-1', text: '🧹 Schedule professional carpet cleaning', done: false },
+        { id: '6-2', text: '✨ Schedule professional move-out cleaning', done: false },
+        { id: '6-3', text: '👀 Final walkthrough with realtor', done: false },
+        { id: '6-4', text: '🔑 Hand over keys / lockbox setup', done: false },
+        { id: '6-5', text: '🏠 Move into temporary San Diego rental', done: false },
       ]
     },
     7: {
@@ -94,14 +94,14 @@ const initialData = {
       description: 'Get the house on the market and close the sale.',
       targetDate: '',
       items: [
-        { id: '7-1', text: 'Pre-listing inspection (realtor\'s inspector)', done: false },
-        { id: '7-2', text: 'Address any inspection surprises', done: false },
-        { id: '7-3', text: 'Professional photos / staging consultation', done: false },
-        { id: '7-4', text: 'List the house', done: false },
-        { id: '7-5', text: 'Open houses / showings', done: false },
-        { id: '7-6', text: 'Review offers', done: false },
-        { id: '7-7', text: 'Accept offer / enter escrow', done: false },
-        { id: '7-8', text: 'Complete sale / close', done: false },
+        { id: '7-1', text: '🔎 Pre-listing inspection (realtor\'s inspector)', done: false },
+        { id: '7-2', text: '⚠️ Address any inspection surprises', done: false },
+        { id: '7-3', text: '📸 Professional photos / staging consultation', done: false },
+        { id: '7-4', text: '📋 List the house', done: false },
+        { id: '7-5', text: '🏠 Open houses / showings', done: false },
+        { id: '7-6', text: '📄 Review offers', done: false },
+        { id: '7-7', text: '🤝 Accept offer / enter escrow', done: false },
+        { id: '7-8', text: '🎉 Complete sale / close', done: false },
       ]
     },
     8: {
@@ -109,14 +109,14 @@ const initialData = {
       description: 'Make the big move to your new city!',
       targetDate: '',
       items: [
-        { id: '8-1', text: 'Research Seattle neighborhoods for long-term rental', done: false },
-        { id: '8-2', text: 'Find pet-friendly rental in Seattle', done: false },
-        { id: '8-3', text: 'Hire movers (storage unit → Seattle)', done: false },
-        { id: '8-4', text: 'Travel to Seattle (with pets)', done: false },
-        { id: '8-5', text: 'Move into Seattle rental', done: false },
-        { id: '8-6', text: 'Set up mail forwarding to Seattle', done: false },
-        { id: '8-7', text: 'Set up utilities at new place', done: false },
-        { id: '8-8', text: 'Update address with important accounts', done: false },
+        { id: '8-1', text: '🗺️ Research Seattle neighborhoods for long-term rental', done: false },
+        { id: '8-2', text: '🐾 Find pet-friendly rental in Seattle', done: false },
+        { id: '8-3', text: '🚛 Hire movers (storage unit → Seattle)', done: false },
+        { id: '8-4', text: '✈️ Travel to Seattle (with pets)', done: false },
+        { id: '8-5', text: '🏡 Move into Seattle rental', done: false },
+        { id: '8-6', text: '📬 Set up mail forwarding to Seattle', done: false },
+        { id: '8-7', text: '⚡ Set up utilities at new place', done: false },
+        { id: '8-8', text: '📝 Update address with important accounts', done: false },
       ]
     },
     9: {
@@ -124,11 +124,11 @@ const initialData = {
       description: 'Wrap up financial matters after the sale.',
       targetDate: '',
       items: [
-        { id: '9-1', text: 'Pay off all debts from proceeds', done: false },
-        { id: '9-2', text: 'Repay 401k loan (if taken)', done: false },
-        { id: '9-3', text: 'Cancel utilities at San Diego house', done: false },
-        { id: '9-4', text: 'Set up new bank accounts if needed', done: false },
-        { id: '9-5', text: 'Establish emergency fund', done: false },
+        { id: '9-1', text: '💳 Pay off all debts from proceeds', done: false },
+        { id: '9-2', text: '🔄 Repay 401k loan (if taken)', done: false },
+        { id: '9-3', text: '🔌 Cancel utilities at San Diego house', done: false },
+        { id: '9-4', text: '🏦 Set up new bank accounts if needed', done: false },
+        { id: '9-5', text: '🛡️ Establish emergency fund', done: false },
       ]
     }
   },
@@ -412,15 +412,15 @@ function App() {
                 const isComplete = progress === 100;
                 const isActive = activeStep === stepId;
                 const shortLabels = {
-                  '1': 'Realtor',
-                  '2': 'Funding',
-                  '3': 'Repairs',
-                  '4': 'Sort',
-                  '5': 'Temp Home',
-                  '6': 'Vacate',
-                  '7': 'Sell',
-                  '8': 'Move',
-                  '9': 'Closing'
+                  '1': '👤 Realtor',
+                  '2': '💰 Funding',
+                  '3': '🔧 Repairs',
+                  '4': '📦 Sort',
+                  '5': '🏡 Temp Home',
+                  '6': '🚪 Vacate',
+                  '7': '🏷️ Sell',
+                  '8': '🚚 Move',
+                  '9': '✅ Closing'
                 };
 
                 return (
