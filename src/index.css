@@ -87,26 +87,21 @@ textarea:focus-visible {
     border-radius: 12px !important;
   }
 
-  .step-card {
-    padding: 12px !important;
+  .step-tabs {
+    gap: 6px !important;
   }
 
-  .step-header {
-    flex-wrap: wrap !important;
+  .step-tab {
+    min-width: 70px !important;
+    padding: 8px 10px !important;
   }
 
-  .step-number {
-    width: 32px !important;
-    height: 32px !important;
-    font-size: 0.9rem !important;
+  .step-tab-title {
+    display: none !important;
   }
 
-  .step-title {
-    font-size: 1rem !important;
-  }
-
-  .step-desc {
-    font-size: 0.8rem !important;
+  .step-content {
+    padding: 16px !important;
   }
 
   .checklist-item {
@@ -200,26 +195,27 @@ textarea:focus-visible {
     margin-bottom: 12px !important;
   }
 
-  .step-card {
-    padding: 10px !important;
-    margin-bottom: 12px !important;
+  .step-tabs {
+    gap: 4px !important;
+    padding: 3px !important;
   }
 
-  .step-header {
-    gap: 10px !important;
+  .step-tab {
+    min-width: 32px !important;
+    padding: 6px !important;
+    flex: 0 0 auto !important;
   }
 
-  .step-info {
-    min-width: 0 !important;
+  .step-tab-title {
+    display: none !important;
   }
 
-  .step-title {
-    font-size: 0.95rem !important;
-    word-wrap: break-word !important;
+  .step-content {
+    padding: 12px !important;
   }
 
-  .step-desc {
-    font-size: 0.75rem !important;
+  .step-content h2 {
+    font-size: 1.1rem !important;
   }
 
   .checklist-item {

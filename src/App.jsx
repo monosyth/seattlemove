@@ -178,7 +178,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
-  const [expandedSteps, setExpandedSteps] = useState({});
+  const [activeStep, setActiveStep] = useState('1');
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
@@ -214,12 +214,6 @@ function App() {
     }
   };
 
-  const toggleStepExpanded = (stepId) => {
-    setExpandedSteps(prev => ({
-      ...prev,
-      [stepId]: !prev[stepId]
-    }));
-  };
 
   const updateTargetDate = (stepId, date) => {
     const newData = { ...data };
@@ -355,95 +349,129 @@ function App() {
         {/* Checklist Tab */}
         {activeTab === 'checklist' && (
           <div style={styles.checklistContainer}>
-            {Object.entries(data.steps).map(([stepId, step]) => {
-              const progress = getStepProgress(stepId);
-              const isComplete = progress === 100;
-              const isExpanded = expandedSteps[stepId] !== false; // Default to expanded
+            {/* Step Tabs */}
+            <div className="step-tabs" style={styles.stepTabs}>
+              {Object.entries(data.steps).map(([stepId, step]) => {
+                const progress = getStepProgress(stepId);
+                const isComplete = progress === 100;
+                const isActive = activeStep === stepId;
 
-              return (
-                <div
-                  key={stepId}
-                  className="step-card"
-                  style={{
-                    ...styles.stepCard,
-                    borderLeft: isComplete ? '4px solid #27ae60' : '4px solid #667eea'
-                  }}
-                >
-                  <div
-                    style={styles.stepHeader}
-                    onClick={() => toggleStepExpanded(stepId)}
+                return (
+                  <button
+                    key={stepId}
+                    className="step-tab"
+                    style={{
+                      ...styles.stepTab,
+                      ...(isActive ? styles.stepTabActive : {}),
+                      ...(isComplete ? styles.stepTabComplete : {})
+                    }}
+                    onClick={() => setActiveStep(stepId)}
+                    title={step.title}
                   >
-                    <div className="step-number" style={{
-                      ...styles.stepNumber,
-                      background: isComplete ? '#27ae60' : 'linear-gradient(135deg, #667eea, #764ba2)'
+                    <span style={styles.stepTabNumber}>{isComplete ? '✓' : stepId}</span>
+                    <span className="step-tab-title" style={styles.stepTabTitle}>{step.title}</span>
+                    {!isComplete && progress > 0 && (
+                      <span style={styles.stepTabProgress}>{progress}%</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Active Step Content */}
+            {data.steps[activeStep] && (
+              <div className="step-content" style={styles.stepContent}>
+                <div style={styles.stepContentHeader}>
+                  <h2 style={styles.stepContentTitle}>
+                    <span style={{
+                      ...styles.stepContentNumber,
+                      background: getStepProgress(activeStep) === 100 ? '#27ae60' : 'linear-gradient(135deg, #667eea, #764ba2)'
                     }}>
-                      {isComplete ? '✓' : stepId}
-                    </div>
-                    <div className="step-info" style={styles.stepInfo}>
-                      <h2 className="step-title" style={styles.stepTitle}>{step.title}</h2>
-                      <p className="step-desc" style={styles.stepDesc}>{step.description}</p>
-                    </div>
-                    <div style={styles.stepMeta}>
-                      <span className="step-progress-text" style={{
-                        ...styles.stepProgressText,
-                        color: isComplete ? '#27ae60' : '#667eea'
-                      }}>
-                        {step.items.filter(i => i.done).length}/{step.items.length}
-                      </span>
-                      <span style={styles.expandIcon}>{isExpanded ? '▼' : '▶'}</span>
-                    </div>
-                  </div>
-
-                  <div style={styles.stepProgressBar}>
-                    <div style={{
-                      ...styles.stepProgressFill,
-                      width: `${progress}%`,
-                      background: isComplete ? '#27ae60' : '#667eea'
-                    }}></div>
-                  </div>
-
-                  {isExpanded && (
-                    <ul style={styles.checklist}>
-                      {step.items.map(item => (
-                        <li
-                          key={item.id}
-                          className="checklist-item"
-                          style={{
-                            ...styles.checklistItem,
-                            ...(item.done ? styles.checklistItemDone : {})
-                          }}
-                          onClick={() => toggleItem(stepId, item.id)}
-                        >
-                          <span
-                            className="checkbox"
-                            style={item.done ? styles.checkboxDone : styles.checkbox}
-                          >
-                            {item.done ? '✓' : ''}
-                          </span>
-                          <span
-                            className="checklist-text"
-                            style={item.done ? styles.checklistTextDone : styles.checklistText}
-                          >
-                            {item.text}
-                          </span>
-                          {item.category && (
-                            <span
-                              className="category-badge"
-                              style={{
-                                ...styles.categoryBadge,
-                                background: item.category === 'must' ? '#e74c3c' : '#f39c12'
-                              }}
-                            >
-                              {item.category === 'must' ? 'MUST' : 'HIGH'}
-                            </span>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                      {getStepProgress(activeStep) === 100 ? '✓' : activeStep}
+                    </span>
+                    {data.steps[activeStep].title}
+                  </h2>
+                  <span style={{
+                    ...styles.stepContentProgress,
+                    color: getStepProgress(activeStep) === 100 ? '#27ae60' : '#667eea'
+                  }}>
+                    {data.steps[activeStep].items.filter(i => i.done).length}/{data.steps[activeStep].items.length} tasks
+                  </span>
                 </div>
-              );
-            })}
+                <p style={styles.stepContentDesc}>{data.steps[activeStep].description}</p>
+
+                <div style={styles.stepProgressBar}>
+                  <div style={{
+                    ...styles.stepProgressFill,
+                    width: `${getStepProgress(activeStep)}%`,
+                    background: getStepProgress(activeStep) === 100 ? '#27ae60' : '#667eea'
+                  }}></div>
+                </div>
+
+                <ul style={styles.checklist}>
+                  {data.steps[activeStep].items.map(item => (
+                    <li
+                      key={item.id}
+                      className="checklist-item"
+                      style={{
+                        ...styles.checklistItem,
+                        ...(item.done ? styles.checklistItemDone : {})
+                      }}
+                      onClick={() => toggleItem(activeStep, item.id)}
+                    >
+                      <span
+                        className="checkbox"
+                        style={item.done ? styles.checkboxDone : styles.checkbox}
+                      >
+                        {item.done ? '✓' : ''}
+                      </span>
+                      <span
+                        className="checklist-text"
+                        style={item.done ? styles.checklistTextDone : styles.checklistText}
+                      >
+                        {item.text}
+                      </span>
+                      {item.category && (
+                        <span
+                          className="category-badge"
+                          style={{
+                            ...styles.categoryBadge,
+                            background: item.category === 'must' ? '#e74c3c' : '#f39c12'
+                          }}
+                        >
+                          {item.category === 'must' ? 'MUST' : 'HIGH'}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Step Navigation */}
+                <div style={styles.stepNavigation}>
+                  <button
+                    style={{
+                      ...styles.stepNavBtn,
+                      ...(activeStep === '1' ? styles.stepNavBtnDisabled : {})
+                    }}
+                    onClick={() => setActiveStep(String(Number(activeStep) - 1))}
+                    disabled={activeStep === '1'}
+                  >
+                    ← Previous
+                  </button>
+                  <button
+                    style={{
+                      ...styles.stepNavBtn,
+                      ...styles.stepNavBtnPrimary,
+                      ...(activeStep === '9' ? styles.stepNavBtnDisabled : {})
+                    }}
+                    onClick={() => setActiveStep(String(Number(activeStep) + 1))}
+                    disabled={activeStep === '9'}
+                  >
+                    Next →
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -799,21 +827,85 @@ const styles = {
 
   // Checklist
   checklistContainer: {},
-  stepCard: {
+  stepTabs: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '8px',
+    marginBottom: '20px',
+    padding: '4px',
+    background: '#f0f0f0',
+    borderRadius: '12px'
+  },
+  stepTab: {
+    flex: '1 1 auto',
+    minWidth: '90px',
+    padding: '10px 12px',
+    border: 'none',
+    borderRadius: '10px',
+    background: 'transparent',
+    color: '#666',
+    fontSize: '0.8rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '4px'
+  },
+  stepTabActive: {
+    background: 'white',
+    color: '#667eea',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+  },
+  stepTabComplete: {
+    color: '#27ae60'
+  },
+  stepTabNumber: {
+    width: '28px',
+    height: '28px',
+    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+    color: 'white',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '0.85rem',
+    fontWeight: 'bold'
+  },
+  stepTabTitle: {
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: '100%'
+  },
+  stepTabProgress: {
+    fontSize: '0.7rem',
+    color: '#999'
+  },
+  stepContent: {
     background: '#f8f9fa',
     borderRadius: '12px',
-    padding: '16px',
-    marginBottom: '16px',
-    transition: 'all 0.2s ease'
+    padding: '20px'
   },
-  stepHeader: {
+  stepContentHeader: {
     display: 'flex',
-    alignItems: 'flex-start',
-    gap: '12px',
-    marginBottom: '12px',
-    cursor: 'pointer'
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '8px',
+    flexWrap: 'wrap',
+    gap: '12px'
   },
-  stepNumber: {
+  stepContentTitle: {
+    fontSize: '1.25rem',
+    color: '#2c3e50',
+    fontWeight: '700',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    margin: 0
+  },
+  stepContentNumber: {
     width: '36px',
     height: '36px',
     color: 'white',
@@ -822,47 +914,54 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     fontWeight: 'bold',
-    flexShrink: 0,
-    fontSize: '0.9rem'
+    fontSize: '1rem'
   },
-  stepInfo: {
-    flex: 1,
-    minWidth: 0
-  },
-  stepTitle: {
-    fontSize: '1.05rem',
-    color: '#2c3e50',
-    marginBottom: '4px',
-    fontWeight: '600'
-  },
-  stepDesc: {
-    fontSize: '0.85rem',
-    color: '#7f8c8d'
-  },
-  stepMeta: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    flexShrink: 0
-  },
-  stepProgressText: {
-    fontSize: '0.9rem',
+  stepContentProgress: {
+    fontSize: '0.95rem',
     fontWeight: 'bold'
   },
-  expandIcon: {
-    color: '#999',
-    fontSize: '0.8rem'
+  stepContentDesc: {
+    fontSize: '0.9rem',
+    color: '#7f8c8d',
+    marginBottom: '16px'
   },
   stepProgressBar: {
-    height: '4px',
+    height: '6px',
     background: '#e0e0e0',
-    borderRadius: '2px',
+    borderRadius: '3px',
     overflow: 'hidden',
-    marginBottom: '12px'
+    marginBottom: '16px'
   },
   stepProgressFill: {
     height: '100%',
     transition: 'width 0.3s ease'
+  },
+  stepNavigation: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginTop: '20px',
+    paddingTop: '16px',
+    borderTop: '1px solid #e0e0e0'
+  },
+  stepNavBtn: {
+    padding: '10px 20px',
+    border: '2px solid #e0e0e0',
+    borderRadius: '8px',
+    background: 'white',
+    color: '#666',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
+  },
+  stepNavBtnPrimary: {
+    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+    color: 'white',
+    border: 'none'
+  },
+  stepNavBtnDisabled: {
+    opacity: 0.4,
+    cursor: 'not-allowed'
   },
   checklist: {
     listStyle: 'none',
