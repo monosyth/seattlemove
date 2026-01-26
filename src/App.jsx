@@ -362,17 +362,17 @@ function App() {
                     className="step-tab"
                     style={{
                       ...styles.stepTab,
-                      ...(isActive ? styles.stepTabActive : {}),
-                      ...(isComplete ? styles.stepTabComplete : {})
+                      ...(isActive ? styles.stepTabActive : {})
                     }}
                     onClick={() => setActiveStep(stepId)}
                     title={step.title}
                   >
-                    <span style={styles.stepTabNumber}>{isComplete ? '✓' : stepId}</span>
-                    <span className="step-tab-title" style={styles.stepTabTitle}>{step.title}</span>
-                    {!isComplete && progress > 0 && (
-                      <span style={styles.stepTabProgress}>{progress}%</span>
-                    )}
+                    <span style={{
+                      ...styles.stepTabNumber,
+                      ...(isComplete ? styles.stepTabNumberComplete : {})
+                    }}>
+                      {isComplete ? '✓' : stepId}
+                    </span>
                   </button>
                 );
               })}
@@ -829,19 +829,19 @@ const styles = {
   checklistContainer: {},
   stepTabs: {
     display: 'flex',
-    flexWrap: 'wrap',
-    gap: '8px',
+    gap: '4px',
     marginBottom: '20px',
-    padding: '4px',
+    padding: '6px',
     background: '#f0f0f0',
-    borderRadius: '12px'
+    borderRadius: '30px',
+    justifyContent: 'space-between'
   },
   stepTab: {
-    flex: '1 1 auto',
-    minWidth: '90px',
-    padding: '10px 12px',
+    width: '42px',
+    height: '42px',
+    padding: '0',
     border: 'none',
-    borderRadius: '10px',
+    borderRadius: '50%',
     background: 'transparent',
     color: '#666',
     fontSize: '0.8rem',
@@ -849,39 +849,35 @@ const styles = {
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     display: 'flex',
-    flexDirection: 'column',
     alignItems: 'center',
-    gap: '4px'
+    justifyContent: 'center',
+    position: 'relative'
   },
   stepTabActive: {
     background: 'white',
-    color: '#667eea',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
   },
-  stepTabComplete: {
-    color: '#27ae60'
-  },
+  stepTabComplete: {},
   stepTabNumber: {
-    width: '28px',
-    height: '28px',
+    width: '32px',
+    height: '32px',
     background: 'linear-gradient(135deg, #667eea, #764ba2)',
     color: 'white',
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '0.85rem',
+    fontSize: '0.9rem',
     fontWeight: 'bold'
   },
+  stepTabNumberComplete: {
+    background: '#27ae60'
+  },
   stepTabTitle: {
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    maxWidth: '100%'
+    display: 'none'
   },
   stepTabProgress: {
-    fontSize: '0.7rem',
-    color: '#999'
+    display: 'none'
   },
   stepContent: {
     background: '#f8f9fa',

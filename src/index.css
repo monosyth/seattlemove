@@ -88,16 +88,12 @@ textarea:focus-visible {
   }
 
   .step-tabs {
-    gap: 6px !important;
+    padding: 4px !important;
   }
 
   .step-tab {
-    min-width: 70px !important;
-    padding: 8px 10px !important;
-  }
-
-  .step-tab-title {
-    display: none !important;
+    width: 36px !important;
+    height: 36px !important;
   }
 
   .step-content {
@@ -196,18 +192,13 @@ textarea:focus-visible {
   }
 
   .step-tabs {
-    gap: 4px !important;
     padding: 3px !important;
+    gap: 2px !important;
   }
 
   .step-tab {
-    min-width: 32px !important;
-    padding: 6px !important;
-    flex: 0 0 auto !important;
-  }
-
-  .step-tab-title {
-    display: none !important;
+    width: 32px !important;
+    height: 32px !important;
   }
 
   .step-content {
