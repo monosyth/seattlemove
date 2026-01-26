@@ -14,6 +14,7 @@ const initialData = {
       brokerage: 'Compass',
       phone: '',
       email: '',
+      website: '',
       notes: '',
       recommended: false
     }
@@ -223,7 +224,7 @@ function App() {
   const [editingRealtorId, setEditingRealtorId] = useState(null);
   const [editingRealtorData, setEditingRealtorData] = useState({});
   const [addingRealtor, setAddingRealtor] = useState(false);
-  const [newRealtorData, setNewRealtorData] = useState({ name: '', team: '', brokerage: '', phone: '', email: '', notes: '' });
+  const [newRealtorData, setNewRealtorData] = useState({ name: '', team: '', brokerage: '', phone: '', email: '', website: '', notes: '' });
   const [confirmDeleteRealtorId, setConfirmDeleteRealtorId] = useState(null);
 
   useEffect(() => {
@@ -640,6 +641,7 @@ function App() {
       brokerage: newRealtorData.brokerage.trim(),
       phone: newRealtorData.phone.trim(),
       email: newRealtorData.email.trim(),
+      website: newRealtorData.website.trim(),
       notes: newRealtorData.notes.trim(),
       recommended: false
     });
@@ -647,7 +649,7 @@ function App() {
     saveData(newData);
     addChangelogEntry('realtor_added', `Added realtor: ${newRealtorData.name.trim()}`, null, newRealtorData.name.trim());
     setAddingRealtor(false);
-    setNewRealtorData({ name: '', team: '', brokerage: '', phone: '', email: '', notes: '' });
+    setNewRealtorData({ name: '', team: '', brokerage: '', phone: '', email: '', website: '', notes: '' });
   };
 
   const updateRealtor = (realtorId) => {
@@ -660,6 +662,7 @@ function App() {
       realtor.brokerage = editingRealtorData.brokerage?.trim() || '';
       realtor.phone = editingRealtorData.phone?.trim() || '';
       realtor.email = editingRealtorData.email?.trim() || '';
+      realtor.website = editingRealtorData.website?.trim() || '';
       realtor.notes = editingRealtorData.notes?.trim() || '';
       setData(newData);
       saveData(newData);
@@ -1014,6 +1017,13 @@ function App() {
                                 placeholder="Email"
                                 style={styles.realtorInput}
                               />
+                              <input
+                                type="text"
+                                value={editingRealtorData.website || ''}
+                                onChange={(e) => setEditingRealtorData({...editingRealtorData, website: e.target.value})}
+                                placeholder="Website (e.g. https://...)"
+                                style={styles.realtorInput}
+                              />
                               <textarea
                                 value={editingRealtorData.notes || ''}
                                 onChange={(e) => setEditingRealtorData({...editingRealtorData, notes: e.target.value})}
@@ -1037,6 +1047,19 @@ function App() {
                               {realtor.brokerage && <p style={styles.realtorDetail}><strong>Brokerage:</strong> {realtor.brokerage}</p>}
                               {realtor.phone && <p style={styles.realtorDetail}><strong>Phone:</strong> {realtor.phone}</p>}
                               {realtor.email && <p style={styles.realtorDetail}><strong>Email:</strong> {realtor.email}</p>}
+                              {realtor.website && (
+                                <p style={styles.realtorDetail}>
+                                  <strong>Website:</strong>{' '}
+                                  <a
+                                    href={realtor.website.startsWith('http') ? realtor.website : `https://${realtor.website}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={styles.realtorWebsiteLink}
+                                  >
+                                    {realtor.website}
+                                  </a>
+                                </p>
+                              )}
                               {realtor.notes && <p style={styles.realtorNotes}>{realtor.notes}</p>}
 
                               <div style={styles.realtorActions}>
@@ -1118,6 +1141,13 @@ function App() {
                           placeholder="Email"
                           style={styles.realtorInput}
                         />
+                        <input
+                          type="text"
+                          value={newRealtorData.website}
+                          onChange={(e) => setNewRealtorData({...newRealtorData, website: e.target.value})}
+                          placeholder="Website (e.g. https://...)"
+                          style={styles.realtorInput}
+                        />
                         <textarea
                           value={newRealtorData.notes}
                           onChange={(e) => setNewRealtorData({...newRealtorData, notes: e.target.value})}
@@ -1135,7 +1165,7 @@ function App() {
                           </button>
                           <button
                             style={styles.realtorCancelBtn}
-                            onClick={() => { setAddingRealtor(false); setNewRealtorData({ name: '', team: '', brokerage: '', phone: '', email: '', notes: '' }); }}
+                            onClick={() => { setAddingRealtor(false); setNewRealtorData({ name: '', team: '', brokerage: '', phone: '', email: '', website: '', notes: '' }); }}
                           >
                             Cancel
                           </button>
@@ -2783,6 +2813,11 @@ const styles = {
     padding: '8px',
     background: colors.fog,
     borderRadius: '6px'
+  },
+  realtorWebsiteLink: {
+    color: colors.evergreen,
+    textDecoration: 'none',
+    fontWeight: '500'
   },
   realtorActions: {
     display: 'flex',
