@@ -573,6 +573,18 @@ function App() {
     setConfirmDeleteBudgetItemId(null);
   };
 
+  // Update budget item cost
+  const updateBudgetItemCost = (category, itemId, newCost) => {
+    const newData = { ...data };
+    const item = newData.budget[category].find(i => i.id === itemId);
+    if (item) {
+      const numericCost = newCost.replace(/[^0-9]/g, '');
+      item.cost = numericCost ? parseInt(numericCost, 10) : '';
+      setData(newData);
+      saveData(newData);
+    }
+  };
+
   // Drag and drop for budget items
   const handleBudgetDragStart = (e, itemId) => {
     setDraggedBudgetItemId(itemId);
@@ -1062,11 +1074,15 @@ function App() {
                       { key: 'nice', title: 'Nice to Have', color: colors.duskBlue }
                     ].map(({ key, title, color }) => {
                       const progress = getBudgetCategoryProgress(key);
+                      const categoryTotal = getBudgetTotal(key);
                       return (
                         <div key={key} style={{...styles.repairSection, borderColor: color}}>
                           <div style={{...styles.repairSectionHeader, background: color}}>
-                            <h4 style={styles.repairSectionTitle}>{title}</h4>
-                            <span style={styles.repairSectionProgress}>{progress.done}/{progress.total}</span>
+                            <div style={styles.repairSectionHeaderLeft}>
+                              <h4 style={styles.repairSectionTitle}>{title}</h4>
+                              <span style={styles.repairSectionProgress}>{progress.done}/{progress.total}</span>
+                            </div>
+                            <span style={styles.repairSectionTotal}>${categoryTotal.toLocaleString()}</span>
                           </div>
 
                           <div style={styles.repairItemsList}>
@@ -1109,12 +1125,25 @@ function App() {
                                     />
                                   </div>
                                 ) : (
-                                  <span
-                                    style={item.done ? styles.repairItemTextDone : styles.repairItemText}
-                                    onClick={() => toggleBudgetItem(key, item.id)}
-                                  >
-                                    {item.item}
-                                  </span>
+                                  <>
+                                    <span
+                                      style={item.done ? styles.repairItemTextDone : styles.repairItemText}
+                                      onClick={() => toggleBudgetItem(key, item.id)}
+                                    >
+                                      {item.item}
+                                    </span>
+                                    <div style={styles.repairCostInput}>
+                                      <span style={styles.repairCostPrefix}>$</span>
+                                      <input
+                                        type="text"
+                                        value={item.cost || ''}
+                                        onChange={(e) => updateBudgetItemCost(key, item.id, e.target.value)}
+                                        placeholder="0"
+                                        style={styles.repairCostField}
+                                        onClick={(e) => e.stopPropagation()}
+                                      />
+                                    </div>
+                                  </>
                                 )}
 
                                 {editingBudgetItemId !== item.id && (
@@ -3397,6 +3426,11 @@ const styles = {
     padding: '10px 14px',
     color: 'white'
   },
+  repairSectionHeaderLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
+  },
   repairSectionTitle: {
     margin: 0,
     fontSize: '0.9rem',
@@ -3405,6 +3439,10 @@ const styles = {
   repairSectionProgress: {
     fontSize: '0.8rem',
     opacity: 0.9
+  },
+  repairSectionTotal: {
+    fontSize: '0.95rem',
+    fontWeight: '600'
   },
   repairItemsList: {
     padding: '10px'
@@ -3446,6 +3484,28 @@ const styles = {
     textDecoration: 'line-through',
     fontSize: '0.85rem',
     cursor: 'pointer'
+  },
+  repairCostInput: {
+    display: 'flex',
+    alignItems: 'center',
+    marginLeft: '8px',
+    marginRight: '8px',
+    flexShrink: 0
+  },
+  repairCostPrefix: {
+    color: colors.slate,
+    fontSize: '0.8rem',
+    marginRight: '2px'
+  },
+  repairCostField: {
+    width: '70px',
+    padding: '4px 6px',
+    border: `1px solid ${colors.mist}`,
+    borderRadius: '4px',
+    fontSize: '0.8rem',
+    textAlign: 'right',
+    color: colors.mountain,
+    background: colors.white
   },
   addRepairItemForm: {
     display: 'flex',
