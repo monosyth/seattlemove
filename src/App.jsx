@@ -5,6 +5,7 @@ import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 const initialData = {
   currentStep: 1,
   notes: '',
+  stepNotes: {},
   steps: {
     1: {
       title: 'Select Realtor',
@@ -179,6 +180,9 @@ function App() {
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
   const [activeStep, setActiveStep] = useState('1');
+  const [newNoteText, setNewNoteText] = useState('');
+  const [editingNoteId, setEditingNoteId] = useState(null);
+  const [editNoteText, setEditNoteText] = useState('');
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
@@ -236,6 +240,57 @@ function App() {
     const newData = { ...data, notes };
     setData(newData);
     saveData(newData);
+  };
+
+  const addStepNote = (stepId) => {
+    if (!newNoteText.trim()) return;
+    const newData = { ...data };
+    if (!newData.stepNotes) newData.stepNotes = {};
+    if (!newData.stepNotes[stepId]) newData.stepNotes[stepId] = [];
+    newData.stepNotes[stepId].push({
+      id: Date.now().toString(),
+      text: newNoteText.trim(),
+      createdAt: new Date().toISOString()
+    });
+    setData(newData);
+    saveData(newData);
+    setNewNoteText('');
+  };
+
+  const updateStepNote = (stepId, noteId) => {
+    if (!editNoteText.trim()) return;
+    const newData = { ...data };
+    const note = newData.stepNotes[stepId]?.find(n => n.id === noteId);
+    if (note) {
+      note.text = editNoteText.trim();
+      setData(newData);
+      saveData(newData);
+    }
+    setEditingNoteId(null);
+    setEditNoteText('');
+  };
+
+  const deleteStepNote = (stepId, noteId) => {
+    const newData = { ...data };
+    newData.stepNotes[stepId] = newData.stepNotes[stepId].filter(n => n.id !== noteId);
+    setData(newData);
+    saveData(newData);
+  };
+
+  const getAllNotes = () => {
+    const allNotes = [];
+    if (data.stepNotes) {
+      Object.entries(data.stepNotes).forEach(([stepId, notes]) => {
+        notes.forEach(note => {
+          allNotes.push({
+            ...note,
+            stepId,
+            stepTitle: data.steps[stepId]?.title || `Step ${stepId}`
+          });
+        });
+      });
+    }
+    return allNotes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   };
 
   const getStepProgress = (stepId) => {
@@ -454,6 +509,85 @@ function App() {
                   ))}
                 </ul>
 
+                {/* Step Notes */}
+                <div style={styles.stepNotesSection}>
+                  <h4 style={styles.stepNotesTitle}>📝 Notes for this step</h4>
+
+                  {/* Existing Notes */}
+                  {data.stepNotes?.[activeStep]?.length > 0 && (
+                    <div style={styles.stepNotesList}>
+                      {data.stepNotes[activeStep].map(note => (
+                        <div key={note.id} style={styles.stepNoteItem}>
+                          {editingNoteId === note.id ? (
+                            <div style={styles.noteEditForm}>
+                              <input
+                                type="text"
+                                value={editNoteText}
+                                onChange={(e) => setEditNoteText(e.target.value)}
+                                style={styles.noteInput}
+                                autoFocus
+                              />
+                              <div style={styles.noteEditActions}>
+                                <button
+                                  style={styles.noteSaveBtn}
+                                  onClick={() => updateStepNote(activeStep, note.id)}
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  style={styles.noteCancelBtn}
+                                  onClick={() => { setEditingNoteId(null); setEditNoteText(''); }}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <span style={styles.noteText}>{note.text}</span>
+                              <div style={styles.noteActions}>
+                                <button
+                                  style={styles.noteActionBtn}
+                                  onClick={() => { setEditingNoteId(note.id); setEditNoteText(note.text); }}
+                                  title="Edit"
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  style={styles.noteActionBtn}
+                                  onClick={() => deleteStepNote(activeStep, note.id)}
+                                  title="Delete"
+                                >
+                                  🗑️
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Add New Note */}
+                  <div style={styles.addNoteForm}>
+                    <input
+                      type="text"
+                      value={newNoteText}
+                      onChange={(e) => setNewNoteText(e.target.value)}
+                      placeholder="Add a note..."
+                      style={styles.noteInput}
+                      onKeyPress={(e) => e.key === 'Enter' && addStepNote(activeStep)}
+                    />
+                    <button
+                      style={styles.addNoteBtn}
+                      onClick={() => addStepNote(activeStep)}
+                      disabled={!newNoteText.trim()}
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+
                 {/* Step Navigation */}
                 <div style={styles.stepNavigation}>
                   <button
@@ -648,13 +782,83 @@ function App() {
               </div>
             </div>
 
+            {/* All Step Notes */}
+            {getAllNotes().length > 0 && (
+              <div style={styles.allNotesSection}>
+                <h3 style={styles.allNotesTitle}>📋 All Step Notes</h3>
+                {Object.entries(data.steps).map(([stepId, step]) => {
+                  const stepNotes = data.stepNotes?.[stepId] || [];
+                  if (stepNotes.length === 0) return null;
+                  return (
+                    <div key={stepId} style={styles.allNotesStepGroup}>
+                      <h4 style={styles.allNotesStepTitle}>
+                        <span style={styles.allNotesStepBadge}>{stepId}</span>
+                        {step.title}
+                      </h4>
+                      <div style={styles.allNotesList}>
+                        {stepNotes.map(note => (
+                          <div key={note.id} style={styles.allNotesItem}>
+                            {editingNoteId === note.id ? (
+                              <div style={styles.noteEditForm}>
+                                <input
+                                  type="text"
+                                  value={editNoteText}
+                                  onChange={(e) => setEditNoteText(e.target.value)}
+                                  style={styles.noteInput}
+                                  autoFocus
+                                />
+                                <div style={styles.noteEditActions}>
+                                  <button
+                                    style={styles.noteSaveBtn}
+                                    onClick={() => updateStepNote(stepId, note.id)}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    style={styles.noteCancelBtn}
+                                    onClick={() => { setEditingNoteId(null); setEditNoteText(''); }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                <span style={styles.noteText}>{note.text}</span>
+                                <div style={styles.noteActions}>
+                                  <button
+                                    style={styles.noteActionBtn}
+                                    onClick={() => { setEditingNoteId(note.id); setEditNoteText(note.text); }}
+                                    title="Edit"
+                                  >
+                                    ✏️
+                                  </button>
+                                  <button
+                                    style={styles.noteActionBtn}
+                                    onClick={() => deleteStepNote(stepId, note.id)}
+                                    title="Delete"
+                                  >
+                                    🗑️
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
             <div style={styles.notesInputSection}>
-              <label style={styles.notesLabel}>Your Notes</label>
+              <label style={styles.notesLabel}>General Notes</label>
               <textarea
                 className="notes-textarea"
                 value={data.notes}
                 onChange={(e) => updateNotes(e.target.value)}
-                placeholder="Add your notes, thoughts, and reminders here..."
+                placeholder="Add your general notes, thoughts, and reminders here..."
                 style={styles.notesTextarea}
               />
             </div>
@@ -955,6 +1159,154 @@ const styles = {
     opacity: 0.4,
     cursor: 'not-allowed'
   },
+
+  // Step Notes
+  stepNotesSection: {
+    marginTop: '20px',
+    paddingTop: '16px',
+    borderTop: '1px solid #e0e0e0'
+  },
+  stepNotesTitle: {
+    fontSize: '0.95rem',
+    color: '#555',
+    marginBottom: '12px',
+    fontWeight: '600'
+  },
+  stepNotesList: {
+    marginBottom: '12px'
+  },
+  stepNoteItem: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '10px 12px',
+    background: 'white',
+    borderRadius: '8px',
+    marginBottom: '8px',
+    border: '1px solid #e8e8e8'
+  },
+  noteText: {
+    flex: 1,
+    fontSize: '0.9rem',
+    color: '#333'
+  },
+  noteActions: {
+    display: 'flex',
+    gap: '4px',
+    marginLeft: '12px'
+  },
+  noteActionBtn: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '0.85rem',
+    padding: '4px',
+    borderRadius: '4px',
+    transition: 'background 0.2s'
+  },
+  addNoteForm: {
+    display: 'flex',
+    gap: '8px'
+  },
+  noteInput: {
+    flex: 1,
+    padding: '10px 12px',
+    border: '1px solid #ddd',
+    borderRadius: '8px',
+    fontSize: '0.9rem',
+    outline: 'none'
+  },
+  addNoteBtn: {
+    padding: '10px 16px',
+    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'opacity 0.2s'
+  },
+  noteEditForm: {
+    display: 'flex',
+    flex: 1,
+    gap: '8px',
+    alignItems: 'center'
+  },
+  noteEditActions: {
+    display: 'flex',
+    gap: '6px'
+  },
+  noteSaveBtn: {
+    padding: '6px 12px',
+    background: '#27ae60',
+    color: 'white',
+    border: 'none',
+    borderRadius: '6px',
+    fontSize: '0.8rem',
+    fontWeight: '600',
+    cursor: 'pointer'
+  },
+  noteCancelBtn: {
+    padding: '6px 12px',
+    background: '#e0e0e0',
+    color: '#666',
+    border: 'none',
+    borderRadius: '6px',
+    fontSize: '0.8rem',
+    fontWeight: '600',
+    cursor: 'pointer'
+  },
+
+  // All Notes Section (in Notes tab)
+  allNotesSection: {
+    marginBottom: '24px',
+    padding: '20px',
+    background: '#f8f9fa',
+    borderRadius: '12px'
+  },
+  allNotesTitle: {
+    fontSize: '1.1rem',
+    color: '#2c3e50',
+    marginBottom: '16px',
+    fontWeight: '600'
+  },
+  allNotesStepGroup: {
+    marginBottom: '16px'
+  },
+  allNotesStepTitle: {
+    fontSize: '0.95rem',
+    color: '#555',
+    marginBottom: '8px',
+    fontWeight: '600',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px'
+  },
+  allNotesStepBadge: {
+    width: '24px',
+    height: '24px',
+    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+    color: 'white',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '0.75rem',
+    fontWeight: 'bold'
+  },
+  allNotesList: {},
+  allNotesItem: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '10px 12px',
+    background: 'white',
+    borderRadius: '8px',
+    marginBottom: '6px',
+    border: '1px solid #e8e8e8'
+  },
+
   checklist: {
     listStyle: 'none',
     padding: 0,
