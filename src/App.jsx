@@ -915,32 +915,32 @@ function App() {
   );
 }
 
-// PNW Color Palette - with muted blues and yellows
+// PNW Color Palette - brighter and more cheerful
 const colors = {
-  evergreen: '#2d5a4a',
-  forest: '#3d6b5a',
-  sage: '#6b9b8a',
-  mist: '#a8c5b8',
-  fog: '#e8f0ec',
-  mountain: '#4a6670',
-  slate: '#5a7a8a',
-  rain: '#7a9aa8',
-  cloud: '#f5f8f7',
-  bark: '#5c4a3d',
-  cedar: '#8b7355',
-  salmon: '#d4836a',
-  sunset: '#e8a87c',
-  complete: '#4a9a7c',
-  // Muted blues
-  skyBlue: '#6a9cba',
-  deepBlue: '#4a7a9a',
-  duskBlue: '#5d8aa8',
-  paleBlue: '#b8d4e3',
-  // Muted yellows
-  goldenHour: '#d4b870',
-  wheat: '#d9c98a',
-  honey: '#c9a855',
-  cream: '#f5edd6'
+  evergreen: '#3a7a6a',
+  forest: '#4a9a7a',
+  sage: '#7eb8a5',
+  mist: '#b5d9c8',
+  fog: '#e8f5ef',
+  mountain: '#5a8090',
+  slate: '#6a95a5',
+  rain: '#8ab5c5',
+  cloud: '#f5faf8',
+  bark: '#7a6555',
+  cedar: '#a08565',
+  salmon: '#e8956a',
+  sunset: '#f5b88a',
+  complete: '#5ab88a',
+  // Bright blues
+  skyBlue: '#7ab5d5',
+  deepBlue: '#5a95b8',
+  duskBlue: '#6aa5c5',
+  paleBlue: '#c5e0f0',
+  // Bright yellows
+  goldenHour: '#e5c878',
+  wheat: '#ebd898',
+  honey: '#dab555',
+  cream: '#faf5e5'
 };
 
 const styles = {
