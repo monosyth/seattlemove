@@ -1260,9 +1260,9 @@ function App() {
 
         {/* Checklist Tab */}
         {activeTab === 'checklist' && (
-          <div style={styles.checklistContainer}>
+          <Box sx={styles.checklistContainer}>
             {/* Step Tabs */}
-            <div className="step-tabs" style={styles.stepTabs}>
+            <Box className="step-tabs" sx={styles.stepTabs}>
               {Object.entries(data.steps).map(([stepId, step]) => {
                 const progress = getStepProgress(stepId);
                 const isComplete = progress === 100;
@@ -1296,18 +1296,13 @@ function App() {
                   </button>
                 );
               })}
-            </div>
+            </Box>
 
             {/* Active Step Content */}
             {data.steps[activeStep] && (
-              <Paper className="step-content" sx={{
-                backgroundColor: styles.stepContent.background,
-                borderRadius: '12px',
-                padding: '20px',
-                border: `1px solid ${colors.mist}`
-              }}>
-                <div style={styles.stepContentHeader}>
-                  <h2 style={styles.stepContentTitle}>
+              <Box className="step-content" sx={styles.stepContent}>
+                <Box sx={styles.stepContentHeader}>
+                  <Typography variant="h2" sx={styles.stepContentTitle}>
                     <span style={{
                       ...styles.stepContentNumber,
                       background: getStepProgress(activeStep) === 100 ? colors.complete : `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`
@@ -1315,7 +1310,7 @@ function App() {
                       {getStepProgress(activeStep) === 100 ? '✓' : activeStep}
                     </span>
                     {data.steps[activeStep].title}
-                  </h2>
+                  </Typography>
                   {activeStep !== '3' && (
                     <span style={{
                       ...styles.stepContentProgress,
@@ -1324,12 +1319,12 @@ function App() {
                       {data.steps[activeStep].items.filter(i => i.done).length}/{data.steps[activeStep].items.length} tasks
                     </span>
                   )}
-                </div>
-                <p style={styles.stepContentDesc}>{data.steps[activeStep].description}</p>
+                </Box>
+                <Typography variant="body1" sx={styles.stepContentDesc}>{data.steps[activeStep].description}</Typography>
 
                 {/* Special Repairs View for Step 3 */}
                 {activeStep === '3' ? (
-                  <div style={styles.repairsContainer}>
+                  <Box sx={styles.repairsContainer}>
                     {[
                       { key: 'must', title: 'Must Do (Safety/Inspection)', color: colors.salmon },
                       { key: 'high', title: 'High Impact (Buyers Notice)', color: colors.goldenHour },
@@ -1338,24 +1333,16 @@ function App() {
                       const progress = getBudgetCategoryProgress(key);
                       const categoryTotal = getBudgetTotal(key);
                       return (
-                        <Card
-                          key={key}
-                          sx={{
-                            borderRadius: '10px',
-                            border: `2px solid ${color}`,
-                            overflow: 'hidden',
-                            backgroundColor: 'white'
-                          }}
-                        >
-                          <Box sx={{...styles.repairSectionHeader, background: color}}>
-                            <Box sx={styles.repairSectionHeaderLeft}>
+                        <div key={key} style={{...styles.repairSection, borderColor: color}}>
+                          <div style={{...styles.repairSectionHeader, background: color}}>
+                            <div style={styles.repairSectionHeaderLeft}>
                               <h4 style={styles.repairSectionTitle}>{title}</h4>
                               <span style={styles.repairSectionProgress}>{progress.done}/{progress.total}</span>
-                            </Box>
+                            </div>
                             <span style={styles.repairSectionTotal}>${categoryTotal.toLocaleString()}</span>
-                          </Box>
+                          </div>
 
-                          <Box sx={{padding: '10px'}}>
+                          <div style={styles.repairItemsList}>
                             {data.budget[key].map(item => (
                               <div
                                 key={item.id}
@@ -1383,14 +1370,14 @@ function App() {
 
                                 {editingBudgetItemId === item.id ? (
                                   <div style={styles.itemEditForm}>
-                                    <TextField
-                                      variant="outlined"
-                                      fullWidth
+                                    <input
+                                      type="text"
                                       value={editBudgetItemText}
                                       onChange={(e) => setEditBudgetItemText(e.target.value)}
-                                      autoFocus
                                       onKeyPress={(e) => e.key === 'Enter' && updateBudgetItemText(key, item.id)}
                                       onBlur={() => updateBudgetItemText(key, item.id)}
+                                      style={styles.itemEditInput}
+                                      autoFocus
                                       onClick={(e) => e.stopPropagation()}
                                     />
                                   </div>
@@ -1404,11 +1391,12 @@ function App() {
                                     </span>
                                     <div style={styles.repairCostInput}>
                                       <span style={styles.repairCostPrefix}>$</span>
-                                      <TextField
-                                        variant="outlined"
+                                      <input
+                                        type="text"
                                         value={item.cost || ''}
                                         onChange={(e) => updateBudgetItemCost(key, item.id, e.target.value)}
                                         placeholder="0"
+                                        style={styles.repairCostField}
                                         onClick={(e) => e.stopPropagation()}
                                       />
                                     </div>
@@ -1483,18 +1471,18 @@ function App() {
                                 )}
                               </div>
                             ))}
-                          </Box>
+                          </div>
 
                           {newBudgetItemCategory === key ? (
                             <div style={styles.addRepairItemForm}>
-                              <TextField
-                                variant="outlined"
-                                fullWidth
+                              <input
+                                type="text"
                                 value={newBudgetItemText}
                                 onChange={(e) => setNewBudgetItemText(e.target.value)}
-                                placeholder="Enter new repair item..."
-                                autoFocus
                                 onKeyPress={(e) => e.key === 'Enter' && addNewBudgetItem(key)}
+                                placeholder="Enter new repair item..."
+                                style={styles.addItemInput}
+                                autoFocus
                               />
                               <button
                                 style={styles.addItemSaveBtn}
@@ -1518,10 +1506,10 @@ function App() {
                               + Add repair
                             </button>
                           )}
-                        </Card>
+                        </div>
                       );
                     })}
-                  </div>
+                  </Box>
                 ) : (
                   <>
                     <div style={styles.stepProgressBar}>
@@ -1565,14 +1553,14 @@ function App() {
                       {/* Item Text or Edit Input */}
                       {editingItemId === item.id ? (
                         <div style={styles.itemEditForm}>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
+                            type="text"
                             value={editItemText}
                             onChange={(e) => setEditItemText(e.target.value)}
-                            autoFocus
                             onKeyPress={(e) => e.key === 'Enter' && updateItemText(activeStep, item.id)}
                             onBlur={() => updateItemText(activeStep, item.id)}
+                            style={styles.itemEditInput}
+                            autoFocus
                             onClick={(e) => e.stopPropagation()}
                           />
                         </div>
@@ -1645,14 +1633,14 @@ function App() {
                 {/* Add New Item */}
                 {newItemStepId === activeStep ? (
                   <div style={styles.addItemForm}>
-                    <TextField
-                      variant="outlined"
-                      fullWidth
+                    <input
+                      type="text"
                       value={newItemText}
                       onChange={(e) => setNewItemText(e.target.value)}
-                      placeholder="Enter new task..."
-                      autoFocus
                       onKeyPress={(e) => e.key === 'Enter' && addNewItem(activeStep)}
+                      placeholder="Enter new task..."
+                      style={styles.addItemInput}
+                      autoFocus
                     />
                     <button
                       style={styles.addItemSaveBtn}
@@ -1686,18 +1674,11 @@ function App() {
 
                     <div style={styles.realtorCards}>
                       {(data.realtors || []).map(realtor => (
-                        <Card
+                        <div
                           key={realtor.id}
-                          sx={{
-                            background: 'white',
-                            border: `1px solid ${colors.mist}`,
-                            borderRadius: '10px',
-                            padding: '14px',
-                            position: 'relative',
-                            ...(realtor.recommended ? {
-                              border: `2px solid ${colors.evergreen}`,
-                              background: `linear-gradient(135deg, white 0%, ${colors.fog} 100%)`
-                            } : {})
+                          style={{
+                            ...styles.realtorCard,
+                            ...(realtor.recommended ? styles.realtorCardRecommended : {})
                           }}
                         >
                           {editingRealtorId === realtor.id ? (
@@ -1705,68 +1686,66 @@ function App() {
                             <div style={styles.realtorEditForm}>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Name:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
+                                <input
+                                  type="text"
                                   value={editingRealtorData.name || ''}
                                   onChange={(e) => setEditingRealtorData({...editingRealtorData, name: e.target.value})}
+                                  style={styles.realtorFormInput}
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Team:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
+                                <input
+                                  type="text"
                                   value={editingRealtorData.team || ''}
                                   onChange={(e) => setEditingRealtorData({...editingRealtorData, team: e.target.value})}
+                                  style={styles.realtorFormInput}
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Brokerage:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
+                                <input
+                                  type="text"
                                   value={editingRealtorData.brokerage || ''}
                                   onChange={(e) => setEditingRealtorData({...editingRealtorData, brokerage: e.target.value})}
+                                  style={styles.realtorFormInput}
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Phone:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
+                                <input
+                                  type="text"
                                   value={editingRealtorData.phone || ''}
                                   onChange={(e) => setEditingRealtorData({...editingRealtorData, phone: e.target.value})}
+                                  style={styles.realtorFormInput}
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Email:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
+                                <input
+                                  type="text"
                                   value={editingRealtorData.email || ''}
                                   onChange={(e) => setEditingRealtorData({...editingRealtorData, email: e.target.value})}
+                                  style={styles.realtorFormInput}
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Website:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
+                                <input
+                                  type="text"
                                   value={editingRealtorData.website || ''}
                                   onChange={(e) => setEditingRealtorData({...editingRealtorData, website: e.target.value})}
+                                  style={styles.realtorFormInput}
                                   placeholder="https://..."
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Notes:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
-                                  multiline
-                                  rows={5}
+                                <textarea
                                   value={editingRealtorData.notes || ''}
                                   onChange={(e) => setEditingRealtorData({...editingRealtorData, notes: e.target.value})}
+                                  style={styles.realtorFormTextarea}
+                                  rows={5}
                                 />
                               </div>
                               <div style={styles.realtorFormActions}>
@@ -1844,80 +1823,77 @@ function App() {
                               </div>
                             </>
                           )}
-                        </Card>
+                        </div>
                       ))}
                     </div>
 
                     {/* Add New Realtor */}
                     {addingRealtor ? (
-                      <Card sx={{ ...styles.addRealtorForm }}>
-                        <CardContent>
-                          <h4 style={styles.addRealtorTitle}>Add New Realtor Candidate</h4>
+                      <div style={styles.addRealtorForm}>
+                        <h4 style={styles.addRealtorTitle}>Add New Realtor Candidate</h4>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Name:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
+                            type="text"
                             value={newRealtorData.name}
                             onChange={(e) => setNewRealtorData({...newRealtorData, name: e.target.value})}
+                            style={styles.realtorFormInput}
                             autoFocus
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Team:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
+                            type="text"
                             value={newRealtorData.team}
                             onChange={(e) => setNewRealtorData({...newRealtorData, team: e.target.value})}
+                            style={styles.realtorFormInput}
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Brokerage:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
+                            type="text"
                             value={newRealtorData.brokerage}
                             onChange={(e) => setNewRealtorData({...newRealtorData, brokerage: e.target.value})}
+                            style={styles.realtorFormInput}
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Phone:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
+                            type="text"
                             value={newRealtorData.phone}
                             onChange={(e) => setNewRealtorData({...newRealtorData, phone: e.target.value})}
+                            style={styles.realtorFormInput}
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Email:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
+                            type="text"
                             value={newRealtorData.email}
                             onChange={(e) => setNewRealtorData({...newRealtorData, email: e.target.value})}
+                            style={styles.realtorFormInput}
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Website:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
+                            type="text"
                             value={newRealtorData.website}
                             onChange={(e) => setNewRealtorData({...newRealtorData, website: e.target.value})}
+                            style={styles.realtorFormInput}
                             placeholder="https://..."
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Notes:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
-                            multiline
-                            rows={5}
+                          <textarea
                             value={newRealtorData.notes}
                             onChange={(e) => setNewRealtorData({...newRealtorData, notes: e.target.value})}
+                            style={styles.realtorFormTextarea}
+                            rows={5}
                           />
                         </div>
                         <div style={styles.realtorFormActions}>
@@ -1935,8 +1911,7 @@ function App() {
                             Cancel
                           </button>
                         </div>
-                        </CardContent>
-                      </Card>
+                      </div>
                     ) : (
                       <button style={styles.addRealtorBtn} onClick={() => setAddingRealtor(true)}>
                         + Add Realtor Candidate
@@ -1952,37 +1927,30 @@ function App() {
 
                     <div style={styles.questionsList}>
                       {(data.realtorQuestions || []).map((q, index) => (
-                        <Card key={q.id} sx={{ ...styles.questionCard }}>
-                          <CardContent>
+                        <div key={q.id} style={styles.questionCard}>
                           {editingQuestionId === q.id ? (
                             // Edit Mode
                             <div style={styles.questionEditForm}>
                               <label style={styles.questionLabel}>Question:</label>
-                              <TextField
-                                variant="outlined"
-                                fullWidth
-                                multiline
-                                rows={4}
+                              <textarea
                                 value={editingQuestionData.question || ''}
                                 onChange={(e) => setEditingQuestionData({...editingQuestionData, question: e.target.value})}
+                                style={styles.questionTextarea}
+                                rows={4}
                               />
                               <label style={styles.questionLabel}>Ideal Answer / What to look for:</label>
-                              <TextField
-                                variant="outlined"
-                                fullWidth
-                                multiline
-                                rows={4}
+                              <textarea
                                 value={editingQuestionData.idealAnswer || ''}
                                 onChange={(e) => setEditingQuestionData({...editingQuestionData, idealAnswer: e.target.value})}
+                                style={styles.questionTextarea}
+                                rows={4}
                               />
                               <label style={styles.questionLabel}>Notes / Their Answer:</label>
-                              <TextField
-                                variant="outlined"
-                                fullWidth
-                                multiline
-                                rows={4}
+                              <textarea
                                 value={editingQuestionData.answer || ''}
                                 onChange={(e) => setEditingQuestionData({...editingQuestionData, answer: e.target.value})}
+                                style={styles.questionTextarea}
+                                rows={4}
                               />
                               <div style={styles.questionEditActions}>
                                 <button style={styles.questionSaveBtn} onClick={() => updateQuestion(q.id)}>Save</button>
@@ -2036,36 +2004,30 @@ function App() {
                               </div>
                             </>
                           )}
-                          </CardContent>
-                        </Card>
+                        </div>
                       ))}
                     </div>
 
                     {/* Add New Question */}
                     {addingQuestion ? (
-                      <Card sx={{ ...styles.addQuestionForm }}>
-                        <CardContent>
-                          <h4 style={styles.addQuestionTitle}>Add New Question</h4>
+                      <div style={styles.addQuestionForm}>
+                        <h4 style={styles.addQuestionTitle}>Add New Question</h4>
                         <label style={styles.questionLabel}>Question:</label>
-                        <TextField
-                          variant="outlined"
-                          fullWidth
-                          multiline
-                          rows={4}
+                        <textarea
                           value={newQuestionData.question}
                           onChange={(e) => setNewQuestionData({...newQuestionData, question: e.target.value})}
                           placeholder="What do you want to ask?"
+                          style={styles.questionTextarea}
+                          rows={4}
                           autoFocus
                         />
                         <label style={styles.questionLabel}>Ideal Answer / What to look for:</label>
-                        <TextField
-                          variant="outlined"
-                          fullWidth
-                          multiline
-                          rows={4}
+                        <textarea
                           value={newQuestionData.idealAnswer}
                           onChange={(e) => setNewQuestionData({...newQuestionData, idealAnswer: e.target.value})}
                           placeholder="What should a good answer include?"
+                          style={styles.questionTextarea}
+                          rows={4}
                         />
                         <div style={styles.questionEditActions}>
                           <button
@@ -2082,8 +2044,7 @@ function App() {
                             Cancel
                           </button>
                         </div>
-                        </CardContent>
-                      </Card>
+                      </div>
                     ) : (
                       <button style={styles.addQuestionBtn} onClick={() => setAddingQuestion(true)}>
                         + Add Question
@@ -2099,81 +2060,70 @@ function App() {
 
                     <div style={styles.realtorCards}>
                       {(data.neighborhoods || []).map(neighborhood => (
-                        <Card
+                        <div
                           key={neighborhood.id}
-                          sx={{
-                            background: 'white',
-                            border: `1px solid ${colors.mist}`,
-                            borderRadius: '10px',
-                            padding: '14px',
-                            position: 'relative'
-                          }}
+                          style={styles.realtorCard}
                         >
                           {editingNeighborhoodId === neighborhood.id ? (
                             // Edit Mode
                             <div style={styles.realtorEditForm}>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Neighborhood Name:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
+                                <input
+                                  type="text"
                                   value={editingNeighborhoodData.name || ''}
                                   onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, name: e.target.value})}
+                                  style={styles.realtorFormInput}
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Price Range:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
+                                <input
+                                  type="text"
                                   value={editingNeighborhoodData.priceRange || ''}
                                   onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, priceRange: e.target.value})}
+                                  style={styles.realtorFormInput}
                                   placeholder="e.g. $2000-3000/mo"
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Rating (0-5):</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
+                                <input
                                   type="number"
+                                  min="0"
+                                  max="5"
                                   value={editingNeighborhoodData.rating || 0}
                                   onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, rating: parseInt(e.target.value) || 0})}
+                                  style={styles.realtorFormInput}
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Pros:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
-                                  multiline
-                                  rows={5}
+                                <textarea
                                   value={editingNeighborhoodData.pros || ''}
                                   onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, pros: e.target.value})}
+                                  style={styles.realtorFormTextarea}
+                                  rows={5}
                                   placeholder="What you like about this area"
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Cons:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
-                                  multiline
-                                  rows={5}
+                                <textarea
                                   value={editingNeighborhoodData.cons || ''}
                                   onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, cons: e.target.value})}
+                                  style={styles.realtorFormTextarea}
+                                  rows={5}
                                   placeholder="Concerns or drawbacks"
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Notes:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
-                                  multiline
-                                  rows={5}
+                                <textarea
                                   value={editingNeighborhoodData.notes || ''}
                                   onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, notes: e.target.value})}
+                                  style={styles.realtorFormTextarea}
+                                  rows={5}
                                 />
                               </div>
                               <div style={styles.realtorFormActions}>
@@ -2249,77 +2199,71 @@ function App() {
                               </div>
                             </>
                           )}
-                        </Card>
+                        </div>
                       ))}
                     </div>
 
                     {/* Add New Neighborhood */}
                     {addingNeighborhood ? (
-                      <Card sx={{ ...styles.addRealtorForm }}>
-                        <CardContent>
-                          <h4 style={styles.addRealtorTitle}>Add New Neighborhood</h4>
+                      <div style={styles.addRealtorForm}>
+                        <h4 style={styles.addRealtorTitle}>Add New Neighborhood</h4>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Neighborhood Name:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
+                            type="text"
                             value={newNeighborhoodData.name}
                             onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, name: e.target.value})}
+                            style={styles.realtorFormInput}
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Price Range:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
+                            type="text"
                             value={newNeighborhoodData.priceRange}
                             onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, priceRange: e.target.value})}
+                            style={styles.realtorFormInput}
                             placeholder="e.g. $2000-3000/mo"
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Rating (0-5):</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
                             type="number"
+                            min="0"
+                            max="5"
                             value={newNeighborhoodData.rating}
                             onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, rating: parseInt(e.target.value) || 0})}
+                            style={styles.realtorFormInput}
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Pros:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
-                            multiline
-                            rows={5}
+                          <textarea
                             value={newNeighborhoodData.pros}
                             onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, pros: e.target.value})}
+                            style={styles.realtorFormTextarea}
+                            rows={5}
                             placeholder="What you like about this area"
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Cons:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
-                            multiline
-                            rows={5}
+                          <textarea
                             value={newNeighborhoodData.cons}
                             onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, cons: e.target.value})}
+                            style={styles.realtorFormTextarea}
+                            rows={5}
                             placeholder="Concerns or drawbacks"
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Notes:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
-                            multiline
-                            rows={5}
+                          <textarea
                             value={newNeighborhoodData.notes}
                             onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, notes: e.target.value})}
+                            style={styles.realtorFormTextarea}
+                            rows={5}
                           />
                         </div>
                         <div style={styles.addRealtorActions}>
@@ -2330,8 +2274,7 @@ function App() {
                             Cancel
                           </button>
                         </div>
-                        </CardContent>
-                      </Card>
+                      </div>
                     ) : (
                       <button style={styles.addRealtorBtn} onClick={() => setAddingNeighborhood(true)}>
                         + Add Neighborhood
@@ -2340,116 +2283,106 @@ function App() {
                   </div>
                 )}
 
-            {/* Rental Properties Section - Only for Step 8 */}
-            {activeStep === '8' && (
-              <div style={styles.realtorsSection}>
-                <h3 style={styles.realtorsSectionTitle}>🏠 Rental Properties</h3>
+                {/* Rental Properties Section - Only for Step 8 */}
+                {activeStep === '8' && (
+                  <div style={styles.realtorsSection}>
+                    <h3 style={styles.realtorsSectionTitle}>🏠 Rental Properties</h3>
 
-                <div style={styles.realtorCards}>
-                  {(data.rentalProperties || []).map(property => (
-                    <Card
-                      key={property.id}
-                      sx={{
-                        background: 'white',
-                        border: `1px solid ${colors.mist}`,
-                        borderRadius: '10px',
-                        padding: '14px',
-                        position: 'relative',
-                        ...(property.interested ? {
-                          border: `2px solid ${colors.evergreen}`,
-                          background: `linear-gradient(135deg, white 0%, ${colors.fog} 100%)`
-                        } : {})
-                      }}
-                    >
+                    <div style={styles.realtorCards}>
+                      {(data.rentalProperties || []).map(property => (
+                        <div
+                          key={property.id}
+                          style={{
+                            ...styles.realtorCard,
+                            ...(property.interested ? styles.realtorCardRecommended : {})
+                          }}
+                        >
                           {editingPropertyId === property.id ? (
                             // Edit Mode
                             <div style={styles.realtorEditForm}>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Address:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
+                                <input
+                                  type="text"
                                   value={editingPropertyData.address || ''}
                                   onChange={(e) => setEditingPropertyData({...editingPropertyData, address: e.target.value})}
+                                  style={styles.realtorFormInput}
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Neighborhood:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
+                                <input
+                                  type="text"
                                   value={editingPropertyData.neighborhood || ''}
                                   onChange={(e) => setEditingPropertyData({...editingPropertyData, neighborhood: e.target.value})}
+                                  style={styles.realtorFormInput}
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Price:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
+                                <input
+                                  type="text"
                                   value={editingPropertyData.price || ''}
                                   onChange={(e) => setEditingPropertyData({...editingPropertyData, price: e.target.value})}
+                                  style={styles.realtorFormInput}
                                   placeholder="e.g. $2500/mo"
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Bedrooms:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
+                                <input
+                                  type="text"
                                   value={editingPropertyData.bedrooms || ''}
                                   onChange={(e) => setEditingPropertyData({...editingPropertyData, bedrooms: e.target.value})}
+                                  style={styles.realtorFormInput}
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Bathrooms:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
+                                <input
+                                  type="text"
                                   value={editingPropertyData.bathrooms || ''}
                                   onChange={(e) => setEditingPropertyData({...editingPropertyData, bathrooms: e.target.value})}
+                                  style={styles.realtorFormInput}
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Square Feet:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
+                                <input
+                                  type="text"
                                   value={editingPropertyData.sqft || ''}
                                   onChange={(e) => setEditingPropertyData({...editingPropertyData, sqft: e.target.value})}
+                                  style={styles.realtorFormInput}
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
-                                <FormControlLabel
-                                  control={
-                                    <Checkbox
-                                      checked={editingPropertyData.petFriendly || false}
-                                      onChange={(e) => setEditingPropertyData({...editingPropertyData, petFriendly: e.target.checked})}
-                                      color="primary"
-                                    />
-                                  }
-                                  label="Pet Friendly"
-                                />
+                                <label style={styles.realtorFormLabel}>
+                                  <input
+                                    type="checkbox"
+                                    checked={editingPropertyData.petFriendly || false}
+                                    onChange={(e) => setEditingPropertyData({...editingPropertyData, petFriendly: e.target.checked})}
+                                    style={{marginRight: '8px'}}
+                                  />
+                                  Pet Friendly
+                                </label>
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Listing URL:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
+                                <input
+                                  type="text"
                                   value={editingPropertyData.url || ''}
                                   onChange={(e) => setEditingPropertyData({...editingPropertyData, url: e.target.value})}
+                                  style={styles.realtorFormInput}
                                   placeholder="https://..."
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Notes:</label>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
-                                  multiline
-                                  rows={5}
+                                <textarea
                                   value={editingPropertyData.notes || ''}
                                   onChange={(e) => setEditingPropertyData({...editingPropertyData, notes: e.target.value})}
+                                  style={styles.realtorFormTextarea}
+                                  rows={5}
                                 />
                               </div>
                               <div style={styles.realtorFormActions}>
@@ -2540,101 +2473,97 @@ function App() {
                               </div>
                             </>
                           )}
-                    </Card>
-                  ))}
-                </div>
+                        </div>
+                      ))}
+                    </div>
 
-                {/* Add New Property */}
-                {addingProperty ? (
-                  <Card sx={{ ...styles.addRealtorForm }}>
-                    <CardContent>
-                      <h4 style={styles.addRealtorTitle}>Add New Rental Property</h4>
+                    {/* Add New Property */}
+                    {addingProperty ? (
+                      <div style={styles.addRealtorForm}>
+                        <h4 style={styles.addRealtorTitle}>Add New Rental Property</h4>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Address:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
+                            type="text"
                             value={newPropertyData.address}
                             onChange={(e) => setNewPropertyData({...newPropertyData, address: e.target.value})}
+                            style={styles.realtorFormInput}
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Neighborhood:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
+                            type="text"
                             value={newPropertyData.neighborhood}
                             onChange={(e) => setNewPropertyData({...newPropertyData, neighborhood: e.target.value})}
+                            style={styles.realtorFormInput}
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Price:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
+                            type="text"
                             value={newPropertyData.price}
                             onChange={(e) => setNewPropertyData({...newPropertyData, price: e.target.value})}
+                            style={styles.realtorFormInput}
                             placeholder="e.g. $2500/mo"
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Bedrooms:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
+                            type="text"
                             value={newPropertyData.bedrooms}
                             onChange={(e) => setNewPropertyData({...newPropertyData, bedrooms: e.target.value})}
+                            style={styles.realtorFormInput}
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Bathrooms:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
+                            type="text"
                             value={newPropertyData.bathrooms}
                             onChange={(e) => setNewPropertyData({...newPropertyData, bathrooms: e.target.value})}
+                            style={styles.realtorFormInput}
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Square Feet:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
+                            type="text"
                             value={newPropertyData.sqft}
                             onChange={(e) => setNewPropertyData({...newPropertyData, sqft: e.target.value})}
+                            style={styles.realtorFormInput}
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                checked={newPropertyData.petFriendly || false}
-                                onChange={(e) => setNewPropertyData({...newPropertyData, petFriendly: e.target.checked})}
-                                color="primary"
-                              />
-                            }
-                            label="Pet Friendly"
-                          />
+                          <label style={styles.realtorFormLabel}>
+                            <input
+                              type="checkbox"
+                              checked={newPropertyData.petFriendly}
+                              onChange={(e) => setNewPropertyData({...newPropertyData, petFriendly: e.target.checked})}
+                              style={{marginRight: '8px'}}
+                            />
+                            Pet Friendly
+                          </label>
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Listing URL:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
+                            type="text"
                             value={newPropertyData.url}
                             onChange={(e) => setNewPropertyData({...newPropertyData, url: e.target.value})}
+                            style={styles.realtorFormInput}
                             placeholder="https://..."
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Notes:</label>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
-                            multiline
-                            rows={5}
+                          <textarea
                             value={newPropertyData.notes}
                             onChange={(e) => setNewPropertyData({...newPropertyData, notes: e.target.value})}
+                            style={styles.realtorFormTextarea}
+                            rows={5}
                           />
                         </div>
                         <div style={styles.addRealtorActions}>
@@ -2645,35 +2574,32 @@ function App() {
                             Cancel
                           </button>
                         </div>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <button style={styles.addRealtorBtn} onClick={() => setAddingProperty(true)}>
-                    + Add Rental Property
-                  </button>
+                      </div>
+                    ) : (
+                      <button style={styles.addRealtorBtn} onClick={() => setAddingProperty(true)}>
+                        + Add Rental Property
+                      </button>
+                    )}
+                  </div>
                 )}
-              </div>
-            )}
 
                 {/* Step Notes */}
-                <Paper sx={{ ...styles.stepNotesSection }}>
+                <div style={styles.stepNotesSection}>
                   <h4 style={styles.stepNotesTitle}>📝 Notes for this step</h4>
 
                   {/* Existing Notes */}
                   {data.stepNotes?.[activeStep]?.length > 0 && (
-                    <Box sx={{ ...styles.stepNotesList }}>
+                    <div style={styles.stepNotesList}>
                       {data.stepNotes[activeStep].map(note => (
-                        <Card key={note.id} sx={{ ...styles.stepNoteItem }}>
+                        <div key={note.id} style={styles.stepNoteItem}>
                           {editingNoteId === note.id ? (
                             <div style={styles.noteEditForm}>
-                              <TextField
-                                variant="outlined"
-                                fullWidth
-                                multiline
-                                rows={3}
+                              <textarea
                                 value={editNoteText}
                                 onChange={(e) => setEditNoteText(e.target.value)}
+                                style={styles.noteInput}
                                 autoFocus
+                                rows={3}
                               />
                               <div style={styles.noteEditActions}>
                                 <button
@@ -2731,21 +2657,24 @@ function App() {
                               </div>
                             </>
                           )}
-                        </Card>
+                        </div>
                       ))}
-                    </Box>
+                    </div>
                   )}
 
                   {/* Add New Note */}
-                  <Paper sx={{ ...styles.addNoteForm }}>
-                    <TextField
-                      variant="outlined"
-                      fullWidth
-                      multiline
-                      rows={2}
+                  <div style={styles.addNoteForm}>
+                    <textarea
                       value={newNoteText}
                       onChange={(e) => setNewNoteText(e.target.value)}
                       placeholder="Add a note... (Ctrl+Enter to save quickly)"
+                      style={styles.noteInput}
+                      onKeyDown={(e) => {
+                        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                          addStepNote(activeStep);
+                        }
+                      }}
+                      rows={2}
                     />
                     <button
                       style={styles.addNoteBtn}
@@ -2754,42 +2683,41 @@ function App() {
                     >
                       Add
                     </button>
-                  </Paper>
-                </Paper>
-              </Paper>
-            )}
+                  </div>
+                </div>
 
-            {/* Step Navigation */}
-            <div style={styles.stepNavigation}>
-              <button
-                style={{
-                  ...styles.stepNavBtn,
-                  ...(activeStep === '1' ? styles.stepNavBtnDisabled : {})
-                }}
-                onClick={() => setActiveStep(String(Number(activeStep) - 1))}
-                disabled={activeStep === '1'}
-              >
-                ← Previous
-              </button>
-              <button
-                style={{
-                  ...styles.stepNavBtn,
-                  ...styles.stepNavBtnPrimary,
-                  ...(activeStep === '9' ? styles.stepNavBtnDisabled : {})
-                }}
-                onClick={() => setActiveStep(String(Number(activeStep) + 1))}
-                disabled={activeStep === '9'}
-              >
-                Next →
-              </button>
-            </div>
+                {/* Step Navigation */}
+                <Box sx={styles.stepNavigation}>
+                  <button
+                    style={{
+                      ...styles.stepNavBtn,
+                      ...(activeStep === '1' ? styles.stepNavBtnDisabled : {})
+                    }}
+                    onClick={() => setActiveStep(String(Number(activeStep) - 1))}
+                    disabled={activeStep === '1'}
+                  >
+                    ← Previous
+                  </button>
+                  <button
+                    style={{
+                      ...styles.stepNavBtn,
+                      ...styles.stepNavBtnPrimary,
+                      ...(activeStep === '9' ? styles.stepNavBtnDisabled : {})
+                    }}
+                    onClick={() => setActiveStep(String(Number(activeStep) + 1))}
+                    disabled={activeStep === '9'}
+                  >
+                    Next →
+                  </button>
+                </Box>
+              </Box>
             )}
-          </div>
+          </Box>
         )}
 
         {/* Budget Tab */}
         {activeTab === 'budget' && (
-          <div style={styles.budgetContainer}>
+          <Box sx={styles.budgetContainer}>
             {/* Budget Summary Card */}
             <div style={styles.budgetSummary}>
               <h3 style={styles.budgetSummaryTitle}>💰 Project Budget</h3>
@@ -2836,14 +2764,14 @@ function App() {
                     <tr key={item.id} style={item.done ? styles.budgetRowDone : {}}>
                       <td style={styles.budgetTd}>
                         {editingBudgetItemId === item.id ? (
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
+                            type="text"
                             value={editBudgetItemText}
                             onChange={(e) => setEditBudgetItemText(e.target.value)}
-                            autoFocus
                             onKeyPress={(e) => e.key === 'Enter' && updateBudgetItemText('other', item.id)}
                             onBlur={() => updateBudgetItemText('other', item.id)}
+                            style={styles.budgetTableInput}
+                            autoFocus
                           />
                         ) : (
                           <span style={item.done ? styles.budgetItemNameDone : styles.budgetItemName}>
@@ -2855,13 +2783,12 @@ function App() {
                       <td style={{...styles.budgetTd, textAlign: 'right'}}>
                         <div style={styles.costInputWrapper}>
                           <span style={styles.dollarSign}>$</span>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
+                          <input
                             type="number"
                             value={item.cost}
                             onChange={(e) => updateBudgetCost('other', item.id, e.target.value)}
                             placeholder="0"
+                            style={styles.costField}
                           />
                         </div>
                       </td>
@@ -2898,14 +2825,14 @@ function App() {
               {/* Add New Item */}
               {newBudgetItemCategory === 'other' ? (
                 <div style={styles.addBudgetRowForm}>
-                  <TextField
-                    variant="outlined"
-                    fullWidth
+                  <input
+                    type="text"
                     value={newBudgetItemText}
                     onChange={(e) => setNewBudgetItemText(e.target.value)}
-                    placeholder="Enter item name..."
-                    autoFocus
                     onKeyPress={(e) => e.key === 'Enter' && addNewBudgetItem('other')}
+                    placeholder="Enter item name..."
+                    style={styles.addBudgetInput}
+                    autoFocus
                   />
                   <button
                     style={styles.addItemSaveBtn}
@@ -2931,13 +2858,13 @@ function App() {
               )}
             </div>
 
-          </div>
+          </Box>
         )}
 
         {/* Timeline Tab */}
         {activeTab === 'timeline' && (
-          <div style={styles.timelineWrapper}>
-            <div className="timeline-container" style={styles.timelineContainer}>
+          <Box sx={styles.timelineWrapper}>
+            <Box className="timeline-container" sx={styles.timelineContainer}>
               {Object.entries(data.steps).map(([stepId, step], index) => {
                 const progress = getStepProgress(stepId);
                 const isComplete = progress === 100;
@@ -2972,12 +2899,12 @@ function App() {
                       </div>
                       <div className="timeline-date-row" style={styles.timelineDateRow}>
                         <label style={styles.timelineLabel}>Target Date:</label>
-                        <TextField
-                          variant="outlined"
-                          fullWidth
+                        <input
                           type="date"
+                          className="date-input"
                           value={step.targetDate || ''}
                           onChange={(e) => updateTargetDate(stepId, e.target.value)}
+                          style={styles.dateInput}
                         />
                       </div>
                       <div style={styles.timelineProgress}>
@@ -2996,14 +2923,14 @@ function App() {
                   </div>
                 );
               })}
-            </div>
-          </div>
+            </Box>
+          </Box>
         )}
 
         {/* Notes Tab */}
         {activeTab === 'notes' && (
-          <div className="notes-container" style={styles.notesContainer}>
-            <h2 className="notes-title" style={styles.notesTitle}>📝 Notes & Reminders</h2>
+          <Box className="notes-container" sx={styles.notesContainer}>
+            <Typography variant="h2" className="notes-title" sx={styles.notesTitle}>📝 Notes & Reminders</Typography>
 
             <div style={styles.stepNotesSection}>
               <h4 style={styles.stepNotesTitle}>📝 General Notes</h4>
@@ -3015,14 +2942,12 @@ function App() {
                     <div key={note.id} style={styles.stepNoteItem}>
                       {editingGeneralNoteId === note.id ? (
                         <div style={styles.noteEditForm}>
-                          <TextField
-                            variant="outlined"
-                            fullWidth
-                            multiline
-                            rows={3}
+                          <textarea
                             value={editGeneralNoteText}
                             onChange={(e) => setEditGeneralNoteText(e.target.value)}
+                            style={styles.noteInput}
                             autoFocus
+                            rows={3}
                           />
                           <div style={styles.noteEditActions}>
                             <button
@@ -3087,14 +3012,17 @@ function App() {
 
               {/* Add New General Note */}
               <div style={styles.addNoteForm}>
-                <TextField
-                  variant="outlined"
-                  fullWidth
-                  multiline
-                  rows={2}
+                <textarea
                   value={newGeneralNoteText}
                   onChange={(e) => setNewGeneralNoteText(e.target.value)}
                   placeholder="Add a general note... (Ctrl+Enter to save quickly)"
+                  style={styles.noteInput}
+                  onKeyDown={(e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                      addGeneralNote();
+                    }
+                  }}
+                  rows={2}
                 />
                 <button
                   style={styles.addNoteBtn}
@@ -3124,14 +3052,12 @@ function App() {
                           <div key={note.id} style={styles.allNotesItem}>
                             {editingNoteId === note.id ? (
                               <div style={styles.noteEditForm}>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
-                                  multiline
-                                  rows={3}
+                                <textarea
                                   value={editNoteText}
                                   onChange={(e) => setEditNoteText(e.target.value)}
+                                  style={styles.noteInput}
                                   autoFocus
+                                  rows={3}
                                 />
                                 <div style={styles.noteEditActions}>
                                   <button
@@ -3197,14 +3123,14 @@ function App() {
                 })}
               </div>
             )}
-          </div>
+          </Box>
         )}
 
         {/* History Tab */}
         {activeTab === 'history' && (
-          <div style={styles.historyContainer}>
-            <div style={styles.historyHeader}>
-              <h2 style={styles.historyTitle}>📜 Change History</h2>
+          <Box sx={styles.historyContainer}>
+            <Box sx={styles.historyHeader}>
+              <Typography variant="h2" sx={styles.historyTitle}>📜 Change History</Typography>
               <button
                 style={styles.refreshBtn}
                 onClick={loadChangelog}
@@ -3212,18 +3138,18 @@ function App() {
               >
                 {changelogLoading ? '⏳ Loading...' : '🔄 Refresh'}
               </button>
-            </div>
-            <p style={styles.historySubtitle}>All changes are automatically saved so you never lose information</p>
+            </Box>
+            <Typography variant="body1" sx={styles.historySubtitle}>All changes are automatically saved so you never lose information</Typography>
 
             {changelogLoading ? (
-              <div style={styles.historyLoading}>Loading change history...</div>
+              <Box sx={styles.historyLoading}>Loading change history...</Box>
             ) : changelog.length === 0 ? (
-              <div style={styles.historyEmpty}>
-                <p>📝 No changes recorded yet.</p>
-                <p style={styles.historyEmptyHint}>Changes to tasks, notes, budget, and dates will appear here.</p>
-              </div>
+              <Box sx={styles.historyEmpty}>
+                <Typography variant="body1">📝 No changes recorded yet.</Typography>
+                <Typography variant="body2" sx={styles.historyEmptyHint}>Changes to tasks, notes, budget, and dates will appear here.</Typography>
+              </Box>
             ) : (
-              <div style={styles.historyList}>
+              <Box sx={styles.historyList}>
                 {changelog.map((entry) => {
                   const date = new Date(entry.timestamp);
                   const typeIcons = {
@@ -3294,9 +3220,9 @@ function App() {
                     </div>
                   );
                 })}
-              </div>
+              </Box>
             )}
-          </div>
+          </Box>
         )}
       </Box>
 
