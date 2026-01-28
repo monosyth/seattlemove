@@ -57,6 +57,8 @@ const initialData = {
       answer: ''
     }
   ],
+  neighborhoods: [],
+  rentalProperties: [],
   steps: {
     1: {
       title: 'Select Realtor',
@@ -270,6 +272,18 @@ function App() {
   const [addingQuestion, setAddingQuestion] = useState(false);
   const [newQuestionData, setNewQuestionData] = useState({ question: '', idealAnswer: '', answer: '' });
   const [confirmDeleteQuestionId, setConfirmDeleteQuestionId] = useState(null);
+  // Neighborhood management state
+  const [editingNeighborhoodId, setEditingNeighborhoodId] = useState(null);
+  const [editingNeighborhoodData, setEditingNeighborhoodData] = useState({});
+  const [addingNeighborhood, setAddingNeighborhood] = useState(false);
+  const [newNeighborhoodData, setNewNeighborhoodData] = useState({ name: '', pros: '', cons: '', priceRange: '', notes: '', rating: 0 });
+  const [confirmDeleteNeighborhoodId, setConfirmDeleteNeighborhoodId] = useState(null);
+  // Rental property management state
+  const [editingPropertyId, setEditingPropertyId] = useState(null);
+  const [editingPropertyData, setEditingPropertyData] = useState({});
+  const [addingProperty, setAddingProperty] = useState(false);
+  const [newPropertyData, setNewPropertyData] = useState({ address: '', neighborhood: '', price: '', bedrooms: '', bathrooms: '', sqft: '', petFriendly: false, url: '', notes: '', interested: false });
+  const [confirmDeletePropertyId, setConfirmDeletePropertyId] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
@@ -798,6 +812,133 @@ function App() {
     saveData(newData);
     addChangelogEntry('question_deleted', `Removed realtor question`, deletedText, null);
     setConfirmDeleteQuestionId(null);
+  };
+
+  // Neighborhood management functions
+  const addNeighborhood = () => {
+    if (!newNeighborhoodData.name.trim()) return;
+    const newData = { ...data };
+    if (!newData.neighborhoods) newData.neighborhoods = [];
+    const newId = `n-${Date.now()}`;
+    newData.neighborhoods.push({
+      id: newId,
+      name: newNeighborhoodData.name.trim(),
+      pros: newNeighborhoodData.pros.trim(),
+      cons: newNeighborhoodData.cons.trim(),
+      priceRange: newNeighborhoodData.priceRange.trim(),
+      notes: newNeighborhoodData.notes.trim(),
+      rating: newNeighborhoodData.rating
+    });
+    setData(newData);
+    saveData(newData);
+    addChangelogEntry('neighborhood_added', `Added neighborhood: ${newNeighborhoodData.name.trim()}`, null, newNeighborhoodData.name.trim());
+    setAddingNeighborhood(false);
+    setNewNeighborhoodData({ name: '', pros: '', cons: '', priceRange: '', notes: '', rating: 0 });
+  };
+
+  const updateNeighborhood = (neighborhoodId) => {
+    const newData = { ...data };
+    const neighborhood = newData.neighborhoods?.find(n => n.id === neighborhoodId);
+    if (neighborhood) {
+      const oldName = neighborhood.name;
+      neighborhood.name = editingNeighborhoodData.name?.trim() || neighborhood.name;
+      neighborhood.pros = editingNeighborhoodData.pros?.trim() || '';
+      neighborhood.cons = editingNeighborhoodData.cons?.trim() || '';
+      neighborhood.priceRange = editingNeighborhoodData.priceRange?.trim() || '';
+      neighborhood.notes = editingNeighborhoodData.notes?.trim() || '';
+      neighborhood.rating = editingNeighborhoodData.rating || 0;
+      setData(newData);
+      saveData(newData);
+      addChangelogEntry('neighborhood_updated', `Updated neighborhood: ${neighborhood.name}`, oldName, neighborhood.name);
+    }
+    setEditingNeighborhoodId(null);
+    setEditingNeighborhoodData({});
+  };
+
+  const deleteNeighborhood = (neighborhoodId) => {
+    const newData = { ...data };
+    const neighborhood = newData.neighborhoods?.find(n => n.id === neighborhoodId);
+    const deletedName = neighborhood?.name || '';
+    newData.neighborhoods = newData.neighborhoods?.filter(n => n.id !== neighborhoodId) || [];
+    setData(newData);
+    saveData(newData);
+    addChangelogEntry('neighborhood_deleted', `Removed neighborhood: ${deletedName}`, deletedName, null);
+    setConfirmDeleteNeighborhoodId(null);
+  };
+
+  // Rental property management functions
+  const addProperty = () => {
+    if (!newPropertyData.address.trim()) return;
+    const newData = { ...data };
+    if (!newData.rentalProperties) newData.rentalProperties = [];
+    const newId = `p-${Date.now()}`;
+    newData.rentalProperties.push({
+      id: newId,
+      address: newPropertyData.address.trim(),
+      neighborhood: newPropertyData.neighborhood.trim(),
+      price: newPropertyData.price.trim(),
+      bedrooms: newPropertyData.bedrooms.trim(),
+      bathrooms: newPropertyData.bathrooms.trim(),
+      sqft: newPropertyData.sqft.trim(),
+      petFriendly: newPropertyData.petFriendly,
+      url: newPropertyData.url.trim(),
+      notes: newPropertyData.notes.trim(),
+      interested: false
+    });
+    setData(newData);
+    saveData(newData);
+    addChangelogEntry('property_added', `Added rental property: ${newPropertyData.address.trim()}`, null, newPropertyData.address.trim());
+    setAddingProperty(false);
+    setNewPropertyData({ address: '', neighborhood: '', price: '', bedrooms: '', bathrooms: '', sqft: '', petFriendly: false, url: '', notes: '', interested: false });
+  };
+
+  const updateProperty = (propertyId) => {
+    const newData = { ...data };
+    const property = newData.rentalProperties?.find(p => p.id === propertyId);
+    if (property) {
+      const oldAddress = property.address;
+      property.address = editingPropertyData.address?.trim() || property.address;
+      property.neighborhood = editingPropertyData.neighborhood?.trim() || '';
+      property.price = editingPropertyData.price?.trim() || '';
+      property.bedrooms = editingPropertyData.bedrooms?.trim() || '';
+      property.bathrooms = editingPropertyData.bathrooms?.trim() || '';
+      property.sqft = editingPropertyData.sqft?.trim() || '';
+      property.petFriendly = editingPropertyData.petFriendly || false;
+      property.url = editingPropertyData.url?.trim() || '';
+      property.notes = editingPropertyData.notes?.trim() || '';
+      setData(newData);
+      saveData(newData);
+      addChangelogEntry('property_updated', `Updated rental property: ${property.address}`, oldAddress, property.address);
+    }
+    setEditingPropertyId(null);
+    setEditingPropertyData({});
+  };
+
+  const deleteProperty = (propertyId) => {
+    const newData = { ...data };
+    const property = newData.rentalProperties?.find(p => p.id === propertyId);
+    const deletedAddress = property?.address || '';
+    newData.rentalProperties = newData.rentalProperties?.filter(p => p.id !== propertyId) || [];
+    setData(newData);
+    saveData(newData);
+    addChangelogEntry('property_deleted', `Removed rental property: ${deletedAddress}`, deletedAddress, null);
+    setConfirmDeletePropertyId(null);
+  };
+
+  const togglePropertyInterested = (propertyId) => {
+    const newData = { ...data };
+    const property = newData.rentalProperties?.find(p => p.id === propertyId);
+    if (property) {
+      property.interested = !property.interested;
+      setData(newData);
+      saveData(newData);
+      addChangelogEntry(
+        'property_interest',
+        `${property.interested ? 'Marked' : 'Unmarked'} "${property.address}" as interested`,
+        !property.interested,
+        property.interested
+      );
+    }
   };
 
   const updateNotes = (notes) => {
@@ -1796,6 +1937,536 @@ function App() {
                   </div>
                 )}
 
+                {/* Seattle Neighborhoods Section - Only for Step 8 */}
+                {activeStep === '8' && (
+                  <div style={styles.realtorsSection}>
+                    <h3 style={styles.realtorsSectionTitle}>🏘️ Seattle Neighborhoods</h3>
+
+                    <div style={styles.realtorCards}>
+                      {(data.neighborhoods || []).map(neighborhood => (
+                        <div
+                          key={neighborhood.id}
+                          style={styles.realtorCard}
+                        >
+                          {editingNeighborhoodId === neighborhood.id ? (
+                            // Edit Mode
+                            <div style={styles.realtorEditForm}>
+                              <div style={styles.realtorFormRow}>
+                                <label style={styles.realtorFormLabel}>Neighborhood Name:</label>
+                                <input
+                                  type="text"
+                                  value={editingNeighborhoodData.name || ''}
+                                  onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, name: e.target.value})}
+                                  style={styles.realtorFormInput}
+                                />
+                              </div>
+                              <div style={styles.realtorFormRow}>
+                                <label style={styles.realtorFormLabel}>Price Range:</label>
+                                <input
+                                  type="text"
+                                  value={editingNeighborhoodData.priceRange || ''}
+                                  onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, priceRange: e.target.value})}
+                                  style={styles.realtorFormInput}
+                                  placeholder="e.g. $2000-3000/mo"
+                                />
+                              </div>
+                              <div style={styles.realtorFormRow}>
+                                <label style={styles.realtorFormLabel}>Rating (0-5):</label>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max="5"
+                                  value={editingNeighborhoodData.rating || 0}
+                                  onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, rating: parseInt(e.target.value) || 0})}
+                                  style={styles.realtorFormInput}
+                                />
+                              </div>
+                              <div style={styles.realtorFormRow}>
+                                <label style={styles.realtorFormLabel}>Pros:</label>
+                                <textarea
+                                  value={editingNeighborhoodData.pros || ''}
+                                  onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, pros: e.target.value})}
+                                  style={styles.realtorFormTextarea}
+                                  rows={2}
+                                  placeholder="What you like about this area"
+                                />
+                              </div>
+                              <div style={styles.realtorFormRow}>
+                                <label style={styles.realtorFormLabel}>Cons:</label>
+                                <textarea
+                                  value={editingNeighborhoodData.cons || ''}
+                                  onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, cons: e.target.value})}
+                                  style={styles.realtorFormTextarea}
+                                  rows={2}
+                                  placeholder="Concerns or drawbacks"
+                                />
+                              </div>
+                              <div style={styles.realtorFormRow}>
+                                <label style={styles.realtorFormLabel}>Notes:</label>
+                                <textarea
+                                  value={editingNeighborhoodData.notes || ''}
+                                  onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, notes: e.target.value})}
+                                  style={styles.realtorFormTextarea}
+                                  rows={2}
+                                />
+                              </div>
+                              <div style={styles.realtorFormActions}>
+                                <button style={styles.realtorSaveBtn} onClick={() => updateNeighborhood(neighborhood.id)}>Save</button>
+                                <button style={styles.realtorCancelBtn} onClick={() => { setEditingNeighborhoodId(null); setEditingNeighborhoodData({}); }}>Cancel</button>
+                              </div>
+                            </div>
+                          ) : (
+                            // View Mode
+                            <>
+                              <div style={styles.realtorCardHeader}>
+                                <div>
+                                  <h4 style={styles.realtorCardName}>{neighborhood.name}</h4>
+                                  {neighborhood.priceRange && (
+                                    <p style={styles.realtorCardTeam}>
+                                      💰 {neighborhood.priceRange}
+                                    </p>
+                                  )}
+                                  {neighborhood.rating > 0 && (
+                                    <p style={styles.realtorCardTeam}>
+                                      {'⭐'.repeat(neighborhood.rating)}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div style={styles.realtorCardDetails}>
+                                {neighborhood.pros && (
+                                  <div style={{marginBottom: '8px'}}>
+                                    <strong style={{color: '#059669'}}>Pros:</strong>
+                                    <p style={styles.realtorNotes}>{neighborhood.pros}</p>
+                                  </div>
+                                )}
+                                {neighborhood.cons && (
+                                  <div style={{marginBottom: '8px'}}>
+                                    <strong style={{color: '#dc2626'}}>Cons:</strong>
+                                    <p style={styles.realtorNotes}>{neighborhood.cons}</p>
+                                  </div>
+                                )}
+                                {neighborhood.notes && (
+                                  <div>
+                                    <strong>Notes:</strong>
+                                    <p style={styles.realtorNotes}>{neighborhood.notes}</p>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div style={styles.realtorCardActions}>
+                                {confirmDeleteNeighborhoodId === neighborhood.id ? (
+                                  <>
+                                    <span style={styles.confirmDeleteText}>Delete?</span>
+                                    <button style={styles.confirmYesBtn} onClick={() => deleteNeighborhood(neighborhood.id)}>Yes</button>
+                                    <button style={styles.confirmNoBtn} onClick={() => setConfirmDeleteNeighborhoodId(null)}>No</button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button
+                                      style={styles.realtorEditBtn}
+                                      onClick={() => { setEditingNeighborhoodId(neighborhood.id); setEditingNeighborhoodData({...neighborhood}); }}
+                                      title="Edit"
+                                    >
+                                      ✏️
+                                    </button>
+                                    <button
+                                      style={styles.realtorDeleteBtn}
+                                      onClick={() => setConfirmDeleteNeighborhoodId(neighborhood.id)}
+                                      title="Delete"
+                                    >
+                                      🗑️
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add New Neighborhood */}
+                    {addingNeighborhood ? (
+                      <div style={styles.addRealtorForm}>
+                        <h4 style={styles.addRealtorTitle}>Add New Neighborhood</h4>
+                        <div style={styles.realtorFormRow}>
+                          <label style={styles.realtorFormLabel}>Neighborhood Name:</label>
+                          <input
+                            type="text"
+                            value={newNeighborhoodData.name}
+                            onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, name: e.target.value})}
+                            style={styles.realtorFormInput}
+                          />
+                        </div>
+                        <div style={styles.realtorFormRow}>
+                          <label style={styles.realtorFormLabel}>Price Range:</label>
+                          <input
+                            type="text"
+                            value={newNeighborhoodData.priceRange}
+                            onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, priceRange: e.target.value})}
+                            style={styles.realtorFormInput}
+                            placeholder="e.g. $2000-3000/mo"
+                          />
+                        </div>
+                        <div style={styles.realtorFormRow}>
+                          <label style={styles.realtorFormLabel}>Rating (0-5):</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="5"
+                            value={newNeighborhoodData.rating}
+                            onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, rating: parseInt(e.target.value) || 0})}
+                            style={styles.realtorFormInput}
+                          />
+                        </div>
+                        <div style={styles.realtorFormRow}>
+                          <label style={styles.realtorFormLabel}>Pros:</label>
+                          <textarea
+                            value={newNeighborhoodData.pros}
+                            onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, pros: e.target.value})}
+                            style={styles.realtorFormTextarea}
+                            rows={2}
+                            placeholder="What you like about this area"
+                          />
+                        </div>
+                        <div style={styles.realtorFormRow}>
+                          <label style={styles.realtorFormLabel}>Cons:</label>
+                          <textarea
+                            value={newNeighborhoodData.cons}
+                            onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, cons: e.target.value})}
+                            style={styles.realtorFormTextarea}
+                            rows={2}
+                            placeholder="Concerns or drawbacks"
+                          />
+                        </div>
+                        <div style={styles.realtorFormRow}>
+                          <label style={styles.realtorFormLabel}>Notes:</label>
+                          <textarea
+                            value={newNeighborhoodData.notes}
+                            onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, notes: e.target.value})}
+                            style={styles.realtorFormTextarea}
+                            rows={2}
+                          />
+                        </div>
+                        <div style={styles.addRealtorActions}>
+                          <button style={styles.addRealtorSaveBtn} onClick={addNeighborhood}>
+                            Add Neighborhood
+                          </button>
+                          <button style={styles.addRealtorCancelBtn} onClick={() => { setAddingNeighborhood(false); setNewNeighborhoodData({ name: '', pros: '', cons: '', priceRange: '', notes: '', rating: 0 }); }}>
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button style={styles.addRealtorBtn} onClick={() => setAddingNeighborhood(true)}>
+                        + Add Neighborhood
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Rental Properties Section - Only for Step 8 */}
+                {activeStep === '8' && (
+                  <div style={styles.realtorsSection}>
+                    <h3 style={styles.realtorsSectionTitle}>🏠 Rental Properties</h3>
+
+                    <div style={styles.realtorCards}>
+                      {(data.rentalProperties || []).map(property => (
+                        <div
+                          key={property.id}
+                          style={{
+                            ...styles.realtorCard,
+                            ...(property.interested ? styles.realtorCardRecommended : {})
+                          }}
+                        >
+                          {editingPropertyId === property.id ? (
+                            // Edit Mode
+                            <div style={styles.realtorEditForm}>
+                              <div style={styles.realtorFormRow}>
+                                <label style={styles.realtorFormLabel}>Address:</label>
+                                <input
+                                  type="text"
+                                  value={editingPropertyData.address || ''}
+                                  onChange={(e) => setEditingPropertyData({...editingPropertyData, address: e.target.value})}
+                                  style={styles.realtorFormInput}
+                                />
+                              </div>
+                              <div style={styles.realtorFormRow}>
+                                <label style={styles.realtorFormLabel}>Neighborhood:</label>
+                                <input
+                                  type="text"
+                                  value={editingPropertyData.neighborhood || ''}
+                                  onChange={(e) => setEditingPropertyData({...editingPropertyData, neighborhood: e.target.value})}
+                                  style={styles.realtorFormInput}
+                                />
+                              </div>
+                              <div style={styles.realtorFormRow}>
+                                <label style={styles.realtorFormLabel}>Price:</label>
+                                <input
+                                  type="text"
+                                  value={editingPropertyData.price || ''}
+                                  onChange={(e) => setEditingPropertyData({...editingPropertyData, price: e.target.value})}
+                                  style={styles.realtorFormInput}
+                                  placeholder="e.g. $2500/mo"
+                                />
+                              </div>
+                              <div style={styles.realtorFormRow}>
+                                <label style={styles.realtorFormLabel}>Bedrooms:</label>
+                                <input
+                                  type="text"
+                                  value={editingPropertyData.bedrooms || ''}
+                                  onChange={(e) => setEditingPropertyData({...editingPropertyData, bedrooms: e.target.value})}
+                                  style={styles.realtorFormInput}
+                                />
+                              </div>
+                              <div style={styles.realtorFormRow}>
+                                <label style={styles.realtorFormLabel}>Bathrooms:</label>
+                                <input
+                                  type="text"
+                                  value={editingPropertyData.bathrooms || ''}
+                                  onChange={(e) => setEditingPropertyData({...editingPropertyData, bathrooms: e.target.value})}
+                                  style={styles.realtorFormInput}
+                                />
+                              </div>
+                              <div style={styles.realtorFormRow}>
+                                <label style={styles.realtorFormLabel}>Square Feet:</label>
+                                <input
+                                  type="text"
+                                  value={editingPropertyData.sqft || ''}
+                                  onChange={(e) => setEditingPropertyData({...editingPropertyData, sqft: e.target.value})}
+                                  style={styles.realtorFormInput}
+                                />
+                              </div>
+                              <div style={styles.realtorFormRow}>
+                                <label style={styles.realtorFormLabel}>
+                                  <input
+                                    type="checkbox"
+                                    checked={editingPropertyData.petFriendly || false}
+                                    onChange={(e) => setEditingPropertyData({...editingPropertyData, petFriendly: e.target.checked})}
+                                    style={{marginRight: '8px'}}
+                                  />
+                                  Pet Friendly
+                                </label>
+                              </div>
+                              <div style={styles.realtorFormRow}>
+                                <label style={styles.realtorFormLabel}>Listing URL:</label>
+                                <input
+                                  type="text"
+                                  value={editingPropertyData.url || ''}
+                                  onChange={(e) => setEditingPropertyData({...editingPropertyData, url: e.target.value})}
+                                  style={styles.realtorFormInput}
+                                  placeholder="https://..."
+                                />
+                              </div>
+                              <div style={styles.realtorFormRow}>
+                                <label style={styles.realtorFormLabel}>Notes:</label>
+                                <textarea
+                                  value={editingPropertyData.notes || ''}
+                                  onChange={(e) => setEditingPropertyData({...editingPropertyData, notes: e.target.value})}
+                                  style={styles.realtorFormTextarea}
+                                  rows={2}
+                                />
+                              </div>
+                              <div style={styles.realtorFormActions}>
+                                <button style={styles.realtorSaveBtn} onClick={() => updateProperty(property.id)}>Save</button>
+                                <button style={styles.realtorCancelBtn} onClick={() => { setEditingPropertyId(null); setEditingPropertyData({}); }}>Cancel</button>
+                              </div>
+                            </div>
+                          ) : (
+                            // View Mode
+                            <>
+                              <div style={styles.realtorCardHeader}>
+                                <div>
+                                  <h4 style={styles.realtorCardName}>{property.address}</h4>
+                                  {property.neighborhood && (
+                                    <p style={styles.realtorCardTeam}>
+                                      📍 {property.neighborhood}
+                                    </p>
+                                  )}
+                                  {property.price && (
+                                    <p style={styles.realtorCardTeam}>
+                                      💰 {property.price}
+                                    </p>
+                                  )}
+                                </div>
+                                {property.interested && (
+                                  <span style={styles.recommendedBadge}>★ Interested</span>
+                                )}
+                              </div>
+
+                              <div style={styles.realtorCardDetails}>
+                                {(property.bedrooms || property.bathrooms || property.sqft) && (
+                                  <p style={styles.realtorDetailLine}>
+                                    {property.bedrooms && `🛏️ ${property.bedrooms} bed`}
+                                    {property.bedrooms && property.bathrooms && ' | '}
+                                    {property.bathrooms && `🚿 ${property.bathrooms} bath`}
+                                    {(property.bedrooms || property.bathrooms) && property.sqft && ' | '}
+                                    {property.sqft && `📐 ${property.sqft} sqft`}
+                                  </p>
+                                )}
+                                {property.petFriendly && <p style={styles.realtorDetailLine}>🐾 Pet Friendly</p>}
+                                {property.url && (
+                                  <p style={styles.realtorDetailLine}>
+                                    🔗 <a
+                                      href={property.url.startsWith('http') ? property.url : `https://${property.url}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      style={styles.realtorWebsiteLink}
+                                    >
+                                      View Listing
+                                    </a>
+                                  </p>
+                                )}
+                                {property.notes && <p style={styles.realtorNotes}>{property.notes}</p>}
+                              </div>
+
+                              <div style={styles.realtorCardActions}>
+                                {confirmDeletePropertyId === property.id ? (
+                                  <>
+                                    <span style={styles.confirmDeleteText}>Delete?</span>
+                                    <button style={styles.confirmYesBtn} onClick={() => deleteProperty(property.id)}>Yes</button>
+                                    <button style={styles.confirmNoBtn} onClick={() => setConfirmDeletePropertyId(null)}>No</button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button
+                                      style={property.interested ? styles.realtorRecommendedBtn : styles.realtorRecommendBtn}
+                                      onClick={() => togglePropertyInterested(property.id)}
+                                      title={property.interested ? 'Remove from interested' : 'Mark as interested'}
+                                    >
+                                      {property.interested ? '★' : '☆'}
+                                    </button>
+                                    <button
+                                      style={styles.realtorEditBtn}
+                                      onClick={() => { setEditingPropertyId(property.id); setEditingPropertyData({...property}); }}
+                                      title="Edit"
+                                    >
+                                      ✏️
+                                    </button>
+                                    <button
+                                      style={styles.realtorDeleteBtn}
+                                      onClick={() => setConfirmDeletePropertyId(property.id)}
+                                      title="Delete"
+                                    >
+                                      🗑️
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add New Property */}
+                    {addingProperty ? (
+                      <div style={styles.addRealtorForm}>
+                        <h4 style={styles.addRealtorTitle}>Add New Rental Property</h4>
+                        <div style={styles.realtorFormRow}>
+                          <label style={styles.realtorFormLabel}>Address:</label>
+                          <input
+                            type="text"
+                            value={newPropertyData.address}
+                            onChange={(e) => setNewPropertyData({...newPropertyData, address: e.target.value})}
+                            style={styles.realtorFormInput}
+                          />
+                        </div>
+                        <div style={styles.realtorFormRow}>
+                          <label style={styles.realtorFormLabel}>Neighborhood:</label>
+                          <input
+                            type="text"
+                            value={newPropertyData.neighborhood}
+                            onChange={(e) => setNewPropertyData({...newPropertyData, neighborhood: e.target.value})}
+                            style={styles.realtorFormInput}
+                          />
+                        </div>
+                        <div style={styles.realtorFormRow}>
+                          <label style={styles.realtorFormLabel}>Price:</label>
+                          <input
+                            type="text"
+                            value={newPropertyData.price}
+                            onChange={(e) => setNewPropertyData({...newPropertyData, price: e.target.value})}
+                            style={styles.realtorFormInput}
+                            placeholder="e.g. $2500/mo"
+                          />
+                        </div>
+                        <div style={styles.realtorFormRow}>
+                          <label style={styles.realtorFormLabel}>Bedrooms:</label>
+                          <input
+                            type="text"
+                            value={newPropertyData.bedrooms}
+                            onChange={(e) => setNewPropertyData({...newPropertyData, bedrooms: e.target.value})}
+                            style={styles.realtorFormInput}
+                          />
+                        </div>
+                        <div style={styles.realtorFormRow}>
+                          <label style={styles.realtorFormLabel}>Bathrooms:</label>
+                          <input
+                            type="text"
+                            value={newPropertyData.bathrooms}
+                            onChange={(e) => setNewPropertyData({...newPropertyData, bathrooms: e.target.value})}
+                            style={styles.realtorFormInput}
+                          />
+                        </div>
+                        <div style={styles.realtorFormRow}>
+                          <label style={styles.realtorFormLabel}>Square Feet:</label>
+                          <input
+                            type="text"
+                            value={newPropertyData.sqft}
+                            onChange={(e) => setNewPropertyData({...newPropertyData, sqft: e.target.value})}
+                            style={styles.realtorFormInput}
+                          />
+                        </div>
+                        <div style={styles.realtorFormRow}>
+                          <label style={styles.realtorFormLabel}>
+                            <input
+                              type="checkbox"
+                              checked={newPropertyData.petFriendly}
+                              onChange={(e) => setNewPropertyData({...newPropertyData, petFriendly: e.target.checked})}
+                              style={{marginRight: '8px'}}
+                            />
+                            Pet Friendly
+                          </label>
+                        </div>
+                        <div style={styles.realtorFormRow}>
+                          <label style={styles.realtorFormLabel}>Listing URL:</label>
+                          <input
+                            type="text"
+                            value={newPropertyData.url}
+                            onChange={(e) => setNewPropertyData({...newPropertyData, url: e.target.value})}
+                            style={styles.realtorFormInput}
+                            placeholder="https://..."
+                          />
+                        </div>
+                        <div style={styles.realtorFormRow}>
+                          <label style={styles.realtorFormLabel}>Notes:</label>
+                          <textarea
+                            value={newPropertyData.notes}
+                            onChange={(e) => setNewPropertyData({...newPropertyData, notes: e.target.value})}
+                            style={styles.realtorFormTextarea}
+                            rows={2}
+                          />
+                        </div>
+                        <div style={styles.addRealtorActions}>
+                          <button style={styles.addRealtorSaveBtn} onClick={addProperty}>
+                            Add Property
+                          </button>
+                          <button style={styles.addRealtorCancelBtn} onClick={() => { setAddingProperty(false); setNewPropertyData({ address: '', neighborhood: '', price: '', bedrooms: '', bathrooms: '', sqft: '', petFriendly: false, url: '', notes: '', interested: false }); }}>
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button style={styles.addRealtorBtn} onClick={() => setAddingProperty(true)}>
+                        + Add Rental Property
+                      </button>
+                    )}
+                  </div>
+                )}
+
                 {/* Step Notes */}
                 <div style={styles.stepNotesSection}>
                   <h4 style={styles.stepNotesTitle}>📝 Notes for this step</h4>
@@ -1807,12 +2478,12 @@ function App() {
                         <div key={note.id} style={styles.stepNoteItem}>
                           {editingNoteId === note.id ? (
                             <div style={styles.noteEditForm}>
-                              <input
-                                type="text"
+                              <textarea
                                 value={editNoteText}
                                 onChange={(e) => setEditNoteText(e.target.value)}
                                 style={styles.noteInput}
                                 autoFocus
+                                rows={3}
                               />
                               <div style={styles.noteEditActions}>
                                 <button
@@ -1877,13 +2548,17 @@ function App() {
 
                   {/* Add New Note */}
                   <div style={styles.addNoteForm}>
-                    <input
-                      type="text"
+                    <textarea
                       value={newNoteText}
                       onChange={(e) => setNewNoteText(e.target.value)}
-                      placeholder="Add a note..."
+                      placeholder="Add a note... (Ctrl+Enter to save quickly)"
                       style={styles.noteInput}
-                      onKeyPress={(e) => e.key === 'Enter' && addStepNote(activeStep)}
+                      onKeyDown={(e) => {
+                        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                          addStepNote(activeStep);
+                        }
+                      }}
+                      rows={2}
                     />
                     <button
                       style={styles.addNoteBtn}
@@ -2176,12 +2851,12 @@ function App() {
                           <div key={note.id} style={styles.allNotesItem}>
                             {editingNoteId === note.id ? (
                               <div style={styles.noteEditForm}>
-                                <input
-                                  type="text"
+                                <textarea
                                   value={editNoteText}
                                   onChange={(e) => setEditNoteText(e.target.value)}
                                   style={styles.noteInput}
                                   autoFocus
+                                  rows={3}
                                 />
                                 <div style={styles.noteEditActions}>
                                   <button
@@ -2716,7 +3391,8 @@ const styles = {
   noteText: {
     flex: 1,
     fontSize: '0.9rem',
-    color: colors.mountain
+    color: colors.mountain,
+    whiteSpace: 'pre-wrap'
   },
   noteActions: {
     display: 'flex',
@@ -3094,7 +3770,8 @@ const styles = {
     fontStyle: 'italic',
     padding: '8px',
     background: colors.fog,
-    borderRadius: '6px'
+    borderRadius: '6px',
+    whiteSpace: 'pre-wrap'
   },
   realtorWebsiteLink: {
     color: colors.evergreen,
@@ -3268,7 +3945,8 @@ const styles = {
     fontSize: '0.95rem',
     fontWeight: '600',
     color: colors.charcoal,
-    lineHeight: '1.4'
+    lineHeight: '1.4',
+    whiteSpace: 'pre-wrap'
   },
   idealAnswerBox: {
     marginTop: '10px',
@@ -3289,7 +3967,8 @@ const styles = {
     margin: '4px 0 0 0',
     fontSize: '0.85rem',
     color: colors.slate,
-    lineHeight: '1.4'
+    lineHeight: '1.4',
+    whiteSpace: 'pre-wrap'
   },
   answerBox: {
     marginTop: '10px',
@@ -3310,7 +3989,8 @@ const styles = {
     margin: '4px 0 0 0',
     fontSize: '0.85rem',
     color: colors.charcoal,
-    lineHeight: '1.4'
+    lineHeight: '1.4',
+    whiteSpace: 'pre-wrap'
   },
   questionActions: {
     display: 'flex',
