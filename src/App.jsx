@@ -4627,7 +4627,7 @@ const styles = {
     flexShrink: 0
   },
   addBudgetItemBtn: {
-    width: '100%',
+    width: 'calc(100% - 24px)',
     padding: '10px',
     margin: '0 12px 12px 12px',
     background: 'transparent',
@@ -4638,8 +4638,7 @@ const styles = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.2s',
-    boxSizing: 'border-box',
-    width: 'calc(100% - 24px)'
+    boxSizing: 'border-box'
   },
   budgetSubtotal: {
     display: 'flex',
