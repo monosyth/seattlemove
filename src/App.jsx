@@ -2816,21 +2816,15 @@ function App() {
           <div className="notes-container" style={styles.notesContainer}>
             <h2 className="notes-title" style={styles.notesTitle}>📝 Notes & Reminders</h2>
 
-            <div style={styles.notesGrid}>
-              <div className="reminder-box" style={styles.reminderBox}>
-                <h3 className="reminder-title" style={styles.reminderTitle}>🐾 Key Reminders</h3>
-                <ul className="reminder-list" style={styles.reminderList}>
-                  <li style={styles.reminderItem}>🐕 Two extremely fluffy dogs + senior cat need pet-friendly accommodations</li>
-                  <li style={styles.reminderItem}>🏠 House will be empty during showings = less stress, better presentation</li>
-                  <li style={styles.reminderItem}>📍 You're nearby in San Diego if any issues arise during sale</li>
-                </ul>
-              </div>
-
-              <div className="realtor-box" style={styles.realtorBox}>
-                <h3 className="realtor-title" style={styles.realtorTitle}>👤 Recommended Realtor</h3>
-                <p style={styles.realtorName}>Caitlin Thill - O'Byrne Team / Compass</p>
-                <p style={styles.realtorInfo}>$95M+ sales | Compass Concierge available</p>
-              </div>
+            <div style={styles.notesInputSection}>
+              <label style={styles.notesLabel}>General Notes</label>
+              <textarea
+                className="notes-textarea"
+                value={data.notes}
+                onChange={(e) => updateNotes(e.target.value)}
+                placeholder="Add your general notes, thoughts, and reminders here..."
+                style={styles.notesTextarea}
+              />
             </div>
 
             {/* All Step Notes */}
@@ -2922,17 +2916,6 @@ function App() {
                 })}
               </div>
             )}
-
-            <div style={styles.notesInputSection}>
-              <label style={styles.notesLabel}>General Notes</label>
-              <textarea
-                className="notes-textarea"
-                value={data.notes}
-                onChange={(e) => updateNotes(e.target.value)}
-                placeholder="Add your general notes, thoughts, and reminders here..."
-                style={styles.notesTextarea}
-              />
-            </div>
           </div>
         )}
 
