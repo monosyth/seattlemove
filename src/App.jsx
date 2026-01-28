@@ -1629,7 +1629,7 @@ function App() {
                                   value={editingRealtorData.notes || ''}
                                   onChange={(e) => setEditingRealtorData({...editingRealtorData, notes: e.target.value})}
                                   style={styles.realtorFormTextarea}
-                                  rows={2}
+                                  rows={5}
                                 />
                               </div>
                               <div style={styles.realtorFormActions}>
@@ -1777,7 +1777,7 @@ function App() {
                             value={newRealtorData.notes}
                             onChange={(e) => setNewRealtorData({...newRealtorData, notes: e.target.value})}
                             style={styles.realtorFormTextarea}
-                            rows={2}
+                            rows={5}
                           />
                         </div>
                         <div style={styles.realtorFormActions}>
@@ -1820,21 +1820,21 @@ function App() {
                                 value={editingQuestionData.question || ''}
                                 onChange={(e) => setEditingQuestionData({...editingQuestionData, question: e.target.value})}
                                 style={styles.questionTextarea}
-                                rows={2}
+                                rows={4}
                               />
                               <label style={styles.questionLabel}>Ideal Answer / What to look for:</label>
                               <textarea
                                 value={editingQuestionData.idealAnswer || ''}
                                 onChange={(e) => setEditingQuestionData({...editingQuestionData, idealAnswer: e.target.value})}
                                 style={styles.questionTextarea}
-                                rows={2}
+                                rows={4}
                               />
                               <label style={styles.questionLabel}>Notes / Their Answer:</label>
                               <textarea
                                 value={editingQuestionData.answer || ''}
                                 onChange={(e) => setEditingQuestionData({...editingQuestionData, answer: e.target.value})}
                                 style={styles.questionTextarea}
-                                rows={2}
+                                rows={4}
                               />
                               <div style={styles.questionEditActions}>
                                 <button style={styles.questionSaveBtn} onClick={() => updateQuestion(q.id)}>Save</button>
@@ -1902,7 +1902,7 @@ function App() {
                           onChange={(e) => setNewQuestionData({...newQuestionData, question: e.target.value})}
                           placeholder="What do you want to ask?"
                           style={styles.questionTextarea}
-                          rows={2}
+                          rows={4}
                           autoFocus
                         />
                         <label style={styles.questionLabel}>Ideal Answer / What to look for:</label>
@@ -1911,7 +1911,7 @@ function App() {
                           onChange={(e) => setNewQuestionData({...newQuestionData, idealAnswer: e.target.value})}
                           placeholder="What should a good answer include?"
                           style={styles.questionTextarea}
-                          rows={2}
+                          rows={4}
                         />
                         <div style={styles.questionEditActions}>
                           <button
@@ -1987,7 +1987,7 @@ function App() {
                                   value={editingNeighborhoodData.pros || ''}
                                   onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, pros: e.target.value})}
                                   style={styles.realtorFormTextarea}
-                                  rows={2}
+                                  rows={5}
                                   placeholder="What you like about this area"
                                 />
                               </div>
@@ -1997,7 +1997,7 @@ function App() {
                                   value={editingNeighborhoodData.cons || ''}
                                   onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, cons: e.target.value})}
                                   style={styles.realtorFormTextarea}
-                                  rows={2}
+                                  rows={5}
                                   placeholder="Concerns or drawbacks"
                                 />
                               </div>
@@ -2007,7 +2007,7 @@ function App() {
                                   value={editingNeighborhoodData.notes || ''}
                                   onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, notes: e.target.value})}
                                   style={styles.realtorFormTextarea}
-                                  rows={2}
+                                  rows={5}
                                 />
                               </div>
                               <div style={styles.realtorFormActions}>
@@ -2127,7 +2127,7 @@ function App() {
                             value={newNeighborhoodData.pros}
                             onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, pros: e.target.value})}
                             style={styles.realtorFormTextarea}
-                            rows={2}
+                            rows={5}
                             placeholder="What you like about this area"
                           />
                         </div>
@@ -2137,7 +2137,7 @@ function App() {
                             value={newNeighborhoodData.cons}
                             onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, cons: e.target.value})}
                             style={styles.realtorFormTextarea}
-                            rows={2}
+                            rows={5}
                             placeholder="Concerns or drawbacks"
                           />
                         </div>
@@ -2147,7 +2147,7 @@ function App() {
                             value={newNeighborhoodData.notes}
                             onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, notes: e.target.value})}
                             style={styles.realtorFormTextarea}
-                            rows={2}
+                            rows={5}
                           />
                         </div>
                         <div style={styles.addRealtorActions}>
@@ -2266,7 +2266,7 @@ function App() {
                                   value={editingPropertyData.notes || ''}
                                   onChange={(e) => setEditingPropertyData({...editingPropertyData, notes: e.target.value})}
                                   style={styles.realtorFormTextarea}
-                                  rows={2}
+                                  rows={5}
                                 />
                               </div>
                               <div style={styles.realtorFormActions}>
@@ -2447,7 +2447,7 @@ function App() {
                             value={newPropertyData.notes}
                             onChange={(e) => setNewPropertyData({...newPropertyData, notes: e.target.value})}
                             style={styles.realtorFormTextarea}
-                            rows={2}
+                            rows={5}
                           />
                         </div>
                         <div style={styles.addRealtorActions}>
@@ -3852,24 +3852,27 @@ const styles = {
     marginTop: '4px'
   },
   realtorSaveBtn: {
-    padding: '8px 16px',
+    padding: '10px 20px',
     background: colors.evergreen,
     color: 'white',
     border: 'none',
-    borderRadius: '6px',
-    fontSize: '0.85rem',
+    borderRadius: '8px',
+    fontSize: '0.9rem',
     fontWeight: '600',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
   },
   realtorCancelBtn: {
-    padding: '8px 16px',
-    background: colors.mist,
+    padding: '10px 20px',
+    background: 'white',
     color: colors.charcoal,
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '0.85rem',
+    border: `2px solid ${colors.mist}`,
+    borderRadius: '8px',
+    fontSize: '0.9rem',
     fontWeight: '600',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'all 0.2s'
   },
   addRealtorBtn: {
     width: '100%',
@@ -3896,6 +3899,78 @@ const styles = {
     fontSize: '0.95rem',
     fontWeight: '600',
     color: colors.charcoal
+  },
+  realtorFormRow: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+    marginBottom: '12px'
+  },
+  realtorFormLabel: {
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    color: colors.mountain,
+    letterSpacing: '0.2px'
+  },
+  realtorFormInput: {
+    padding: '10px 14px',
+    border: `2px solid ${colors.mist}`,
+    borderRadius: '8px',
+    fontSize: '0.95rem',
+    outline: 'none',
+    transition: 'all 0.2s',
+    fontFamily: 'inherit',
+    backgroundColor: 'white'
+  },
+  realtorFormTextarea: {
+    padding: '10px 14px',
+    border: `2px solid ${colors.mist}`,
+    borderRadius: '8px',
+    fontSize: '0.95rem',
+    outline: 'none',
+    resize: 'vertical',
+    fontFamily: 'inherit',
+    transition: 'all 0.2s',
+    backgroundColor: 'white',
+    lineHeight: '1.5',
+    minHeight: '80px'
+  },
+  realtorFormActions: {
+    display: 'flex',
+    gap: '10px',
+    marginTop: '16px',
+    paddingTop: '12px',
+    borderTop: `1px solid ${colors.mist}`
+  },
+  addRealtorActions: {
+    display: 'flex',
+    gap: '10px',
+    marginTop: '16px',
+    paddingTop: '12px',
+    borderTop: `1px solid ${colors.mist}`
+  },
+  addRealtorSaveBtn: {
+    padding: '10px 20px',
+    background: colors.evergreen,
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+  },
+  addRealtorCancelBtn: {
+    padding: '10px 20px',
+    background: 'white',
+    color: colors.charcoal,
+    border: `2px solid ${colors.mist}`,
+    borderRadius: '8px',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.2s'
   },
 
   // Realtor Questions Section
@@ -4022,44 +4097,56 @@ const styles = {
     gap: '8px'
   },
   questionLabel: {
-    fontSize: '0.8rem',
+    fontSize: '0.85rem',
     fontWeight: '600',
-    color: colors.slate,
-    marginTop: '4px'
+    color: colors.mountain,
+    letterSpacing: '0.2px',
+    marginTop: '12px',
+    marginBottom: '6px',
+    display: 'block'
   },
   questionTextarea: {
-    padding: '10px 12px',
-    border: `1px solid ${colors.mist}`,
-    borderRadius: '6px',
-    fontSize: '0.9rem',
+    padding: '10px 14px',
+    border: `2px solid ${colors.mist}`,
+    borderRadius: '8px',
+    fontSize: '0.95rem',
     outline: 'none',
     resize: 'vertical',
-    fontFamily: 'inherit'
+    fontFamily: 'inherit',
+    transition: 'all 0.2s',
+    backgroundColor: 'white',
+    lineHeight: '1.5',
+    minHeight: '80px'
   },
   questionEditActions: {
     display: 'flex',
-    gap: '8px',
-    marginTop: '8px'
+    gap: '10px',
+    marginTop: '16px',
+    paddingTop: '12px',
+    borderTop: `1px solid ${colors.mist}`
   },
   questionSaveBtn: {
-    padding: '8px 16px',
+    padding: '10px 20px',
     background: colors.evergreen,
     color: 'white',
     border: 'none',
-    borderRadius: '6px',
-    fontSize: '0.85rem',
+    borderRadius: '8px',
+    fontSize: '0.9rem',
     fontWeight: '600',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
   },
   questionCancelBtn: {
-    padding: '8px 16px',
-    background: colors.mist,
+    padding: '10px 20px',
+    background: 'white',
     color: colors.charcoal,
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '0.85rem',
+    border: `2px solid ${colors.mist}`,
+    borderRadius: '8px',
+    fontSize: '0.9rem',
     fontWeight: '600',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'all 0.2s'
   },
   addQuestionBtn: {
     width: '100%',
