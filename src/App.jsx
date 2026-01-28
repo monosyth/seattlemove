@@ -1213,7 +1213,7 @@ function App() {
             bottom: 0,
             backgroundImage: `url(${seattleSkyline})`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundPosition: 'center 30%',
             opacity: 0.4,
             mixBlendMode: 'overlay'
           }
@@ -1269,7 +1269,7 @@ function App() {
           overflow: 'hidden',
           backgroundImage: `url(${spaceNeedleBuildings})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundPosition: 'center 40%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
