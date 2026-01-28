@@ -3503,18 +3503,18 @@ const styles = {
 
   // Step Notes
   stepNotesSection: {
-    marginTop: '20px',
-    paddingTop: '20px',
-    borderTop: `2px solid ${colors.mist}`
+    marginTop: '0',
+    paddingTop: '0',
+    marginBottom: '32px'
   },
   stepNotesTitle: {
     fontSize: '1.1rem',
     color: colors.charcoal,
-    marginBottom: '16px',
+    marginBottom: '20px',
     fontWeight: '600'
   },
   stepNotesList: {
-    marginBottom: '12px'
+    marginBottom: '20px'
   },
   stepNoteItem: {
     display: 'flex',
@@ -3639,6 +3639,7 @@ const styles = {
 
   // All Notes Section (in Notes tab)
   allNotesSection: {
+    marginTop: '32px',
     marginBottom: '24px',
     padding: '20px',
     background: colors.fog,
