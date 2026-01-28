@@ -44,6 +44,12 @@ import {
   CheckCircleOutline as CheckCircleOutlineIcon
 } from '@mui/icons-material';
 
+// Seattle photos
+import seattleSkyline from './assets/IMG_2953.jpeg';
+import mtRainierMarina from './assets/IMG_2975.jpeg';
+import mtRainierView from './assets/IMG_2981.jpeg';
+import spaceNeedleBuildings from './assets/IMG_3041.jpeg';
+
 const initialData = {
   currentStep: 1,
   notes: '',
@@ -1189,14 +1195,31 @@ function App() {
       <Paper
         elevation={0}
         sx={{
-          background: theme => `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+          background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
+          backgroundSize: '200% 200%',
+          animation: 'gradientShift 15s ease infinite',
           borderRadius: 3,
           p: 4,
           mb: 3,
-          boxShadow: '0 8px 32px rgba(45,90,74,0.2)'
+          boxShadow: '0 4px 16px rgba(30, 90, 142, 0.2)',
+          position: 'relative',
+          overflow: 'hidden',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage: `url(${seattleSkyline})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            opacity: 0.15,
+            mixBlendMode: 'overlay'
+          }
         }}
       >
-        <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2} sx={{ position: 'relative', zIndex: 1 }}>
           <Box>
             <Typography
               variant="h1"
@@ -1233,6 +1256,43 @@ function App() {
             ) : null}
           </Box>
         </Stack>
+      </Paper>
+
+      {/* Welcome Hero Section */}
+      <Paper
+        elevation={3}
+        sx={{
+          position: 'relative',
+          height: '200px',
+          borderRadius: 3,
+          mb: 3,
+          overflow: 'hidden',
+          backgroundImage: `url(${spaceNeedleBuildings})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'linear-gradient(135deg, rgba(30, 90, 142, 0.85), rgba(43, 146, 152, 0.75))',
+            zIndex: 1
+          }
+        }}
+      >
+        <Box sx={{ position: 'relative', zIndex: 2, textAlign: 'center', color: 'white' }}>
+          <Typography variant="h3" sx={{ fontWeight: 700, mb: 1, textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
+            Welcome to Your Seattle Journey
+          </Typography>
+          <Typography variant="h6" sx={{ opacity: 0.95, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>
+            Your personalized move planner from San Diego to the Emerald City
+          </Typography>
+        </Box>
       </Paper>
 
       {/* Tab Navigation */}
@@ -1277,7 +1337,24 @@ function App() {
 
         {/* Checklist Tab */}
         {activeTab === 'checklist' && (
-          <Box sx={styles.checklistContainer}>
+          <Box sx={{
+            backgroundImage: `url(${mtRainierMarina})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+            position: 'relative',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(248, 250, 251, 0.92)',
+              zIndex: 0
+            }
+          }}>
+            <Box sx={{ position: 'relative', zIndex: 1, ...styles.checklistContainer }}>
             {/* Step Tabs */}
             <Box className="step-tabs" sx={styles.stepTabs}>
               {Object.entries(data.steps).map(([stepId, step]) => {
@@ -1689,6 +1766,39 @@ function App() {
                   <div style={styles.realtorsSection}>
                     <h3 style={styles.realtorsSectionTitle}>🏠 Realtor Candidates</h3>
 
+                    {data.realtors.length === 0 && (
+                      <Box sx={{
+                        textAlign: 'center',
+                        py: 6,
+                        px: 3,
+                        backgroundImage: `url(${mtRainierMarina})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        borderRadius: 3,
+                        position: 'relative',
+                        overflow: 'hidden',
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: 'linear-gradient(135deg, rgba(30, 90, 142, 0.75), rgba(43, 146, 152, 0.65))',
+                          zIndex: 1
+                        }
+                      }}>
+                        <Box sx={{ position: 'relative', zIndex: 2 }}>
+                          <Typography variant="h5" sx={{ color: 'white', mb: 2, fontWeight: 600 }}>
+                            Start Your Seattle Home Search
+                          </Typography>
+                          <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)', mb: 3 }}>
+                            Add real estate agents to help find your perfect Seattle home
+                          </Typography>
+                        </Box>
+                      </Box>
+                    )}
+
                     <div style={styles.realtorCards}>
                       {(data.realtors || []).map(realtor => (
                         <div
@@ -2075,6 +2185,39 @@ function App() {
                   <div style={styles.realtorsSection}>
                     <h3 style={styles.realtorsSectionTitle}>🏘️ Seattle Neighborhoods</h3>
 
+                    {data.neighborhoods.length === 0 && (
+                      <Box sx={{
+                        textAlign: 'center',
+                        py: 6,
+                        px: 3,
+                        backgroundImage: `url(${spaceNeedleBuildings})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        borderRadius: 3,
+                        position: 'relative',
+                        overflow: 'hidden',
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: 'linear-gradient(135deg, rgba(30, 90, 142, 0.75), rgba(43, 146, 152, 0.65))',
+                          zIndex: 1
+                        }
+                      }}>
+                        <Box sx={{ position: 'relative', zIndex: 2 }}>
+                          <Typography variant="h5" sx={{ color: 'white', mb: 2, fontWeight: 600 }}>
+                            Explore Seattle Neighborhoods
+                          </Typography>
+                          <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)', mb: 3 }}>
+                            Add neighborhoods you're considering for your move
+                          </Typography>
+                        </Box>
+                      </Box>
+                    )}
+
                     <div style={styles.realtorCards}>
                       {(data.neighborhoods || []).map(neighborhood => (
                         <div
@@ -2304,6 +2447,39 @@ function App() {
                 {activeStep === '8' && (
                   <div style={styles.realtorsSection}>
                     <h3 style={styles.realtorsSectionTitle}>🏠 Rental Properties</h3>
+
+                    {data.rentalProperties.length === 0 && (
+                      <Box sx={{
+                        textAlign: 'center',
+                        py: 6,
+                        px: 3,
+                        backgroundImage: `url(${mtRainierView})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        borderRadius: 3,
+                        position: 'relative',
+                        overflow: 'hidden',
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: 'linear-gradient(135deg, rgba(30, 90, 142, 0.75), rgba(43, 146, 152, 0.65))',
+                          zIndex: 1
+                        }
+                      }}>
+                        <Box sx={{ position: 'relative', zIndex: 2 }}>
+                          <Typography variant="h5" sx={{ color: 'white', mb: 2, fontWeight: 600 }}>
+                            Discover Seattle Properties
+                          </Typography>
+                          <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)', mb: 3 }}>
+                            Start tracking properties you're interested in
+                          </Typography>
+                        </Box>
+                      </Box>
+                    )}
 
                     <div style={styles.realtorCards}>
                       {(data.rentalProperties || []).map(property => (
@@ -2729,12 +2905,30 @@ function App() {
                 </Box>
               </Box>
             )}
+            </Box>
           </Box>
         )}
 
         {/* Budget Tab */}
         {activeTab === 'budget' && (
-          <Box sx={styles.budgetContainer}>
+          <Box sx={{
+            backgroundImage: `url(${mtRainierView})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+            position: 'relative',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(232, 239, 245, 0.90)',
+              zIndex: 0
+            }
+          }}>
+            <Box sx={{ position: 'relative', zIndex: 1, ...styles.budgetContainer }}>
             {/* Budget Summary Card */}
             <div style={styles.budgetSummary}>
               <h3 style={styles.budgetSummaryTitle}>💰 Project Budget</h3>
@@ -2875,12 +3069,30 @@ function App() {
               )}
             </div>
 
+            </Box>
           </Box>
         )}
 
         {/* Timeline Tab */}
         {activeTab === 'timeline' && (
-          <Box sx={styles.timelineWrapper}>
+          <Box sx={{
+            backgroundImage: `url(${seattleSkyline})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+            position: 'relative',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(240, 244, 248, 0.92)',
+              zIndex: 0
+            }
+          }}>
+            <Box sx={{ position: 'relative', zIndex: 1, ...styles.timelineWrapper }}>
             <Box className="timeline-container" sx={styles.timelineContainer}>
               {Object.entries(data.steps).map(([stepId, step], index) => {
                 const progress = getStepProgress(stepId);
@@ -2941,12 +3153,30 @@ function App() {
                 );
               })}
             </Box>
+            </Box>
           </Box>
         )}
 
         {/* Notes Tab */}
         {activeTab === 'notes' && (
-          <Box className="notes-container" sx={styles.notesContainer}>
+          <Box sx={{
+            backgroundImage: `url(${spaceNeedleBuildings})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+            position: 'relative',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(240, 245, 248, 0.93)',
+              zIndex: 0
+            }
+          }}>
+            <Box className="notes-container" sx={{ position: 'relative', zIndex: 1, ...styles.notesContainer }}>
             <Typography variant="h2" className="notes-title" sx={styles.notesTitle}>📝 Notes & Reminders</Typography>
 
             <div style={styles.stepNotesSection}>
@@ -3140,6 +3370,7 @@ function App() {
                 })}
               </div>
             )}
+            </Box>
           </Box>
         )}
 
