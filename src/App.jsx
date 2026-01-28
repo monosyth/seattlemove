@@ -1,6 +1,41 @@
 import { useState, useEffect } from 'react';
 import { db } from './firebase';
 import { doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import {
+  Box,
+  Container,
+  Typography,
+  Button,
+  TextField,
+  Card,
+  CardContent,
+  Paper,
+  Tabs,
+  Tab,
+  Chip,
+  IconButton,
+  Stack,
+  Divider,
+  LinearProgress,
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  InputAdornment,
+  Tooltip,
+  Badge
+} from '@mui/material';
+import {
+  Home as HomeIcon,
+  CheckCircle as CheckCircleIcon,
+  RadioButtonUnchecked as RadioButtonUncheckedIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Add as AddIcon,
+  Save as SaveIcon,
+  Close as CloseIcon,
+  Star as StarIcon,
+  StarBorder as StarBorderIcon
+} from '@mui/icons-material';
 
 const initialData = {
   currentStep: 1,
@@ -1132,63 +1167,96 @@ function App() {
 
   if (loading) {
     return (
-      <div style={styles.loadingContainer}>
-        <div style={styles.loadingSpinner}></div>
-        <p style={styles.loadingText}>Loading your move plan...</p>
-      </div>
+      <Container maxWidth="lg" sx={{ mt: 8, textAlign: 'center' }}>
+        <LinearProgress color="primary" sx={{ mb: 3 }} />
+        <Typography variant="body1" color="text.secondary">
+          Loading your move plan...
+        </Typography>
+      </Container>
     );
   }
 
   return (
-    <div className="app-container" style={styles.container}>
+    <Container maxWidth="lg" sx={{ py: 3 }}>
       {/* Header Section */}
-      <header className="app-header" style={styles.header}>
-        <div style={styles.headerContent}>
-          <div style={styles.headerMain}>
-            <div style={styles.titleSection}>
-              <h1 className="app-title" style={styles.title}>
-                <span style={styles.titleIcon}>🏠</span>
-                Seattle Move Planner
-              </h1>
-              <p className="app-subtitle" style={styles.subtitle}>San Diego → Seattle</p>
-            </div>
-            <div style={styles.saveStatus}>
-              {saving ? (
-                <span style={styles.savingIndicator}>💾 Saving...</span>
-              ) : lastSaved ? (
-                <span style={styles.savedIndicator}>✓ Saved {lastSaved.toLocaleTimeString()}</span>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      </header>
+      <Paper
+        elevation={0}
+        sx={{
+          background: theme => `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+          borderRadius: 3,
+          p: 4,
+          mb: 3,
+          boxShadow: '0 8px 32px rgba(45,90,74,0.2)'
+        }}
+      >
+        <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
+          <Box>
+            <Typography
+              variant="h1"
+              sx={{
+                fontSize: '2.2rem',
+                fontWeight: 700,
+                color: 'white',
+                mb: 1,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                textShadow: '0 2px 8px rgba(0,0,0,0.15)'
+              }}
+            >
+              <HomeIcon sx={{ fontSize: '2.4rem' }} />
+              Seattle Move Planner
+            </Typography>
+            <Typography
+              variant="subtitle1"
+              sx={{
+                color: 'rgba(255,255,255,0.9)',
+                fontWeight: 500,
+                letterSpacing: '0.5px'
+              }}
+            >
+              San Diego → Seattle
+            </Typography>
+          </Box>
+          <Box>
+            {saving ? (
+              <Chip label="💾 Saving..." color="default" sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'white' }} />
+            ) : lastSaved ? (
+              <Chip label={`✓ Saved ${lastSaved.toLocaleTimeString()}`} color="default" sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'white' }} />
+            ) : null}
+          </Box>
+        </Stack>
+      </Paper>
 
       {/* Tab Navigation */}
-      <nav className="tab-nav" style={styles.tabNav}>
-        {[
-          { id: 'checklist', icon: '✓', label: 'Checklist' },
-          { id: 'budget', icon: '💰', label: 'Budget' },
-          { id: 'timeline', icon: '📅', label: 'Timeline' },
-          { id: 'notes', icon: '📝', label: 'Notes' },
-          { id: 'history', icon: '📜', label: 'History' }
-        ].map(tab => (
-          <button
-            key={tab.id}
-            className="tab-btn"
-            style={activeTab === tab.id ? {...styles.tabBtn, ...styles.tabBtnActive} : styles.tabBtn}
-            onClick={() => {
-              setActiveTab(tab.id);
-              if (tab.id === 'history') loadChangelog();
-            }}
-          >
-            <span style={styles.tabIcon}>{tab.icon}</span>
-            <span style={styles.tabLabel}>{tab.label}</span>
-          </button>
-        ))}
-      </nav>
+      <Paper elevation={0} sx={{ mb: 3, borderRadius: 2 }}>
+        <Tabs
+          value={activeTab}
+          onChange={(e, newValue) => {
+            setActiveTab(newValue);
+            if (newValue === 'history') loadChangelog();
+          }}
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{
+            '& .MuiTab-root': {
+              minHeight: 56,
+              textTransform: 'none',
+              fontWeight: 600,
+              fontSize: '0.95rem'
+            }
+          }}
+        >
+          <Tab value="checklist" label="Checklist" icon={<span>✓</span>} iconPosition="start" />
+          <Tab value="budget" label="Budget" icon={<span>💰</span>} iconPosition="start" />
+          <Tab value="timeline" label="Timeline" icon={<span>📅</span>} iconPosition="start" />
+          <Tab value="notes" label="Notes" icon={<span>📝</span>} iconPosition="start" />
+          <Tab value="history" label="History" icon={<span>📜</span>} iconPosition="start" />
+        </Tabs>
+      </Paper>
 
       {/* Main Content Area */}
-      <main className="main-content" style={styles.main}>
+      <Box>
 
         {/* Checklist Tab */}
         {activeTab === 'checklist' && (
@@ -3156,13 +3224,24 @@ function App() {
             )}
           </div>
         )}
-      </main>
+      </Box>
 
       {/* Footer */}
-      <footer style={styles.footer}>
-        <p style={styles.footerText}>Data syncs automatically to cloud ☁️</p>
-      </footer>
-    </div>
+      <Paper
+        elevation={0}
+        sx={{
+          mt: 4,
+          p: 2,
+          textAlign: 'center',
+          bgcolor: 'grey.50',
+          borderRadius: 2
+        }}
+      >
+        <Typography variant="body2" color="text.secondary">
+          Data syncs automatically to cloud ☁️
+        </Typography>
+      </Paper>
+    </Container>
   );
 }
 
