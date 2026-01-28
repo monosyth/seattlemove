@@ -1,6 +1,6 @@
 import { createTheme } from '@mui/material/styles';
 
-// Seattle Move color palette - Ocean Blues Theme
+// Seattle Move color palette - Vibrant Ocean Blues Theme
 const colors = {
   // Primary ocean blues
   pacificBlue: '#1e5a8e',      // Deep Pacific Ocean blue
@@ -11,12 +11,32 @@ const colors = {
   // Deep water tones
   deepOcean: '#154163',         // Deep navy ocean
   midnight: '#0d2d44',          // Midnight water
+  abyss: '#0a1f33',             // Deep sea abyss
 
-  // Accent colors
+  // Vibrant teals & turquoise
   teal: '#2b9298',              // Pacific teal
+  turquoise: '#1abc9c',         // Tropical turquoise
   aqua: '#52b5bf',              // Bright aqua
-  coral: '#ff8c69',             // Coral accent (for errors/warnings)
+  cyan: '#00d4ff',              // Electric cyan
+  aquamarine: '#7fffd4',        // Bright aquamarine
+
+  // Tropical & reef colors
+  coral: '#ff8c69',             // Coral accent
+  coralPink: '#ff6b9d',         // Pink coral
+  starfish: '#ff7f50',          // Starfish orange
   sunrise: '#ffa366',           // Sunset over water
+  golden: '#ffd700',            // Golden hour
+
+  // Bioluminescent & glow effects
+  bioluminescent: '#00ffff',    // Glowing cyan
+  neonBlue: '#1e90ff',          // Electric blue
+  glowGreen: '#39ff14',         // Bioluminescent green
+
+  // Greens & kelp
+  seaweed: '#2ecc71',           // Kelp green
+  emerald: '#27ae60',           // Emerald water
+  complete: '#2da771',          // Ocean green for complete
+  jade: '#00a86b',              // Jade green
 
   // Neutrals - sand and stone
   charcoal: '#2c3e50',          // Dark charcoal
@@ -26,9 +46,7 @@ const colors = {
   cloud: '#f0f4f8',             // Cloud white
   fog: '#f8fafb',               // Morning fog
   mist: '#e5edf3',              // Ocean mist
-
-  // Status
-  complete: '#2da771',          // Ocean green for complete
+  pearl: '#f5f5f5',             // Pearl white
 
   // Legacy names for compatibility
   evergreen: '#1e5a8e',         // Map to pacificBlue
@@ -43,7 +61,13 @@ const colors = {
   goldenHour: '#ffd89b',        // Sunset reflection
   paleBlue: '#d4e6f5',          // Pale water
   duskBlue: '#1a4d6f',          // Dusk over water
-  white: '#ffffff'              // Pure white
+  white: '#ffffff',             // Pure white
+  rain: '#94c5d9',              // Rain over water
+  bark: '#8b9ba8',              // → driftwood
+  cedar: '#b8c5d1',             // Cedar tone
+  wheat: '#e8d4b8',             // Wheat/sand
+  honey: '#d4aa6a',             // Honey
+  cream: '#faf7f2'              // Cream
 };
 
 const theme = createTheme({

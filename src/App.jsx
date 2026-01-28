@@ -1211,7 +1211,7 @@ function App() {
                 textShadow: '0 2px 8px rgba(0,0,0,0.15)'
               }}
             >
-              <HomeIcon sx={{ fontSize: '2.4rem' }} />
+              <HomeIcon sx={{ fontSize: '2.4rem', color: '#7fffd4', filter: 'drop-shadow(0 2px 4px rgba(127, 255, 212, 0.3))' }} />
               Seattle Move Planner
             </Typography>
             <Typography
@@ -1227,9 +1227,9 @@ function App() {
           </Box>
           <Box>
             {saving ? (
-              <Chip label="💾 Saving..." color="default" sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'white' }} />
+              <Chip label="💾 Saving..." color="default" sx={{ background: 'linear-gradient(135deg, #1abc9c, #00d4ff)', color: 'white', fontWeight: 600, animation: 'pulseGlow 1s ease-in-out infinite', boxShadow: '0 0 10px rgba(26, 188, 156, 0.5)' }} />
             ) : lastSaved ? (
-              <Chip label={`✓ Saved ${lastSaved.toLocaleTimeString()}`} color="default" sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'white' }} />
+              <Chip label={`✓ Saved ${lastSaved.toLocaleTimeString()}`} color="default" sx={{ background: 'linear-gradient(135deg, #2ecc71, #00a86b)', color: 'white', fontWeight: 600, boxShadow: '0 0 10px rgba(46, 204, 113, 0.4)' }} />
             ) : null}
           </Box>
         </Stack>
@@ -1343,9 +1343,9 @@ function App() {
                 {activeStep === '3' ? (
                   <Box sx={styles.repairsContainer}>
                     {[
-                      { key: 'must', title: 'Must Do (Safety/Inspection)', color: colors.salmon },
-                      { key: 'high', title: 'High Impact (Buyers Notice)', color: colors.goldenHour },
-                      { key: 'nice', title: 'Nice to Have', color: colors.duskBlue }
+                      { key: 'must', title: 'Must Do (Safety/Inspection)', color: colors.coralPink },
+                      { key: 'high', title: 'High Impact (Buyers Notice)', color: colors.golden },
+                      { key: 'nice', title: 'Nice to Have', color: colors.cyan }
                     ].map(({ key, title, color }) => {
                       const progress = getBudgetCategoryProgress(key);
                       const categoryTotal = getBudgetTotal(key);
@@ -3280,6 +3280,20 @@ const colors = {
   coral: '#ff8c69',
   sunrise: '#ffa366',
 
+  // NEW VIBRANT COLORS - Ocean & Tropical
+  turquoise: '#1abc9c',
+  cyan: '#00d4ff',
+  aquamarine: '#7fffd4',
+  coralPink: '#ff6b9d',
+  starfish: '#ff7f50',
+  golden: '#ffd700',
+  bioluminescent: '#00ffff',
+  neonBlue: '#1e90ff',
+  glowGreen: '#39ff14',
+  seaweed: '#2ecc71',
+  emerald: '#27ae60',
+  jade: '#00a86b',
+
   // Neutrals - sand and stone
   charcoal: '#2c3e50',
   slate: '#5f6c7b',
@@ -3350,11 +3364,13 @@ const styles = {
 
   // Header
   header: {
-    background: `linear-gradient(135deg, ${colors.evergreen} 0%, ${colors.forest} 100%)`,
+    background: `linear-gradient(135deg, ${colors.pacificBlue} 0%, ${colors.teal} 50%, ${colors.turquoise} 100%)`,
+    backgroundSize: '200% 200%',
+    animation: 'gradientShift 15s ease infinite',
     borderRadius: '20px',
     padding: '32px 40px',
     marginBottom: '24px',
-    boxShadow: '0 8px 32px rgba(45,90,74,0.2)',
+    boxShadow: '0 8px 32px rgba(26, 188, 156, 0.3), 0 0 20px rgba(0, 212, 255, 0.15)',
     position: 'relative',
     overflow: 'hidden'
   },
@@ -3399,19 +3415,24 @@ const styles = {
   },
   savingIndicator: {
     fontSize: '0.85rem',
-    color: 'rgba(255,255,255,0.85)',
+    color: 'white',
     padding: '6px 12px',
-    background: 'rgba(255,255,255,0.15)',
+    background: `linear-gradient(135deg, ${colors.turquoise}, ${colors.cyan})`,
     borderRadius: '6px',
-    backdropFilter: 'blur(10px)'
+    backdropFilter: 'blur(10px)',
+    fontWeight: '600',
+    animation: 'pulseGlow 1s ease-in-out infinite',
+    boxShadow: '0 0 10px rgba(26, 188, 156, 0.5)'
   },
   savedIndicator: {
     fontSize: '0.85rem',
-    color: 'rgba(255,255,255,0.85)',
+    color: 'white',
     padding: '6px 12px',
-    background: 'rgba(255,255,255,0.15)',
+    background: `linear-gradient(135deg, ${colors.seaweed}, ${colors.jade})`,
     borderRadius: '6px',
-    backdropFilter: 'blur(10px)'
+    backdropFilter: 'blur(10px)',
+    fontWeight: '600',
+    boxShadow: '0 0 10px rgba(46, 204, 113, 0.4)'
   },
 
   // Tab Navigation
@@ -3487,12 +3508,16 @@ const styles = {
     flexShrink: 0
   },
   stepTabActive: {
-    background: 'white',
-    color: colors.evergreen,
-    boxShadow: '0 2px 8px rgba(45,90,74,0.15)'
+    background: `linear-gradient(135deg, ${colors.pacificBlue}, ${colors.turquoise})`,
+    color: 'white',
+    boxShadow: '0 4px 15px rgba(26, 188, 156, 0.4)',
+    transform: 'scale(1.05)',
+    animation: 'floatUp 0.3s ease',
+    fontWeight: 700
   },
   stepTabComplete: {
-    color: colors.complete
+    color: colors.seaweed,
+    fontWeight: '700'
   },
   stepTabCheck: {
     fontSize: '0.75rem',
@@ -3545,15 +3570,20 @@ const styles = {
     marginBottom: '16px'
   },
   stepProgressBar: {
-    height: '6px',
+    height: '8px',
     background: colors.mist,
-    borderRadius: '3px',
+    borderRadius: '4px',
     overflow: 'hidden',
-    marginBottom: '16px'
+    marginBottom: '16px',
+    boxShadow: '0 2px 8px rgba(26, 188, 156, 0.1)'
   },
   stepProgressFill: {
     height: '100%',
-    transition: 'width 0.3s ease'
+    background: `linear-gradient(90deg, ${colors.pacificBlue} 0%, ${colors.turquoise} 50%, ${colors.cyan} 100%)`,
+    backgroundSize: '200% 200%',
+    transition: 'width 0.4s ease',
+    boxShadow: '0 0 10px rgba(26, 188, 156, 0.5)',
+    animation: 'gradientShift 6s ease infinite'
   },
   stepNavigation: {
     display: 'flex',
@@ -3574,9 +3604,16 @@ const styles = {
     transition: 'all 0.2s ease'
   },
   stepNavBtnPrimary: {
-    background: `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`,
+    background: `linear-gradient(135deg, ${colors.pacificBlue} 0%, ${colors.turquoise} 50%, ${colors.cyan} 100%)`,
+    backgroundSize: '200% 200%',
     color: 'white',
-    border: 'none'
+    border: 'none',
+    boxShadow: '0 4px 15px rgba(26, 188, 156, 0.4)',
+    '&:hover': {
+      backgroundPosition: 'right center',
+      boxShadow: '0 6px 20px rgba(26, 188, 156, 0.5)',
+      transform: 'translateY(-2px)'
+    }
   },
   stepNavBtnDisabled: {
     opacity: 0.4,
@@ -3926,7 +3963,8 @@ const styles = {
   },
   addItemSaveBtn: {
     padding: '10px 16px',
-    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
+    background: `linear-gradient(135deg, ${colors.pacificBlue} 0%, ${colors.turquoise} 50%, ${colors.cyan} 100%)`,
+    backgroundSize: '200% 200%',
     color: 'white',
     border: 'none',
     borderRadius: '6px',
@@ -3934,7 +3972,12 @@ const styles = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.15)'
+    boxShadow: '0 2px 8px rgba(26, 188, 156, 0.3)',
+    '&:hover': {
+      backgroundPosition: 'right center',
+      boxShadow: '0 6px 20px rgba(26, 188, 156, 0.5)',
+      transform: 'translateY(-2px)'
+    }
   },
   addItemCancelBtn: {
     padding: '10px 16px',
@@ -3965,17 +4008,20 @@ const styles = {
   },
   realtorCard: {
     background: 'white',
-    border: `1px solid ${colors.mist}`,
+    border: `2px solid ${colors.mist}`,
+    borderLeft: `4px solid ${colors.turquoise}`,
     borderRadius: '10px',
     padding: '14px',
     position: 'relative',
-    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.08)',
+    boxShadow: '0 4px 20px rgba(26, 188, 156, 0.15)',
     transition: 'all 0.3s ease'
   },
   realtorCardRecommended: {
-    border: `2px solid ${colors.evergreen}`,
-    background: `linear-gradient(135deg, white 0%, ${colors.fog} 100%)`,
-    boxShadow: '0 4px 16px rgba(30, 90, 142, 0.15)'
+    border: `3px solid ${colors.turquoise}`,
+    borderLeft: `6px solid ${colors.cyan}`,
+    background: `linear-gradient(135deg, white 0%, rgba(26, 188, 156, 0.03) 100%)`,
+    boxShadow: '0 8px 30px rgba(26, 188, 156, 0.25), 0 0 15px rgba(0, 212, 255, 0.2)',
+    animation: 'pulseGlow 3s ease-in-out infinite'
   },
   realtorCardHeader: {
     display: 'flex',
@@ -3990,12 +4036,13 @@ const styles = {
     color: colors.charcoal
   },
   recommendedBadge: {
-    background: colors.evergreen,
+    background: `linear-gradient(135deg, ${colors.turquoise}, ${colors.cyan})`,
     color: 'white',
     fontSize: '0.7rem',
     fontWeight: '600',
     padding: '2px 8px',
-    borderRadius: '10px'
+    borderRadius: '10px',
+    boxShadow: '0 2px 8px rgba(26, 188, 156, 0.4)'
   },
   realtorDetail: {
     margin: '4px 0',
@@ -4041,8 +4088,9 @@ const styles = {
     fontSize: '1.1rem',
     padding: '4px 8px',
     borderRadius: '4px',
-    color: colors.goldenHour,
-    transition: 'all 0.2s'
+    color: colors.golden,
+    transition: 'all 0.2s',
+    filter: 'drop-shadow(0 0 8px rgba(255, 215, 0, 0.4))'
   },
   realtorEditBtn: {
     background: 'none',
@@ -4051,7 +4099,8 @@ const styles = {
     fontSize: '0.85rem',
     padding: '4px 8px',
     borderRadius: '4px',
-    opacity: 0.6,
+    opacity: 0.8,
+    color: '#4a90e2',
     transition: 'all 0.2s'
   },
   realtorDeleteBtn: {
@@ -4061,7 +4110,8 @@ const styles = {
     fontSize: '0.85rem',
     padding: '4px 8px',
     borderRadius: '4px',
-    opacity: 0.6,
+    opacity: 0.8,
+    color: colors.coralPink,
     transition: 'all 0.2s'
   },
   realtorEditForm: {
@@ -4092,7 +4142,8 @@ const styles = {
   },
   realtorSaveBtn: {
     padding: '10px 20px',
-    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
+    background: `linear-gradient(135deg, ${colors.seaweed} 0%, ${colors.turquoise} 50%, ${colors.jade} 100%)`,
+    backgroundSize: '200% 200%',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
@@ -4100,7 +4151,12 @@ const styles = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    boxShadow: '0 4px 12px rgba(30, 90, 142, 0.2)'
+    boxShadow: '0 4px 12px rgba(46, 204, 113, 0.3)',
+    '&:hover': {
+      backgroundPosition: 'right center',
+      boxShadow: '0 6px 20px rgba(46, 204, 113, 0.5)',
+      transform: 'translateY(-2px)'
+    }
   },
   realtorCancelBtn: {
     padding: '10px 20px',
@@ -4117,7 +4173,8 @@ const styles = {
     width: '100%',
     padding: '12px',
     marginTop: '12px',
-    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
+    background: `linear-gradient(135deg, ${colors.pacificBlue} 0%, ${colors.turquoise} 50%, ${colors.cyan} 100%)`,
+    backgroundSize: '200% 200%',
     border: 'none',
     borderRadius: '8px',
     color: 'white',
@@ -4588,9 +4645,12 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '16px',
-    background: `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`,
+    background: `linear-gradient(135deg, ${colors.pacificBlue} 0%, ${colors.teal} 50%, ${colors.turquoise} 100%)`,
+    backgroundSize: '200% 200%',
+    animation: 'gradientShift 10s ease infinite',
     borderRadius: '10px',
-    marginTop: '4px'
+    marginTop: '4px',
+    boxShadow: '0 6px 25px rgba(26, 188, 156, 0.25), 0 0 15px rgba(0, 212, 255, 0.15)'
   },
   budgetGrandTotalLabel: {
     fontSize: '1rem',
@@ -4606,8 +4666,11 @@ const styles = {
     marginBottom: '20px',
     borderRadius: '12px',
     border: '2px solid',
+    borderLeft: '6px solid',
     overflow: 'hidden',
-    background: 'white'
+    background: 'white',
+    boxShadow: '0 4px 20px rgba(26, 188, 156, 0.12)',
+    transition: 'all 0.3s ease'
   },
   budgetTitle: {
     color: 'white',
@@ -4733,9 +4796,10 @@ const styles = {
     transform: 'scale(0.98)'
   },
   budgetItemDropTarget: {
-    borderTop: `3px solid ${colors.evergreen}`,
-    background: `linear-gradient(180deg, ${colors.mist}40 0%, ${colors.fog} 20%)`,
-    transform: 'translateY(2px)'
+    borderTop: `4px solid ${colors.turquoise}`,
+    background: `linear-gradient(180deg, rgba(26, 188, 156, 0.1) 0%, ${colors.fog} 20%)`,
+    transform: 'translateY(2px)',
+    boxShadow: '0 0 15px rgba(26, 188, 156, 0.2)'
   },
   budgetItemText: {
     flex: 1,
@@ -4769,7 +4833,8 @@ const styles = {
     width: 'calc(100% - 24px)',
     padding: '10px',
     margin: '0 12px 12px 12px',
-    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
+    background: `linear-gradient(135deg, ${colors.pacificBlue} 0%, ${colors.turquoise} 50%, ${colors.cyan} 100%)`,
+    backgroundSize: '200% 200%',
     border: 'none',
     borderRadius: '8px',
     color: 'white',
@@ -4778,7 +4843,7 @@ const styles = {
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     boxSizing: 'border-box',
-    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.15)'
+    boxShadow: '0 2px 8px rgba(26, 188, 156, 0.3)'
   },
   budgetSubtotal: {
     display: 'flex',
@@ -4792,8 +4857,9 @@ const styles = {
     color: colors.mountain
   },
   budgetSubtotalAmount: {
-    color: colors.evergreen,
-    fontSize: '1rem'
+    color: colors.turquoise,
+    fontSize: '1rem',
+    fontWeight: '700'
   },
   dollarSign: {
     color: colors.slate,
