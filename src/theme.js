@@ -1,49 +1,76 @@
 import { createTheme } from '@mui/material/styles';
 
-// Seattle Move color palette
+// Seattle Move color palette - Ocean Blues Theme
 const colors = {
-  // Primary greens
-  evergreen: '#2d5a4a',
-  forest: '#1e3d32',
-  sage: '#7fa896',
-  moss: '#5c8a72',
+  // Primary ocean blues
+  pacificBlue: '#1e5a8e',      // Deep Pacific Ocean blue
+  pugetSound: '#2968a3',        // Puget Sound mid-blue
+  skyBlue: '#4a90e2',           // Seattle sky blue
+  seafoam: '#6ba8c9',           // Light seafoam blue
 
-  // Secondary colors
-  skyBlue: '#4a90e2',
-  deepBlue: '#2563a8',
-  salmon: '#e17b63',
-  terracotta: '#c96a4f',
+  // Deep water tones
+  deepOcean: '#154163',         // Deep navy ocean
+  midnight: '#0d2d44',          // Midnight water
 
-  // Neutrals
-  charcoal: '#2c3e50',
-  slate: '#5f6c7b',
-  mountain: '#34495e',
-  cloud: '#ecf0f1',
-  fog: '#f8f9fa',
-  mist: '#e0e7e9',
+  // Accent colors
+  teal: '#2b9298',              // Pacific teal
+  aqua: '#52b5bf',              // Bright aqua
+  coral: '#ff8c69',             // Coral accent (for errors/warnings)
+  sunrise: '#ffa366',           // Sunset over water
+
+  // Neutrals - sand and stone
+  charcoal: '#2c3e50',          // Dark charcoal
+  slate: '#5f6c7b',             // Slate gray
+  driftwood: '#8b9ba8',         // Light driftwood gray
+  sand: '#e8eff5',              // Sandy beach
+  cloud: '#f0f4f8',             // Cloud white
+  fog: '#f8fafb',               // Morning fog
+  mist: '#e5edf3',              // Ocean mist
 
   // Status
-  complete: '#27ae60'
+  complete: '#2da771',          // Ocean green for complete
+
+  // Legacy names for compatibility
+  evergreen: '#1e5a8e',         // Map to pacificBlue
+  forest: '#154163',            // Map to deepOcean
+  sage: '#6ba8c9',              // Map to seafoam
+  moss: '#52b5bf',              // Map to aqua
+  salmon: '#ff8c69',            // Map to coral
+  terracotta: '#ffa366',        // Map to sunrise
+  mountain: '#2c3e50',          // Map to charcoal
+  deepBlue: '#0d2d44',          // Map to midnight
+  skyBlue: '#4a90e2',           // Keep skyBlue
+  goldenHour: '#ffd89b',        // Sunset reflection
+  paleBlue: '#d4e6f5',          // Pale water
+  duskBlue: '#1a4d6f',          // Dusk over water
+  white: '#ffffff'              // Pure white
 };
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: colors.evergreen,
-      dark: colors.forest,
-      light: colors.sage,
+      main: colors.pacificBlue,
+      dark: colors.deepOcean,
+      light: colors.seafoam,
       contrastText: '#ffffff',
     },
     secondary: {
-      main: colors.skyBlue,
-      dark: colors.deepBlue,
+      main: colors.teal,
+      dark: colors.pugetSound,
+      light: colors.aqua,
       contrastText: '#ffffff',
     },
     success: {
       main: colors.complete,
     },
     error: {
-      main: colors.salmon,
+      main: colors.coral,
+    },
+    warning: {
+      main: colors.sunrise,
+    },
+    info: {
+      main: colors.skyBlue,
     },
     background: {
       default: '#ffffff',

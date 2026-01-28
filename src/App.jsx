@@ -3245,32 +3245,55 @@ function App() {
   );
 }
 
-// PNW Color Palette - brighter and more cheerful
+// Seattle Move - Ocean Blues Theme
 const colors = {
-  evergreen: '#3a7a6a',
-  forest: '#4a9a7a',
-  sage: '#7eb8a5',
-  mist: '#b5d9c8',
-  fog: '#e8f5ef',
-  mountain: '#5a8090',
-  slate: '#6a95a5',
-  rain: '#8ab5c5',
-  cloud: '#f5faf8',
-  bark: '#7a6555',
-  cedar: '#a08565',
-  salmon: '#e8956a',
-  sunset: '#f5b88a',
-  complete: '#5ab88a',
-  // Bright blues
-  skyBlue: '#7ab5d5',
-  deepBlue: '#5a95b8',
-  duskBlue: '#6aa5c5',
-  paleBlue: '#c5e0f0',
-  // Bright yellows
-  goldenHour: '#e5c878',
-  wheat: '#ebd898',
-  honey: '#dab555',
-  cream: '#faf5e5'
+  // Primary ocean blues
+  pacificBlue: '#1e5a8e',
+  pugetSound: '#2968a3',
+  skyBlue: '#4a90e2',
+  seafoam: '#6ba8c9',
+
+  // Deep water tones
+  deepOcean: '#154163',
+  midnight: '#0d2d44',
+
+  // Accent colors
+  teal: '#2b9298',
+  aqua: '#52b5bf',
+  coral: '#ff8c69',
+  sunrise: '#ffa366',
+
+  // Neutrals - sand and stone
+  charcoal: '#2c3e50',
+  slate: '#5f6c7b',
+  driftwood: '#8b9ba8',
+  sand: '#e8eff5',
+  cloud: '#f0f4f8',
+  fog: '#f8fafb',
+  mist: '#e5edf3',
+
+  // Status
+  complete: '#2da771',
+
+  // Legacy compatibility mappings
+  evergreen: '#1e5a8e',      // → pacificBlue
+  forest: '#154163',         // → deepOcean
+  sage: '#6ba8c9',           // → seafoam
+  moss: '#52b5bf',           // → aqua
+  mountain: '#2c3e50',       // → charcoal
+  salmon: '#ff8c69',         // → coral
+  sunset: '#ffa366',         // → sunrise
+  deepBlue: '#0d2d44',       // → midnight
+  duskBlue: '#1a4d6f',       // Dusk over water
+  paleBlue: '#d4e6f5',       // Pale water
+  goldenHour: '#ffd89b',     // Sunset reflection
+  rain: '#94c5d9',           // Rain over water
+  bark: '#8b9ba8',           // → driftwood
+  cedar: '#b8c5d1',          // Cedar tone
+  wheat: '#e8d4b8',          // Wheat/sand
+  honey: '#d4aa6a',          // Honey
+  cream: '#faf7f2',          // Cream
+  white: '#ffffff'           // Pure white
 };
 
 const styles = {
