@@ -3504,13 +3504,13 @@ const styles = {
   // Step Notes
   stepNotesSection: {
     marginTop: '20px',
-    paddingTop: '16px',
-    borderTop: `1px solid ${colors.mist}`
+    paddingTop: '20px',
+    borderTop: `2px solid ${colors.mist}`
   },
   stepNotesTitle: {
-    fontSize: '0.95rem',
-    color: colors.forest,
-    marginBottom: '12px',
+    fontSize: '1.1rem',
+    color: colors.charcoal,
+    marginBottom: '16px',
     fontWeight: '600'
   },
   stepNotesList: {
@@ -3518,19 +3518,22 @@ const styles = {
   },
   stepNoteItem: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
-    padding: '10px 12px',
+    padding: '14px 16px',
     background: 'white',
     borderRadius: '8px',
-    marginBottom: '8px',
-    border: `1px solid ${colors.mist}`
+    marginBottom: '10px',
+    border: `2px solid ${colors.mist}`,
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
   },
   noteText: {
     flex: 1,
-    fontSize: '0.9rem',
-    color: colors.mountain,
-    whiteSpace: 'pre-wrap'
+    fontSize: '0.95rem',
+    color: colors.charcoal,
+    whiteSpace: 'pre-wrap',
+    lineHeight: '1.5',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif'
   },
   noteActions: {
     display: 'flex',
@@ -3548,26 +3551,34 @@ const styles = {
   },
   addNoteForm: {
     display: 'flex',
-    gap: '8px'
+    gap: '10px',
+    alignItems: 'flex-start'
   },
   noteInput: {
     flex: 1,
-    padding: '10px 12px',
-    border: `1px solid ${colors.mist}`,
+    padding: '12px 14px',
+    border: `2px solid ${colors.mist}`,
     borderRadius: '8px',
-    fontSize: '0.9rem',
-    outline: 'none'
+    fontSize: '0.95rem',
+    outline: 'none',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
+    lineHeight: '1.5',
+    resize: 'vertical',
+    transition: 'border-color 0.2s',
+    backgroundColor: 'white'
   },
   addNoteBtn: {
-    padding: '10px 16px',
-    background: `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`,
+    padding: '12px 20px',
+    background: colors.evergreen,
     color: 'white',
     border: 'none',
     borderRadius: '8px',
-    fontSize: '0.85rem',
+    fontSize: '0.9rem',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'opacity 0.2s'
+    transition: 'all 0.2s',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    flexShrink: 0
   },
   noteEditForm: {
     display: 'flex',
@@ -4057,7 +4068,7 @@ const styles = {
     fontSize: '0.95rem',
     outline: 'none',
     transition: 'all 0.2s',
-    fontFamily: 'inherit',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
     backgroundColor: 'white'
   },
   realtorFormTextarea: {
@@ -4067,7 +4078,7 @@ const styles = {
     fontSize: '0.95rem',
     outline: 'none',
     resize: 'vertical',
-    fontFamily: 'inherit',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
     transition: 'all 0.2s',
     backgroundColor: 'white',
     lineHeight: '1.5',
@@ -4250,7 +4261,7 @@ const styles = {
     fontSize: '0.95rem',
     outline: 'none',
     resize: 'vertical',
-    fontFamily: 'inherit',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
     transition: 'all 0.2s',
     backgroundColor: 'white',
     lineHeight: '1.5',
@@ -4855,10 +4866,11 @@ const styles = {
     border: `2px solid ${colors.mist}`,
     borderRadius: '12px',
     fontSize: '1rem',
-    fontFamily: 'inherit',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
     resize: 'vertical',
     outline: 'none',
-    transition: 'border-color 0.2s'
+    transition: 'border-color 0.2s',
+    lineHeight: '1.5'
   },
 
   // History
