@@ -1345,7 +1345,7 @@ function App() {
                     {[
                       { key: 'must', title: 'Must Do (Safety/Inspection)', color: colors.coralPink },
                       { key: 'high', title: 'High Impact (Buyers Notice)', color: colors.golden },
-                      { key: 'nice', title: 'Nice to Have', color: colors.cyan }
+                      { key: 'nice', title: 'Nice to Have', color: '#a5d4e8' }
                     ].map(({ key, title, color }) => {
                       const progress = getBudgetCategoryProgress(key);
                       const categoryTotal = getBudgetTotal(key);
@@ -3280,13 +3280,13 @@ const colors = {
   coral: '#ff8c69',
   sunrise: '#ffa366',
 
-  // NEW VIBRANT COLORS - Ocean & Tropical
+  // NEW VIBRANT COLORS - Ocean & Tropical (Toned Down)
   turquoise: '#1abc9c',
   cyan: '#00d4ff',
   aquamarine: '#7fffd4',
-  coralPink: '#ff6b9d',
+  coralPink: '#e8a5a5',      // Toned down from #ff6b9d
   starfish: '#ff7f50',
-  golden: '#ffd700',
+  golden: '#e8d4a5',         // Toned down from #ffd700
   bioluminescent: '#00ffff',
   neonBlue: '#1e90ff',
   glowGreen: '#39ff14',
@@ -3364,13 +3364,13 @@ const styles = {
 
   // Header
   header: {
-    background: `linear-gradient(135deg, ${colors.pacificBlue} 0%, ${colors.teal} 50%, ${colors.turquoise} 100%)`,
+    background: `linear-gradient(135deg, ${colors.pacificBlue} 0%, ${colors.teal} 100%)`,
     backgroundSize: '200% 200%',
     animation: 'gradientShift 15s ease infinite',
     borderRadius: '20px',
     padding: '32px 40px',
     marginBottom: '24px',
-    boxShadow: '0 8px 32px rgba(26, 188, 156, 0.3), 0 0 20px rgba(0, 212, 255, 0.15)',
+    boxShadow: '0 4px 16px rgba(30, 90, 142, 0.2)',
     position: 'relative',
     overflow: 'hidden'
   },
@@ -3400,8 +3400,7 @@ const styles = {
     textShadow: '0 2px 8px rgba(0,0,0,0.15)'
   },
   titleIcon: {
-    fontSize: '2.4rem',
-    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+    fontSize: '2.4rem'
   },
   subtitle: {
     color: 'rgba(255,255,255,0.9)',
@@ -3417,22 +3416,22 @@ const styles = {
     fontSize: '0.85rem',
     color: 'white',
     padding: '6px 12px',
-    background: `linear-gradient(135deg, ${colors.turquoise}, ${colors.cyan})`,
+    background: `linear-gradient(135deg, ${colors.turquoise}, ${colors.teal})`,
     borderRadius: '6px',
     backdropFilter: 'blur(10px)',
     fontWeight: '600',
     animation: 'pulseGlow 1s ease-in-out infinite',
-    boxShadow: '0 0 10px rgba(26, 188, 156, 0.5)'
+    boxShadow: '0 2px 8px rgba(26, 188, 156, 0.3)'
   },
   savedIndicator: {
     fontSize: '0.85rem',
     color: 'white',
     padding: '6px 12px',
-    background: `linear-gradient(135deg, ${colors.seaweed}, ${colors.jade})`,
+    background: `linear-gradient(135deg, ${colors.seaweed}, ${colors.emerald})`,
     borderRadius: '6px',
     backdropFilter: 'blur(10px)',
     fontWeight: '600',
-    boxShadow: '0 0 10px rgba(46, 204, 113, 0.4)'
+    boxShadow: '0 2px 8px rgba(46, 204, 113, 0.25)'
   },
 
   // Tab Navigation
@@ -3471,10 +3470,10 @@ const styles = {
 
   // Main Content
   main: {
-    background: `linear-gradient(180deg, #fff 0%, ${colors.cloud} 100%)`,
+    background: colors.fog,
     borderRadius: '16px',
     padding: '24px',
-    boxShadow: '0 4px 20px rgba(45,90,74,0.12)',
+    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.08)',
     flex: 1
   },
 
@@ -3508,11 +3507,10 @@ const styles = {
     flexShrink: 0
   },
   stepTabActive: {
-    background: `linear-gradient(135deg, ${colors.pacificBlue}, ${colors.turquoise})`,
+    background: `linear-gradient(135deg, ${colors.pacificBlue}, ${colors.teal})`,
     color: 'white',
-    boxShadow: '0 4px 15px rgba(26, 188, 156, 0.4)',
-    transform: 'scale(1.05)',
-    animation: 'floatUp 0.3s ease',
+    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.3)',
+    transform: 'translateY(-2px)',
     fontWeight: 700
   },
   stepTabComplete: {
@@ -3525,11 +3523,11 @@ const styles = {
   },
   stepTabLabel: {},
   stepContent: {
-    background: colors.fog,
+    background: colors.paleBlue,
     borderRadius: '12px',
     padding: '20px',
     border: `1px solid ${colors.mist}`,
-    boxShadow: '0 2px 12px rgba(30, 90, 142, 0.08)',
+    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.08)',
     transition: 'all 0.3s ease'
   },
   stepContentHeader: {
@@ -3579,11 +3577,9 @@ const styles = {
   },
   stepProgressFill: {
     height: '100%',
-    background: `linear-gradient(90deg, ${colors.pacificBlue} 0%, ${colors.turquoise} 50%, ${colors.cyan} 100%)`,
-    backgroundSize: '200% 200%',
+    background: `linear-gradient(90deg, ${colors.pacificBlue}, ${colors.teal})`,
     transition: 'width 0.4s ease',
-    boxShadow: '0 0 10px rgba(26, 188, 156, 0.5)',
-    animation: 'gradientShift 6s ease infinite'
+    boxShadow: '0 0 8px rgba(30, 90, 142, 0.15)'
   },
   stepNavigation: {
     display: 'flex',
@@ -3604,14 +3600,12 @@ const styles = {
     transition: 'all 0.2s ease'
   },
   stepNavBtnPrimary: {
-    background: `linear-gradient(135deg, ${colors.pacificBlue} 0%, ${colors.turquoise} 50%, ${colors.cyan} 100%)`,
-    backgroundSize: '200% 200%',
+    background: `linear-gradient(135deg, ${colors.pacificBlue}, ${colors.teal})`,
     color: 'white',
     border: 'none',
-    boxShadow: '0 4px 15px rgba(26, 188, 156, 0.4)',
+    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.2)',
     '&:hover': {
-      backgroundPosition: 'right center',
-      boxShadow: '0 6px 20px rgba(26, 188, 156, 0.5)',
+      boxShadow: '0 4px 12px rgba(30, 90, 142, 0.3)',
       transform: 'translateY(-2px)'
     }
   },
@@ -3963,8 +3957,7 @@ const styles = {
   },
   addItemSaveBtn: {
     padding: '10px 16px',
-    background: `linear-gradient(135deg, ${colors.pacificBlue} 0%, ${colors.turquoise} 50%, ${colors.cyan} 100%)`,
-    backgroundSize: '200% 200%',
+    background: `linear-gradient(135deg, ${colors.pacificBlue}, ${colors.teal})`,
     color: 'white',
     border: 'none',
     borderRadius: '6px',
@@ -3972,10 +3965,9 @@ const styles = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    boxShadow: '0 2px 8px rgba(26, 188, 156, 0.3)',
+    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.15)',
     '&:hover': {
-      backgroundPosition: 'right center',
-      boxShadow: '0 6px 20px rgba(26, 188, 156, 0.5)',
+      boxShadow: '0 4px 12px rgba(30, 90, 142, 0.25)',
       transform: 'translateY(-2px)'
     }
   },
@@ -4007,21 +3999,20 @@ const styles = {
     gap: '12px'
   },
   realtorCard: {
-    background: 'white',
+    background: colors.fog,
     border: `2px solid ${colors.mist}`,
     borderLeft: `4px solid ${colors.turquoise}`,
     borderRadius: '10px',
     padding: '14px',
     position: 'relative',
-    boxShadow: '0 4px 20px rgba(26, 188, 156, 0.15)',
+    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.08)',
     transition: 'all 0.3s ease'
   },
   realtorCardRecommended: {
     border: `3px solid ${colors.turquoise}`,
-    borderLeft: `6px solid ${colors.cyan}`,
-    background: `linear-gradient(135deg, white 0%, rgba(26, 188, 156, 0.03) 100%)`,
-    boxShadow: '0 8px 30px rgba(26, 188, 156, 0.25), 0 0 15px rgba(0, 212, 255, 0.2)',
-    animation: 'pulseGlow 3s ease-in-out infinite'
+    borderLeft: `4px solid ${colors.teal}`,
+    background: colors.paleBlue,
+    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.12)'
   },
   realtorCardHeader: {
     display: 'flex',
@@ -4036,13 +4027,13 @@ const styles = {
     color: colors.charcoal
   },
   recommendedBadge: {
-    background: `linear-gradient(135deg, ${colors.turquoise}, ${colors.cyan})`,
+    background: `linear-gradient(135deg, ${colors.turquoise}, ${colors.teal})`,
     color: 'white',
     fontSize: '0.7rem',
     fontWeight: '600',
     padding: '2px 8px',
     borderRadius: '10px',
-    boxShadow: '0 2px 8px rgba(26, 188, 156, 0.4)'
+    boxShadow: '0 2px 6px rgba(26, 188, 156, 0.25)'
   },
   realtorDetail: {
     margin: '4px 0',
@@ -4089,8 +4080,7 @@ const styles = {
     padding: '4px 8px',
     borderRadius: '4px',
     color: colors.golden,
-    transition: 'all 0.2s',
-    filter: 'drop-shadow(0 0 8px rgba(255, 215, 0, 0.4))'
+    transition: 'all 0.2s'
   },
   realtorEditBtn: {
     background: 'none',
@@ -4142,8 +4132,7 @@ const styles = {
   },
   realtorSaveBtn: {
     padding: '10px 20px',
-    background: `linear-gradient(135deg, ${colors.seaweed} 0%, ${colors.turquoise} 50%, ${colors.jade} 100%)`,
-    backgroundSize: '200% 200%',
+    background: `linear-gradient(135deg, ${colors.seaweed}, ${colors.emerald})`,
     color: 'white',
     border: 'none',
     borderRadius: '8px',
@@ -4151,10 +4140,9 @@ const styles = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    boxShadow: '0 4px 12px rgba(46, 204, 113, 0.3)',
+    boxShadow: '0 2px 8px rgba(46, 204, 113, 0.2)',
     '&:hover': {
-      backgroundPosition: 'right center',
-      boxShadow: '0 6px 20px rgba(46, 204, 113, 0.5)',
+      boxShadow: '0 4px 12px rgba(46, 204, 113, 0.3)',
       transform: 'translateY(-2px)'
     }
   },
@@ -4173,8 +4161,7 @@ const styles = {
     width: '100%',
     padding: '12px',
     marginTop: '12px',
-    background: `linear-gradient(135deg, ${colors.pacificBlue} 0%, ${colors.turquoise} 50%, ${colors.cyan} 100%)`,
-    backgroundSize: '200% 200%',
+    background: `linear-gradient(135deg, ${colors.pacificBlue}, ${colors.teal})`,
     border: 'none',
     borderRadius: '8px',
     color: 'white',
@@ -4182,7 +4169,11 @@ const styles = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    boxShadow: '0 4px 12px rgba(30, 90, 142, 0.2)'
+    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.15)',
+    '&:hover': {
+      boxShadow: '0 4px 12px rgba(30, 90, 142, 0.25)',
+      transform: 'translateY(-2px)'
+    }
   },
   addRealtorForm: {
     marginTop: '12px',
@@ -4485,8 +4476,8 @@ const styles = {
     borderRadius: '10px',
     border: '2px solid',
     overflow: 'hidden',
-    background: 'white',
-    boxShadow: '0 4px 16px rgba(30, 90, 142, 0.08)',
+    background: colors.fog,
+    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.08)',
     transition: 'all 0.3s ease'
   },
   repairSectionHeader: {
@@ -4600,14 +4591,16 @@ const styles = {
   },
 
   // Budget
-  budgetContainer: {},
+  budgetContainer: {
+    backgroundColor: colors.sand
+  },
   budgetSummary: {
-    background: `linear-gradient(135deg, ${colors.fog}, #fff)`,
+    background: colors.fog,
     borderRadius: '12px',
     padding: '20px',
     marginBottom: '24px',
     border: `1px solid ${colors.mist}`,
-    boxShadow: '0 4px 16px rgba(30, 90, 142, 0.08)',
+    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.08)',
     transition: 'all 0.3s ease'
   },
   budgetSummaryTitle: {
@@ -4645,12 +4638,12 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '16px',
-    background: `linear-gradient(135deg, ${colors.pacificBlue} 0%, ${colors.teal} 50%, ${colors.turquoise} 100%)`,
+    background: `linear-gradient(135deg, ${colors.pacificBlue}, ${colors.teal})`,
     backgroundSize: '200% 200%',
     animation: 'gradientShift 10s ease infinite',
     borderRadius: '10px',
     marginTop: '4px',
-    boxShadow: '0 6px 25px rgba(26, 188, 156, 0.25), 0 0 15px rgba(0, 212, 255, 0.15)'
+    boxShadow: '0 4px 12px rgba(30, 90, 142, 0.2)'
   },
   budgetGrandTotalLabel: {
     fontSize: '1rem',
@@ -4833,8 +4826,7 @@ const styles = {
     width: 'calc(100% - 24px)',
     padding: '10px',
     margin: '0 12px 12px 12px',
-    background: `linear-gradient(135deg, ${colors.pacificBlue} 0%, ${colors.turquoise} 50%, ${colors.cyan} 100%)`,
-    backgroundSize: '200% 200%',
+    background: `linear-gradient(135deg, ${colors.pacificBlue}, ${colors.teal})`,
     border: 'none',
     borderRadius: '8px',
     color: 'white',
@@ -4843,7 +4835,11 @@ const styles = {
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     boxSizing: 'border-box',
-    boxShadow: '0 2px 8px rgba(26, 188, 156, 0.3)'
+    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.15)',
+    '&:hover': {
+      boxShadow: '0 4px 12px rgba(30, 90, 142, 0.25)',
+      transform: 'translateY(-2px)'
+    }
   },
   budgetSubtotal: {
     display: 'flex',
@@ -4900,7 +4896,11 @@ const styles = {
     position: 'relative',
     paddingBottom: '24px',
     paddingLeft: '30px',
-    marginLeft: '15px'
+    marginLeft: '15px',
+    backgroundColor: colors.cloud,
+    padding: '12px 14px 12px 30px',
+    borderRadius: '6px',
+    marginBottom: '8px'
   },
   timelineDot: {
     position: 'absolute',
@@ -4982,7 +4982,12 @@ const styles = {
   },
 
   // Notes
-  notesContainer: {},
+  notesContainer: {
+    backgroundColor: colors.cloud,
+    padding: '20px',
+    borderRadius: '12px',
+    marginBottom: '24px'
+  },
   notesTitle: {
     fontSize: '1.3rem',
     color: colors.evergreen,
@@ -4996,8 +5001,8 @@ const styles = {
     marginBottom: '24px'
   },
   reminderBox: {
-    background: `linear-gradient(135deg, ${colors.paleBlue}22, ${colors.fog})`,
-    border: `2px solid ${colors.skyBlue}`,
+    background: colors.paleBlue,
+    border: `2px solid ${colors.mist}`,
     borderRadius: '12px',
     padding: '16px'
   },
