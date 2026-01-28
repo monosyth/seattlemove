@@ -5,6 +5,7 @@ import { doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, limit, get
 const initialData = {
   currentStep: 1,
   notes: '',
+  generalNotes: [],
   stepNotes: {},
   realtors: [
     {
@@ -242,6 +243,11 @@ function App() {
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [editNoteText, setEditNoteText] = useState('');
   const [confirmDeleteNoteId, setConfirmDeleteNoteId] = useState(null);
+  // General notes state
+  const [newGeneralNoteText, setNewGeneralNoteText] = useState('');
+  const [editingGeneralNoteId, setEditingGeneralNoteId] = useState(null);
+  const [editGeneralNoteText, setEditGeneralNoteText] = useState('');
+  const [confirmDeleteGeneralNoteId, setConfirmDeleteGeneralNoteId] = useState(null);
   const [changelog, setChangelog] = useState([]);
   const [changelogLoading, setChangelogLoading] = useState(false);
   // Checklist item editing/reordering state
@@ -955,6 +961,64 @@ function App() {
         notes.substring(0, 100) + (notes.length > 100 ? '...' : '')
       );
     }
+  };
+
+  // General notes management functions
+  const addGeneralNote = () => {
+    if (!newGeneralNoteText.trim()) return;
+    const newData = { ...data };
+    if (!newData.generalNotes) newData.generalNotes = [];
+    const noteText = newGeneralNoteText.trim();
+    newData.generalNotes.push({
+      id: Date.now().toString(),
+      text: noteText,
+      createdAt: new Date().toISOString()
+    });
+    setData(newData);
+    saveData(newData);
+    setNewGeneralNoteText('');
+    addChangelogEntry(
+      'general_note_added',
+      'Added general note',
+      null,
+      noteText
+    );
+  };
+
+  const updateGeneralNote = (noteId) => {
+    if (!editGeneralNoteText.trim()) return;
+    const newData = { ...data };
+    const note = newData.generalNotes?.find(n => n.id === noteId);
+    if (note) {
+      const oldText = note.text;
+      note.text = editGeneralNoteText.trim();
+      setData(newData);
+      saveData(newData);
+      addChangelogEntry(
+        'general_note_edited',
+        'Edited general note',
+        oldText,
+        note.text
+      );
+    }
+    setEditingGeneralNoteId(null);
+    setEditGeneralNoteText('');
+  };
+
+  const deleteGeneralNote = (noteId) => {
+    const newData = { ...data };
+    const note = newData.generalNotes?.find(n => n.id === noteId);
+    const deletedText = note?.text || '';
+    newData.generalNotes = newData.generalNotes?.filter(n => n.id !== noteId) || [];
+    setData(newData);
+    saveData(newData);
+    addChangelogEntry(
+      'general_note_deleted',
+      'Deleted general note',
+      deletedText,
+      null
+    );
+    setConfirmDeleteGeneralNoteId(null);
   };
 
   const addStepNote = (stepId) => {
@@ -2816,15 +2880,106 @@ function App() {
           <div className="notes-container" style={styles.notesContainer}>
             <h2 className="notes-title" style={styles.notesTitle}>📝 Notes & Reminders</h2>
 
-            <div style={styles.notesInputSection}>
-              <label style={styles.notesLabel}>General Notes</label>
-              <textarea
-                className="notes-textarea"
-                value={data.notes}
-                onChange={(e) => updateNotes(e.target.value)}
-                placeholder="Add your general notes, thoughts, and reminders here..."
-                style={styles.notesTextarea}
-              />
+            <div style={styles.stepNotesSection}>
+              <h4 style={styles.stepNotesTitle}>📝 General Notes</h4>
+
+              {/* Existing General Notes */}
+              {data.generalNotes?.length > 0 && (
+                <div style={styles.stepNotesList}>
+                  {data.generalNotes.map(note => (
+                    <div key={note.id} style={styles.stepNoteItem}>
+                      {editingGeneralNoteId === note.id ? (
+                        <div style={styles.noteEditForm}>
+                          <textarea
+                            value={editGeneralNoteText}
+                            onChange={(e) => setEditGeneralNoteText(e.target.value)}
+                            style={styles.noteInput}
+                            autoFocus
+                            rows={3}
+                          />
+                          <div style={styles.noteEditActions}>
+                            <button
+                              style={styles.noteSaveBtn}
+                              onClick={() => updateGeneralNote(note.id)}
+                            >
+                              Save
+                            </button>
+                            <button
+                              style={styles.noteCancelBtn}
+                              onClick={() => { setEditingGeneralNoteId(null); setEditGeneralNoteText(''); }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <span style={styles.noteText}>{note.text}</span>
+                          <div style={styles.noteActions}>
+                            {confirmDeleteGeneralNoteId === note.id ? (
+                              <>
+                                <span style={styles.confirmDeleteText}>Delete?</span>
+                                <button
+                                  style={styles.confirmYesBtn}
+                                  onClick={() => deleteGeneralNote(note.id)}
+                                >
+                                  Yes
+                                </button>
+                                <button
+                                  style={styles.confirmNoBtn}
+                                  onClick={() => setConfirmDeleteGeneralNoteId(null)}
+                                >
+                                  No
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  style={styles.noteActionBtn}
+                                  onClick={() => { setEditingGeneralNoteId(note.id); setEditGeneralNoteText(note.text); }}
+                                  title="Edit"
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  style={styles.noteActionBtn}
+                                  onClick={() => setConfirmDeleteGeneralNoteId(note.id)}
+                                  title="Delete"
+                                >
+                                  🗑️
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Add New General Note */}
+              <div style={styles.addNoteForm}>
+                <textarea
+                  value={newGeneralNoteText}
+                  onChange={(e) => setNewGeneralNoteText(e.target.value)}
+                  placeholder="Add a general note... (Ctrl+Enter to save quickly)"
+                  style={styles.noteInput}
+                  onKeyDown={(e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                      addGeneralNote();
+                    }
+                  }}
+                  rows={2}
+                />
+                <button
+                  style={styles.addNoteBtn}
+                  onClick={() => addGeneralNote()}
+                  disabled={!newGeneralNoteText.trim()}
+                >
+                  Add
+                </button>
+              </div>
             </div>
 
             {/* All Step Notes */}
