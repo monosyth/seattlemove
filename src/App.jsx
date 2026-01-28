@@ -342,7 +342,17 @@ function App() {
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
       if (docSnap.exists()) {
-        setData(docSnap.data());
+        const firebaseData = docSnap.data();
+        // Merge Firebase data with initialData to ensure all steps exist
+        const mergedData = {
+          ...initialData,
+          ...firebaseData,
+          steps: {
+            ...initialData.steps,
+            ...firebaseData.steps
+          }
+        };
+        setData(mergedData);
       }
       setLoading(false);
     }, (error) => {
@@ -1213,7 +1223,7 @@ function App() {
             bottom: 0,
             backgroundImage: `url(${seattleSkyline})`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center 15%',
+            backgroundPosition: 'center 20%',
             opacity: 0.4,
             mixBlendMode: 'overlay'
           }
@@ -1269,7 +1279,7 @@ function App() {
           overflow: 'hidden',
           backgroundImage: `url(${spaceNeedleBuildings})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center 25%',
+          backgroundPosition: 'center 30%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
