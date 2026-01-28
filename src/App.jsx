@@ -1143,39 +1143,23 @@ function App() {
     <div className="app-container" style={styles.container}>
       {/* Header Section */}
       <header className="app-header" style={styles.header}>
-        <div style={styles.headerTop}>
-          <div style={styles.headerLeft}>
-            <h1 className="app-title" style={styles.title}>🏠 Seattle Move Planner</h1>
-            <p className="app-subtitle" style={styles.subtitle}>San Diego → Seattle</p>
-          </div>
-          <div style={styles.headerRight}>
-            <div style={styles.statsBox}>
-              <span style={styles.statNumber}>{getCompletedTasks()}</span>
-              <span style={styles.statLabel}>of {getTotalTasks()} tasks</span>
+        <div style={styles.headerContent}>
+          <div style={styles.headerMain}>
+            <div style={styles.titleSection}>
+              <h1 className="app-title" style={styles.title}>
+                <span style={styles.titleIcon}>🏠</span>
+                Seattle Move Planner
+              </h1>
+              <p className="app-subtitle" style={styles.subtitle}>San Diego → Seattle</p>
+            </div>
+            <div style={styles.saveStatus}>
+              {saving ? (
+                <span style={styles.savingIndicator}>💾 Saving...</span>
+              ) : lastSaved ? (
+                <span style={styles.savedIndicator}>✓ Saved {lastSaved.toLocaleTimeString()}</span>
+              ) : null}
             </div>
           </div>
-        </div>
-
-        <div style={styles.overallProgress}>
-          <div className="progress-label" style={styles.progressLabel}>
-            <span style={styles.progressTitle}>Overall Progress</span>
-            <span style={styles.progressPercent}>{getOverallProgress()}%</span>
-          </div>
-          <div style={styles.progressBarOuter}>
-            <div style={{
-              ...styles.progressBarInner,
-              width: `${getOverallProgress()}%`,
-              background: getOverallProgress() === 100 ? colors.complete : `linear-gradient(90deg, ${colors.evergreen}, ${colors.sage})`
-            }}></div>
-          </div>
-        </div>
-
-        <div style={styles.saveStatus}>
-          {saving ? (
-            <span style={styles.savingIndicator}>💾 Saving...</span>
-          ) : lastSaved ? (
-            <span style={styles.savedIndicator}>✓ Saved {lastSaved.toLocaleTimeString()}</span>
-          ) : null}
         </div>
       </header>
 
@@ -3247,91 +3231,68 @@ const styles = {
 
   // Header
   header: {
-    background: `linear-gradient(135deg, ${colors.cloud} 0%, #fff 100%)`,
-    borderRadius: '16px',
-    padding: '24px',
-    marginBottom: '16px',
-    boxShadow: '0 4px 20px rgba(45,90,74,0.15)',
-    borderTop: `4px solid ${colors.evergreen}`
-  },
-  headerTop: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: '20px',
-    flexWrap: 'wrap',
-    gap: '12px'
-  },
-  headerLeft: {},
-  headerRight: {},
-  title: {
-    fontSize: '1.8rem',
-    color: colors.evergreen,
-    marginBottom: '4px',
-    fontWeight: '700'
-  },
-  subtitle: {
-    color: colors.slate,
-    fontSize: '0.95rem'
-  },
-  statsBox: {
-    background: `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`,
-    color: 'white',
-    padding: '12px 20px',
-    borderRadius: '12px',
-    textAlign: 'center'
-  },
-  statNumber: {
-    display: 'block',
-    fontSize: '1.5rem',
-    fontWeight: 'bold'
-  },
-  statLabel: {
-    fontSize: '0.75rem',
-    opacity: 0.9
-  },
-  overallProgress: {
-    marginBottom: '12px'
-  },
-  progressLabel: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: '8px'
-  },
-  progressTitle: {
-    fontSize: '0.9rem',
-    color: '#555',
-    fontWeight: '500'
-  },
-  progressPercent: {
-    fontWeight: 'bold',
-    color: colors.evergreen,
-    fontSize: '0.9rem'
-  },
-  progressBarOuter: {
-    height: '10px',
-    background: colors.fog,
-    borderRadius: '5px',
+    background: `linear-gradient(135deg, ${colors.evergreen} 0%, ${colors.forest} 100%)`,
+    borderRadius: '20px',
+    padding: '32px 40px',
+    marginBottom: '24px',
+    boxShadow: '0 8px 32px rgba(45,90,74,0.2)',
+    position: 'relative',
     overflow: 'hidden'
   },
-  progressBarInner: {
-    height: '100%',
-    borderRadius: '5px',
-    transition: 'width 0.4s ease',
-    background: `linear-gradient(90deg, ${colors.evergreen}, ${colors.sage})`
+  headerContent: {
+    position: 'relative',
+    zIndex: 1
+  },
+  headerMain: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '20px'
+  },
+  titleSection: {
+    flex: 1,
+    minWidth: '250px'
+  },
+  title: {
+    fontSize: '2.2rem',
+    color: 'white',
+    marginBottom: '8px',
+    fontWeight: '700',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    textShadow: '0 2px 8px rgba(0,0,0,0.15)'
+  },
+  titleIcon: {
+    fontSize: '2.4rem',
+    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+  },
+  subtitle: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: '1.05rem',
+    fontWeight: '500',
+    letterSpacing: '0.5px'
   },
   saveStatus: {
     textAlign: 'right',
-    minHeight: '20px',
-    marginTop: '8px'
+    minHeight: '20px'
   },
   savingIndicator: {
-    fontSize: '0.8rem',
-    color: colors.salmon
+    fontSize: '0.85rem',
+    color: 'rgba(255,255,255,0.85)',
+    padding: '6px 12px',
+    background: 'rgba(255,255,255,0.15)',
+    borderRadius: '6px',
+    backdropFilter: 'blur(10px)'
   },
   savedIndicator: {
-    fontSize: '0.8rem',
-    color: colors.complete
+    fontSize: '0.85rem',
+    color: 'rgba(255,255,255,0.85)',
+    padding: '6px 12px',
+    background: 'rgba(255,255,255,0.15)',
+    borderRadius: '6px',
+    backdropFilter: 'blur(10px)'
   },
 
   // Tab Navigation
