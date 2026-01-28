@@ -1214,7 +1214,7 @@ function App() {
             backgroundImage: `url(${seattleSkyline})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            opacity: 0.15,
+            opacity: 0.4,
             mixBlendMode: 'overlay'
           }
         }}
@@ -1280,16 +1280,31 @@ function App() {
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'linear-gradient(135deg, rgba(30, 90, 142, 0.85), rgba(43, 146, 152, 0.75))',
+            background: 'linear-gradient(135deg, rgba(30, 90, 142, 0.5), rgba(43, 146, 152, 0.45))',
             zIndex: 1
           }
         }}
       >
         <Box sx={{ position: 'relative', zIndex: 2, textAlign: 'center', color: 'white' }}>
-          <Typography variant="h3" sx={{ fontWeight: 700, mb: 1, textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
+          <Typography variant="h3" sx={{
+            fontWeight: 700,
+            mb: 1,
+            textShadow: '0 3px 12px rgba(0,0,0,0.6), 0 1px 3px rgba(0,0,0,0.8)',
+            background: 'rgba(30, 90, 142, 0.2)',
+            padding: '8px 24px',
+            borderRadius: 2,
+            backdropFilter: 'blur(4px)'
+          }}>
             Welcome to Your Seattle Journey
           </Typography>
-          <Typography variant="h6" sx={{ opacity: 0.95, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>
+          <Typography variant="h6" sx={{
+            textShadow: '0 2px 8px rgba(0,0,0,0.6), 0 1px 3px rgba(0,0,0,0.8)',
+            background: 'rgba(30, 90, 142, 0.15)',
+            padding: '4px 16px',
+            borderRadius: 1,
+            backdropFilter: 'blur(4px)',
+            display: 'inline-block'
+          }}>
             Your personalized move planner from San Diego to the Emerald City
           </Typography>
         </Box>
