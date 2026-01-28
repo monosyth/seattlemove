@@ -44,30 +44,30 @@ body::before {
   box-shadow: 0 6px 25px rgba(0,0,0,0.12);
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - ocean theme */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #e5edf3;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #8b9ba8;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+  background: #5f6c7b;
 }
 
-/* Focus states for accessibility */
+/* Focus states for accessibility - ocean theme */
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #667eea;
+  outline: 2px solid #4a90e2;
   outline-offset: 2px;
 }
 
