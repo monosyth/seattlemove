@@ -22,7 +22,12 @@ import {
   Grid,
   InputAdornment,
   Tooltip,
-  Badge
+  Badge,
+  Fade,
+  Grow,
+  Slide,
+  Collapse,
+  Alert
 } from '@mui/material';
 import {
   Home as HomeIcon,
@@ -34,7 +39,9 @@ import {
   Save as SaveIcon,
   Close as CloseIcon,
   Star as StarIcon,
-  StarBorder as StarBorderIcon
+  StarBorder as StarBorderIcon,
+  Info as InfoIcon,
+  CheckCircleOutline as CheckCircleOutlineIcon
 } from '@mui/icons-material';
 
 const initialData = {
@@ -1229,7 +1236,7 @@ function App() {
       </Paper>
 
       {/* Tab Navigation */}
-      <Paper elevation={0} sx={{ mb: 3, borderRadius: 2 }}>
+      <Paper elevation={2} sx={{ mb: 3, borderRadius: 2, transition: 'all 0.3s ease', backgroundColor: 'background.paper' }}>
         <Tabs
           value={activeTab}
           onChange={(e, newValue) => {
@@ -1243,7 +1250,17 @@ function App() {
               minHeight: 56,
               textTransform: 'none',
               fontWeight: 600,
-              fontSize: '0.95rem'
+              fontSize: '0.95rem',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                color: 'primary.main',
+                backgroundColor: 'rgba(30, 90, 142, 0.04)'
+              }
+            },
+            '& .MuiTabs-indicator': {
+              background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
+              height: 4,
+              borderRadius: '4px 4px 0 0'
             }
           }}
         >
@@ -3486,7 +3503,9 @@ const styles = {
     background: colors.fog,
     borderRadius: '12px',
     padding: '20px',
-    border: `1px solid ${colors.mist}`
+    border: `1px solid ${colors.mist}`,
+    boxShadow: '0 2px 12px rgba(30, 90, 142, 0.08)',
+    transition: 'all 0.3s ease'
   },
   stepContentHeader: {
     display: 'flex',
@@ -3632,15 +3651,15 @@ const styles = {
   },
   addNoteBtn: {
     padding: '12px 20px',
-    background: colors.evergreen,
+    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
     fontSize: '0.9rem',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'all 0.2s',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 12px rgba(30, 90, 142, 0.2)',
     flexShrink: 0
   },
   noteEditForm: {
@@ -3655,13 +3674,15 @@ const styles = {
   },
   noteSaveBtn: {
     padding: '6px 12px',
-    background: colors.complete,
+    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
     color: 'white',
     border: 'none',
     borderRadius: '6px',
     fontSize: '0.8rem',
     fontWeight: '600',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 2px 6px rgba(30, 90, 142, 0.15)'
   },
   noteCancelBtn: {
     padding: '6px 12px',
@@ -3905,13 +3926,15 @@ const styles = {
   },
   addItemSaveBtn: {
     padding: '10px 16px',
-    background: `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`,
+    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
     color: 'white',
     border: 'none',
     borderRadius: '6px',
     fontSize: '0.85rem',
     fontWeight: '600',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.15)'
   },
   addItemCancelBtn: {
     padding: '10px 16px',
@@ -3945,11 +3968,14 @@ const styles = {
     border: `1px solid ${colors.mist}`,
     borderRadius: '10px',
     padding: '14px',
-    position: 'relative'
+    position: 'relative',
+    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.08)',
+    transition: 'all 0.3s ease'
   },
   realtorCardRecommended: {
     border: `2px solid ${colors.evergreen}`,
-    background: `linear-gradient(135deg, white 0%, ${colors.fog} 100%)`
+    background: `linear-gradient(135deg, white 0%, ${colors.fog} 100%)`,
+    boxShadow: '0 4px 16px rgba(30, 90, 142, 0.15)'
   },
   realtorCardHeader: {
     display: 'flex',
@@ -4066,15 +4092,15 @@ const styles = {
   },
   realtorSaveBtn: {
     padding: '10px 20px',
-    background: colors.evergreen,
+    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
     fontSize: '0.9rem',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'all 0.2s',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 12px rgba(30, 90, 142, 0.2)'
   },
   realtorCancelBtn: {
     padding: '10px 20px',
@@ -4091,14 +4117,15 @@ const styles = {
     width: '100%',
     padding: '12px',
     marginTop: '12px',
-    background: 'transparent',
-    border: `2px dashed ${colors.mist}`,
+    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
+    border: 'none',
     borderRadius: '8px',
-    color: colors.slate,
+    color: 'white',
     fontSize: '0.9rem',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'all 0.2s'
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 12px rgba(30, 90, 142, 0.2)'
   },
   addRealtorForm: {
     marginTop: '12px',
@@ -4164,15 +4191,15 @@ const styles = {
   },
   addRealtorSaveBtn: {
     padding: '10px 20px',
-    background: colors.evergreen,
+    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
     fontSize: '0.9rem',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'all 0.2s',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 12px rgba(30, 90, 142, 0.2)'
   },
   addRealtorCancelBtn: {
     padding: '10px 20px',
@@ -4208,7 +4235,9 @@ const styles = {
     border: `1px solid ${colors.mist}`,
     borderRadius: '10px',
     padding: '14px',
-    position: 'relative'
+    position: 'relative',
+    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.08)',
+    transition: 'all 0.3s ease'
   },
   questionHeader: {
     display: 'flex',
@@ -4365,13 +4394,15 @@ const styles = {
     width: '100%',
     padding: '12px',
     marginTop: '12px',
-    background: 'transparent',
-    border: `2px dashed ${colors.mist}`,
+    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
+    border: 'none',
     borderRadius: '8px',
-    color: colors.slate,
+    color: 'white',
     fontSize: '0.9rem',
     fontWeight: '600',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 12px rgba(30, 90, 142, 0.2)'
   },
   addQuestionForm: {
     marginTop: '12px',
@@ -4397,7 +4428,9 @@ const styles = {
     borderRadius: '10px',
     border: '2px solid',
     overflow: 'hidden',
-    background: 'white'
+    background: 'white',
+    boxShadow: '0 4px 16px rgba(30, 90, 142, 0.08)',
+    transition: 'all 0.3s ease'
   },
   repairSectionHeader: {
     display: 'flex',
@@ -4433,10 +4466,11 @@ const styles = {
     gap: '8px',
     padding: '8px 10px',
     borderRadius: '6px',
-    transition: 'all 0.2s',
+    transition: 'all 0.3s ease',
     background: colors.fog,
     marginBottom: '6px',
-    border: `1px solid ${colors.mist}`
+    border: `1px solid ${colors.mist}`,
+    boxShadow: '0 1px 4px rgba(30, 90, 142, 0.05)'
   },
   repairItemDone: {
     opacity: 0.6
@@ -4497,14 +4531,15 @@ const styles = {
   addRepairItemBtn: {
     margin: '0 10px 10px 10px',
     padding: '8px',
-    background: 'transparent',
-    border: `2px dashed ${colors.mist}`,
+    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
+    border: 'none',
     borderRadius: '6px',
-    color: colors.slate,
+    color: 'white',
     fontSize: '0.8rem',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'all 0.2s'
+    transition: 'all 0.3s ease',
+    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.15)'
   },
 
   // Budget
@@ -4514,7 +4549,9 @@ const styles = {
     borderRadius: '12px',
     padding: '20px',
     marginBottom: '24px',
-    border: `1px solid ${colors.mist}`
+    border: `1px solid ${colors.mist}`,
+    boxShadow: '0 4px 16px rgba(30, 90, 142, 0.08)',
+    transition: 'all 0.3s ease'
   },
   budgetSummaryTitle: {
     fontSize: '1.1rem',
@@ -4732,15 +4769,16 @@ const styles = {
     width: 'calc(100% - 24px)',
     padding: '10px',
     margin: '0 12px 12px 12px',
-    background: 'transparent',
-    border: `2px dashed ${colors.mist}`,
+    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
+    border: 'none',
     borderRadius: '8px',
-    color: colors.slate,
+    color: 'white',
     fontSize: '0.85rem',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'all 0.2s',
-    boxSizing: 'border-box'
+    transition: 'all 0.3s ease',
+    boxSizing: 'border-box',
+    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.15)'
   },
   budgetSubtotal: {
     display: 'flex',
