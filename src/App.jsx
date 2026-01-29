@@ -1265,6 +1265,25 @@ function App() {
     return ['must', 'high', 'nice', 'other'].reduce((sum, cat) => sum + getBudgetTotal(cat), 0);
   };
 
+  // One-time function to sync new realtor data to Firebase
+  const syncRealtorsToFirebase = async () => {
+    if (!confirm('This will update Firebase with all 8 realtors. Continue?')) return;
+    setSaving(true);
+    try {
+      await setDoc(doc(db, 'seattle-move', DOCUMENT_ID), {
+        ...data,
+        realtors: initialData.realtors
+      });
+      alert('✅ Realtors synced to Firebase successfully!');
+      setLastSaved(new Date());
+      window.location.reload(); // Reload to see the changes
+    } catch (error) {
+      console.error('Error syncing realtors:', error);
+      alert('❌ Error syncing realtors: ' + error.message);
+    }
+    setSaving(false);
+  };
+
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ mt: 8, textAlign: 'center' }}>
@@ -1335,13 +1354,34 @@ function App() {
               San Diego → Seattle
             </Typography>
           </Box>
-          <Box>
-            {saving ? (
-              <Chip label="💾 Saving..." color="default" sx={{ background: 'linear-gradient(135deg, #1abc9c, #00d4ff)', color: 'white', fontWeight: 600, animation: 'pulseGlow 1s ease-in-out infinite', boxShadow: '0 0 10px rgba(26, 188, 156, 0.5)' }} />
-            ) : lastSaved ? (
-              <Chip label={`✓ Saved ${lastSaved.toLocaleTimeString()}`} color="default" sx={{ background: 'linear-gradient(135deg, #2ecc71, #00a86b)', color: 'white', fontWeight: 600, boxShadow: '0 0 10px rgba(46, 204, 113, 0.4)' }} />
-            ) : null}
-          </Box>
+          <Stack direction="row" spacing={2}>
+            <button
+              onClick={syncRealtorsToFirebase}
+              style={{
+                background: 'linear-gradient(135deg, #2b9298, #1abc9c)',
+                color: 'white',
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '20px',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(26, 188, 156, 0.3)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'}
+              onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+            >
+              🔄 Sync Realtors to Firebase
+            </button>
+            <Box>
+              {saving ? (
+                <Chip label="💾 Saving..." color="default" sx={{ background: 'linear-gradient(135deg, #1abc9c, #00d4ff)', color: 'white', fontWeight: 600, animation: 'pulseGlow 1s ease-in-out infinite', boxShadow: '0 0 10px rgba(26, 188, 156, 0.5)' }} />
+              ) : lastSaved ? (
+                <Chip label={`✓ Saved ${lastSaved.toLocaleTimeString()}`} color="default" sx={{ background: 'linear-gradient(135deg, #2ecc71, #00a86b)', color: 'white', fontWeight: 600, boxShadow: '0 0 10px rgba(46, 204, 113, 0.4)' }} />
+              ) : null}
+            </Box>
+          </Stack>
         </Stack>
       </Paper>
 
