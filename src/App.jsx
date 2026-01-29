@@ -58,13 +58,90 @@ const initialData = {
   realtors: [
     {
       id: 'r1',
+      name: 'Emma Lefkowitz',
+      team: '',
+      brokerage: '',
+      phone: '',
+      email: '',
+      website: '',
+      notes: 'Rank #1 - Top Dollar + Speed. Primary neighborhoods: San Carlos, Allied Gardens, Del Cerro. Price range: $1.0M-$1.8M. Homes sold: ~40-60 (12mo). Avg days on market: 10-15 days. Sale-to-list ratio: 101-105%. Over-asking frequency: Very High. Pricing strategy: Data-driven + Aggressive. Remote seller experience: 5/5. Full coordination, included staging & ROI-focused updates. Marketing: High (Digital + Local). Negotiation: Exceptional. Concern: Large team; ensure lead agent involvement clearly defined.',
+      recommended: true
+    },
+    {
+      id: 'r2',
+      name: 'Joel Blumenfeld',
+      team: '',
+      brokerage: 'Compass',
+      phone: '',
+      email: '',
+      website: '',
+      notes: 'Rank #2 - White-Glove Prep. Primary neighborhoods: San Carlos, Del Cerro, La Mesa. Price range: $1.1M-$2.0M. Homes sold: ~10-15 (12mo). Avg days on market: 12-20 days. Sale-to-list ratio: 100-104%. Pricing strategy: Precision + Prep. Remote seller experience: 5/5. Compass Concierge available - fronts costs for staging, paint, flooring, landscaping, minor renovations. Marketing: Very High (Luxury Polish). Negotiation: Very Strong. Concern: Lower volume; upside depends on prep execution.',
+      recommended: true
+    },
+    {
+      id: 'r3',
       name: 'Caitlin Thill',
       team: "O'Byrne Team",
       brokerage: 'Compass',
       phone: '',
       email: '',
       website: '',
-      notes: '',
+      notes: 'Rank #3 - Prep + Pricing Balance. Primary neighborhoods: San Carlos, Allied Gardens, Del Cerro, La Mesa. Price range: $1.0M-$1.8M+. Homes sold: ~20-35 team (12mo). Avg days on market: 10-18 days. Sale-to-list ratio: ~100-104%. Pricing strategy: Team-driven, Data-informed. Remote seller experience: 4/5. Compass Concierge conditional, team-supported staging. Marketing: High (Compass + Team Reach). Negotiation: Very Strong. Concern: Team structure; confirm primary point of contact.',
+      recommended: true
+    },
+    {
+      id: 'r4',
+      name: 'Mark Pattison',
+      team: '',
+      brokerage: '',
+      phone: '',
+      email: '',
+      website: '',
+      notes: 'Rank #4 - Operational Efficiency. Primary neighborhoods: La Mesa, San Carlos, Allied Gardens. Price range: $900K-$1.6M. Homes sold: ~25-35 (12mo). Avg days on market: 12-18 days. Sale-to-list ratio: ~99-102%. Pricing strategy: Volume-driven Comps. Remote seller experience: 4/5. Full team coordination for prep. Marketing: High (Systemized). Negotiation: Strong. Concern: Pricing may skew conservative vs peak upside.',
+      recommended: false
+    },
+    {
+      id: 'r5',
+      name: 'Renee Casteel',
+      team: '',
+      brokerage: '',
+      phone: '',
+      email: '',
+      website: '',
+      notes: 'Rank #5 - Calm, Methodical. Primary neighborhoods: La Mesa, Allied Gardens. Price range: $950K-$1.6M. Homes sold: ~8-12 (12mo). Avg days on market: 18-25 days. Sale-to-list ratio: ~98-101%. Pricing strategy: Conservative, Market-safe. Remote seller experience: 4/5. Strong local vendors. Marketing: Solid, Traditional. Negotiation: Strong. Personal attention: Very Personal. Concern: Less aggressive pricing; may leave upside on table.',
+      recommended: false
+    },
+    {
+      id: 'r6',
+      name: 'Justin Brennan',
+      team: '',
+      brokerage: '',
+      phone: '',
+      email: '',
+      website: '',
+      notes: 'Rank #6 - Pricing Accuracy. Primary neighborhoods: San Carlos, Allied Gardens. Price range: $1.0M-$1.7M. Homes sold: ~12-18 (12mo). Avg days on market: 14-22 days. Sale-to-list ratio: ~99-103%. Pricing strategy: Analytical, Tight Comps. Remote seller experience: 4/5. Strong vendor network, guided prep with ROI lens. Marketing: Clean, Data-forward. Negotiation: Very Strong. Personal attention: Personal. Concern: Marketing less flashy; buyer excitement relies on pricing.',
+      recommended: false
+    },
+    {
+      id: 'r7',
+      name: 'Michael A. Willis',
+      team: '',
+      brokerage: '',
+      phone: '',
+      email: '',
+      website: '',
+      notes: 'Rank #7 - Valuation Expert. Primary neighborhoods: San Carlos, Del Cerro, Allied Gardens. Price range: $800K-$2.3M+. Homes sold: ~15-30 (12mo). Avg days on market: ~10-20 days. Sale-to-list ratio: At/Above Asking. Pricing strategy: Appraiser-informed. Remote seller experience: 4/5. Locally guided prep, valuation-first mindset. Marketing: Traditional + Hyper-local. Negotiation: Strong. Personal attention: Very Personal, Owner-agent. Concern: Marketing reach may be narrower than large teams.',
+      recommended: false
+    },
+    {
+      id: 'r8',
+      name: 'Paul Fan',
+      team: '',
+      brokerage: '',
+      phone: '',
+      email: '',
+      website: '',
+      notes: 'Rank #8 - Broad Market Exposure. Primary neighborhoods: Broader San Diego (Del Mar, Encinitas, Citywide). Price range: $297K-$4M. Homes sold: ~20 (12mo). Avg days on market: Not published. Sale-to-list ratio: ~99-103%. Pricing strategy: Experienced + Marketing Background. Remote seller experience: 4/5. Agent-guided staging. Marketing: Traditional + Agent-driven. Negotiation: Strong. Personal attention: Very Personal. Concern: Less concentrated focus in San Carlos / East County.',
       recommended: false
     }
   ],
