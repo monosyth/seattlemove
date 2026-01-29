@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>San Carlos Realtor Scorecard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-cream: #FAF7F2;
+            --color-warm-white: #FFFDF9;
+            --color-charcoal: #2C2A27;
+            --color-stone: #6B6560;
+            --color-sand: #D4CFC7;
+            --color-gold: #B8956B;
+            --color-gold-light: #D4B896;
+            --color-terracotta: #C4775C;
+            --color-sage: #8A9A7B;
+            --color-navy: #2B3A4A;
+            --color-amber: #D4A03C;
+            --font-display: 'Cormorant Garamond', Georgia, serif;
+            --font-body: 'DM Sans', system-ui, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--color-cream);
+            color: var(--color-charcoal);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* Texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Header */
+        header {
+            padding: 2.5rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--color-sand);
+            background: linear-gradient(180deg, var(--color-warm-white) 0%, var(--color-cream) 100%);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-label {
+            font-family: var(--font-body);
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--color-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 400;
+            color: var(--color-charcoal);
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        h1 span {
+            font-style: italic;
+            color: var(--color-gold);
+        }
+
+        .header-subtitle {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            color: var(--color-stone);
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        /* Main content */
+        main {
+            padding: 2rem;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        /* Comparison Table */
+        .comparison-wrapper {
+            overflow-x: auto;
+            margin-bottom: 3rem;
+            border: 1px solid var(--color-sand);
+            background: var(--color-warm-white);
+            animation: fadeIn 0.6s ease-out 0.2s both;
+        }
+
+        .comparison-table {
+            width: 100%;
+            min-width: 1400px;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 0.75rem 0.875rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-sand);
+            vertical-align: top;
+        }
+
+        .comparison-table thead th {
+            background: var(--color-charcoal);
+            color: var(--color-warm-white);
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .comparison-table thead th:first-child {
+            background: var(--color-navy);
+            width: 160px;
+            min-width: 160px;
+        }
+
+        /* Agent header cells */
+        .agent-header {
+            text-align: center !important;
+            min-width: 140px;
+        }
+
+        .agent-name {
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .agent-rank {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            line-height: 18px;
+            text-align: center;
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            font-style: italic;
+            color: var(--color-gold);
+            border: 1px solid var(--color-gold-light);
+            border-radius: 50%;
+            margin-right: 0.4rem;
+        }
+
+        .agent-best-fit {
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding: 0.2rem 0.5rem;
+            background: var(--color-gold);
+            color: var(--color-warm-white);
+            font-size: 0.55rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* Row labels */
+        .comparison-table tbody th {
+            background: var(--color-cream);
+            font-weight: 500;
+            color: var(--color-charcoal);
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            border-right: 1px solid var(--color-sand);
+        }
+
+        .comparison-table tbody td {
+            text-align: center;
+            background: var(--color-warm-white);
+            transition: background 0.2s ease;
+        }
+
+        .comparison-table tbody tr:hover td {
+            background: rgba(184, 149, 107, 0.05);
+        }
+
+        .comparison-table tbody tr:hover th {
+            background: rgba(184, 149, 107, 0.1);
+        }
+
+        /* Section dividers */
+        .section-row th,
+        .section-row td {
+            background: var(--color-sand) !important;
+            padding: 0.5rem 0.875rem;
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--color-stone);
+        }
+
+        /* Value highlights */
+        .value-excellent {
+            color: var(--color-sage);
+            font-weight: 600;
+        }
+
+        .value-good {
+            color: var(--color-charcoal);
+        }
+
+        .value-highlight {
+            color: var(--color-terracotta);
+            font-weight: 600;
+        }
+
+        .value-best {
+            background: rgba(138, 154, 123, 0.15) !important;
+            font-weight: 600;
+        }
+
+        .value-caution {
+            color: var(--color-amber);
+        }
+
+        /* Rating dots */
+        .rating {
+            display: flex;
+            justify-content: center;
+            gap: 3px;
+        }
+
+        .rating-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--color-sand);
+        }
+
+        .rating-dot.filled {
+            background: var(--color-gold);
+        }
+
+        /* Notes row */
+        .notes-row td {
+            font-size: 0.75rem;
+            color: var(--color-stone);
+            font-style: italic;
+            text-align: center;
+            padding: 1rem 0.875rem;
+            line-height: 1.4;
+        }
+
+        .notes-row th {
+            vertical-align: middle;
+        }
+
+        .concern-icon {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            line-height: 14px;
+            text-align: center;
+            background: var(--color-amber);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.65rem;
+            font-weight: bold;
+            font-style: normal;
+            margin-right: 0.35rem;
+            vertical-align: middle;
+        }
+
+        /* Selection row */
+        .selection-row td {
+            padding: 0.875rem;
+        }
+
+        .selection-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 0.7rem;
+            color: var(--color-stone);
+            transition: color 0.2s ease;
+        }
+
+        .selection-label:hover {
+            color: var(--color-charcoal);
+        }
+
+        .selection-checkbox {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--color-sand);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .selection-checkbox:checked {
+            background: var(--color-gold);
+            border-color: var(--color-gold);
+        }
+
+        .selection-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .col-selected {
+            background: rgba(184, 149, 107, 0.08) !important;
+        }
+
+        /* Insights Section */
+        .insights-section {
+            margin-top: 3rem;
+            animation: fadeIn 0.6s ease-out 0.4s both;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            font-weight: 400;
+            color: var(--color-charcoal);
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-header h2::before,
+        .section-header h2::after {
+            content: '—';
+            color: var(--color-gold);
+            margin: 0 0.75rem;
+            font-weight: 300;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .insight-card {
+            background: var(--color-warm-white);
+            padding: 1.25rem;
+            border-left: 3px solid var(--color-gold);
+        }
+
+        .insight-category {
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--color-gold);
+            margin-bottom: 0.4rem;
+        }
+
+        .insight-agent {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--color-charcoal);
+            margin-bottom: 0.3rem;
+        }
+
+        .insight-reason {
+            font-size: 0.8rem;
+            color: var(--color-stone);
+        }
+
+        /* Recommendation Section */
+        .recommendation-section {
+            margin-top: 3rem;
+            animation: fadeIn 0.6s ease-out 0.5s both;
+        }
+
+        .recommendation-box {
+            background: linear-gradient(135deg, var(--color-navy) 0%, #3D4F5F 100%);
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .recommendation-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .recommendation-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--color-gold-light);
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .recommendation-title {
+            font-family: var(--font-display);
+            font-size: 1.35rem;
+            font-weight: 400;
+            color: var(--color-warm-white);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .interview-order {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .interview-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 0.75rem 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .interview-item:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--color-gold-light);
+        }
+
+        .interview-number {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-style: italic;
+            color: var(--color-gold-light);
+        }
+
+        .interview-name {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            color: var(--color-warm-white);
+        }
+
+        .interview-purpose {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 0.15rem;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 3rem;
+            padding: 1.5rem;
+            text-align: center;
+            border-top: 1px solid var(--color-sand);
+            color: var(--color-stone);
+            font-size: 0.8rem;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.7rem;
+            color: var(--color-stone);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .legend-color.best {
+            background: rgba(138, 154, 123, 0.4);
+            border: 1px solid var(--color-sage);
+        }
+
+        .legend-color.highlight {
+            background: var(--color-terracotta);
+        }
+
+        .legend-color.excellent {
+            background: var(--color-sage);
+        }
+
+        .legend-color.caution {
+            background: var(--color-amber);
+            border-radius: 50%;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            main {
+                padding: 1rem;
+            }
+
+            .comparison-table {
+                font-size: 0.7rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.5rem 0.6rem;
+            }
+
+            .interview-order {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <p class="header-label">East County San Diego</p>
+        <h1>Realtor <span>Scorecard</span></h1>
+        <p class="header-subtitle">San Carlos · Allied Gardens · Del Cerro · La Mesa</p>
+    </header>
+
+    <main>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color best"></div>
+                <span>Best in Category</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color highlight"></div>
+                <span>Standout Metric</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color excellent"></div>
+                <span>Excellent Rating</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color caution"></div>
+                <span>Note / Consideration</span>
+            </div>
+        </div>
+
+        <div class="comparison-wrapper">
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Criteria</th>
+                        <th class="agent-header" data-agent="emma">
+                            <div><span class="agent-rank">1</span><span class="agent-name">Emma Lefkowitz</span></div>
+                            <div class="agent-best-fit">Top Dollar + Speed</div>
+                        </th>
+                        <th class="agent-header" data-agent="joel">
+                            <div><span class="agent-rank">2</span><span class="agent-name">Joel Blumenfeld</span></div>
+                            <div class="agent-best-fit">White-Glove Prep</div>
+                        </th>
+                        <th class="agent-header" data-agent="mark">
+                            <div><span class="agent-rank">3</span><span class="agent-name">Mark Pattison</span></div>
+                            <div class="agent-best-fit">Operational Efficiency</div>
+                        </th>
+                        <th class="agent-header" data-agent="renee">
+                            <div><span class="agent-rank">4</span><span class="agent-name">Renee Casteel</span></div>
+                            <div class="agent-best-fit">Calm, Methodical</div>
+                        </th>
+                        <th class="agent-header" data-agent="justin">
+                            <div><span class="agent-rank">5</span><span class="agent-name">Justin Brennan</span></div>
+                            <div class="agent-best-fit">Pricing Accuracy</div>
+                        </th>
+                        <th class="agent-header" data-agent="michael">
+                            <div><span class="agent-rank">6</span><span class="agent-name">Michael A. Willis</span></div>
+                            <div class="agent-best-fit">Valuation Expert</div>
+                        </th>
+                        <th class="agent-header" data-agent="paul">
+                            <div><span class="agent-rank">7</span><span class="agent-name">Paul Fan</span></div>
+                            <div class="agent-best-fit">Broad Market Exposure</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="section-row">
+                        <th colspan="8">Core Focus</th>
+                    </tr>
+                    <tr>
+                        <th>Primary Neighborhoods</th>
+                        <td data-agent="emma"><strong>San Carlos</strong> · Allied Gardens · Del Cerro</td>
+                        <td data-agent="joel"><strong>San Carlos</strong> · Del Cerro · La Mesa</td>
+                        <td data-agent="mark"><strong>La Mesa</strong> · San Carlos · Allied Gardens</td>
+                        <td data-agent="renee"><strong>La Mesa</strong> · Allied Gardens</td>
+                        <td data-agent="justin"><strong>San Carlos</strong> · Allied Gardens</td>
+                        <td data-agent="michael"><strong>San Carlos</strong> · Del Cerro · Allied Gardens</td>
+                        <td data-agent="paul">Broader San Diego (Del Mar / Encinitas / Citywide)</td>
+                    </tr>
+                    <tr>
+                        <th>Price Range</th>
+                        <td data-agent="emma">$1.0M – $1.8M</td>
+                        <td data-agent="joel">$1.1M – $2.0M</td>
+                        <td data-agent="mark">$900K – $1.6M</td>
+                        <td data-agent="renee">$950K – $1.6M</td>
+                        <td data-agent="justin">$1.0M – $1.7M</td>
+                        <td data-agent="michael">$800K – $2.3M+</td>
+                        <td data-agent="paul" class="value-best">$297K – $4M</td>
+                    </tr>
+
+                    <tr class="section-row">
+                        <th colspan="8">Performance Metrics</th>
+                    </tr>
+                    <tr>
+                        <th>Homes Sold (12 Mo)</th>
+                        <td data-agent="emma" class="value-best value-highlight">~40–60</td>
+                        <td data-agent="joel">~10–15</td>
+                        <td data-agent="mark">~25–35</td>
+                        <td data-agent="renee">~8–12</td>
+                        <td data-agent="justin">~12–18</td>
+                        <td data-agent="michael">~15–30</td>
+                        <td data-agent="paul">~20</td>
+                    </tr>
+                    <tr>
+                        <th>Avg Days on Market</th>
+                        <td data-agent="emma" class="value-best value-excellent">10–15 days</td>
+                        <td data-agent="joel">12–20 days</td>
+                        <td data-agent="mark">12–18 days</td>
+                        <td data-agent="renee">18–25 days</td>
+                        <td data-agent="justin">14–22 days</td>
+                        <td data-agent="michael">~10–20 days</td>
+                        <td data-agent="paul" class="value-caution">Not published</td>
+                    </tr>
+                    <tr>
+                        <th>Sale-to-List Ratio</th>
+                        <td data-agent="emma" class="value-best value-highlight">101–105%</td>
+                        <td data-agent="joel">100–104%</td>
+                        <td data-agent="mark">~99–102%</td>
+                        <td data-agent="renee">~98–101%</td>
+                        <td data-agent="justin">~99–103%</td>
+                        <td data-agent="michael">At/Above Asking</td>
+                        <td data-agent="paul">~99–103%</td>
+                    </tr>
+                    <tr>
+                        <th>Over-Asking Frequency</th>
+                        <td data-agent="emma" class="value-best value-excellent">Very High</td>
+                        <td data-agent="joel">High</td>
+                        <td data-agent="mark">Moderate</td>
+                        <td data-agent="renee">Moderate</td>
+                        <td data-agent="justin">Moderate–High</td>
+                        <td data-agent="michael">Moderate–High</td>
+                        <td data-agent="paul">Moderate–High</td>
+                    </tr>
+                    <tr>
+                        <th>Under-Asking Risk</th>
+                        <td data-agent="emma" class="value-excellent">Low</td>
+                        <td data-agent="joel" class="value-excellent">Low</td>
+                        <td data-agent="mark">Low–Moderate</td>
+                        <td data-agent="renee">Moderate</td>
+                        <td data-agent="justin" class="value-excellent">Low</td>
+                        <td data-agent="michael">Low–Moderate</td>
+                        <td data-agent="paul">Low–Moderate</td>
+                    </tr>
+
+                    <tr class="section-row">
+                        <th colspan="8">Strategy & Approach</th>
+                    </tr>
+                    <tr>
+                        <th>Pricing Strategy</th>
+                        <td data-agent="emma">Data-driven + Aggressive</td>
+                        <td data-agent="joel">Precision + Prep</td>
+                        <td data-agent="mark">Volume-driven Comps</td>
+                        <td data-agent="renee">Conservative, Market-safe</td>
+                        <td data-agent="justin">Analytical, Tight Comps</td>
+                        <td data-agent="michael">Appraiser-informed</td>
+                        <td data-agent="paul">Experienced + Marketing Background</td>
+                    </tr>
+                    <tr>
+                        <th>Remote Seller Experience</th>
+                        <td data-agent="emma" class="value-best">
+                            <div class="rating">
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                            </div>
+                        </td>
+                        <td data-agent="joel" class="value-best">
+                            <div class="rating">
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                            </div>
+                        </td>
+                        <td data-agent="mark">
+                            <div class="rating">
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot"></span>
+                            </div>
+                        </td>
+                        <td data-agent="renee">
+                            <div class="rating">
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot"></span>
+                            </div>
+                        </td>
+                        <td data-agent="justin">
+                            <div class="rating">
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot"></span>
+                            </div>
+                        </td>
+                        <td data-agent="michael">
+                            <div class="rating">
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot"></span>
+                            </div>
+                        </td>
+                        <td data-agent="paul">
+                            <div class="rating">
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot filled"></span>
+                                <span class="rating-dot"></span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr class="section-row">
+                        <th colspan="8">Services & Support</th>
+                    </tr>
+                    <tr>
+                        <th>Pre-Listing Coordination</th>
+                        <td data-agent="emma">Full Coordination</td>
+                        <td data-agent="joel" class="value-best">Full Concierge (Compass)</td>
+                        <td data-agent="mark">Full Team Coordination</td>
+                        <td data-agent="renee">Strong Local Vendors</td>
+                        <td data-agent="justin">Strong Vendor Network</td>
+                        <td data-agent="michael">Coordinated Locally</td>
+                        <td data-agent="paul">Coordinated Locally</td>
+                    </tr>
+                    <tr>
+                        <th>Staging Support</th>
+                        <td data-agent="emma">Included / Guided</td>
+                        <td data-agent="joel" class="value-best">Compass Concierge (Fronted)</td>
+                        <td data-agent="mark">Included via Team</td>
+                        <td data-agent="renee">Optional / Traditional</td>
+                        <td data-agent="justin">Guided / Optional</td>
+                        <td data-agent="michael">Locally Guided</td>
+                        <td data-agent="paul">Locally Guided</td>
+                    </tr>
+                    <tr>
+                        <th>Marketing Quality</th>
+                        <td data-agent="emma">High (Digital + Local)</td>
+                        <td data-agent="joel" class="value-best">Very High (Luxury Polish)</td>
+                        <td data-agent="mark">High (Systemized)</td>
+                        <td data-agent="renee">Solid, Traditional</td>
+                        <td data-agent="justin">Clean, Data-forward</td>
+                        <td data-agent="michael">Traditional + Hyper-local</td>
+                        <td data-agent="paul">Traditional + Agent-driven</td>
+                    </tr>
+                    <tr>
+                        <th>Negotiation Reputation</th>
+                        <td data-agent="emma" class="value-best value-excellent">Exceptional</td>
+                        <td data-agent="joel">Very Strong</td>
+                        <td data-agent="mark">Strong</td>
+                        <td data-agent="renee">Strong</td>
+                        <td data-agent="justin">Very Strong</td>
+                        <td data-agent="michael">Strong</td>
+                        <td data-agent="paul">Strong</td>
+                    </tr>
+                    <tr>
+                        <th>Personal Attention</th>
+                        <td data-agent="emma">Team-based, hands-on</td>
+                        <td data-agent="joel">Direct Agent Involvement</td>
+                        <td data-agent="mark">Team-based</td>
+                        <td data-agent="renee" class="value-best">Very Personal</td>
+                        <td data-agent="justin">Personal</td>
+                        <td data-agent="michael" class="value-best">Very Personal, Owner-agent</td>
+                        <td data-agent="paul" class="value-best">Very Personal</td>
+                    </tr>
+
+                    <tr class="section-row">
+                        <th colspan="8">Notes & Considerations</th>
+                    </tr>
+                    <tr class="notes-row">
+                        <th>Key Concerns</th>
+                        <td data-agent="emma"><span class="concern-icon">!</span>Large team; ensure lead agent involvement is clearly defined</td>
+                        <td data-agent="joel"><span class="concern-icon">!</span>Lower volume; upside depends on prep execution</td>
+                        <td data-agent="mark"><span class="concern-icon">!</span>Pricing may skew conservative vs peak upside</td>
+                        <td data-agent="renee"><span class="concern-icon">!</span>Less aggressive pricing; may leave upside on table</td>
+                        <td data-agent="justin"><span class="concern-icon">!</span>Marketing less flashy; buyer excitement relies on pricing</td>
+                        <td data-agent="michael"><span class="concern-icon">!</span>Marketing reach may be narrower than large teams</td>
+                        <td data-agent="paul"><span class="concern-icon">!</span>Less concentrated focus in San Carlos / East County</td>
+                    </tr>
+
+                    <tr class="section-row selection-row">
+                        <th>Add to Shortlist</th>
+                        <td data-agent="emma">
+                            <label class="selection-label">
+                                <input type="checkbox" class="selection-checkbox" data-agent="emma">
+                                Select
+                            </label>
+                        </td>
+                        <td data-agent="joel">
+                            <label class="selection-label">
+                                <input type="checkbox" class="selection-checkbox" data-agent="joel">
+                                Select
+                            </label>
+                        </td>
+                        <td data-agent="mark">
+                            <label class="selection-label">
+                                <input type="checkbox" class="selection-checkbox" data-agent="mark">
+                                Select
+                            </label>
+                        </td>
+                        <td data-agent="renee">
+                            <label class="selection-label">
+                                <input type="checkbox" class="selection-checkbox" data-agent="renee">
+                                Select
+                            </label>
+                        </td>
+                        <td data-agent="justin">
+                            <label class="selection-label">
+                                <input type="checkbox" class="selection-checkbox" data-agent="justin">
+                                Select
+                            </label>
+                        </td>
+                        <td data-agent="michael">
+                            <label class="selection-label">
+                                <input type="checkbox" class="selection-checkbox" data-agent="michael">
+                                Select
+                            </label>
+                        </td>
+                        <td data-agent="paul">
+                            <label class="selection-label">
+                                <input type="checkbox" class="selection-checkbox" data-agent="paul">
+                                Select
+                            </label>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <section class="insights-section">
+            <div class="section-header">
+                <h2>Key Decision Insights</h2>
+            </div>
+
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <p class="insight-category">Top Dollar Specialist</p>
+                    <h4 class="insight-agent">Emma Lefkowitz</h4>
+                    <p class="insight-reason">Most consistent above-asking outcomes in San Carlos.</p>
+                </div>
+
+                <div class="insight-card">
+                    <p class="insight-category">Best for Prep / Repairs / Polish</p>
+                    <h4 class="insight-agent">Joel Blumenfeld</h4>
+                    <p class="insight-reason">Compass Concierge ideal for vacant or remote sales.</p>
+                </div>
+
+                <div class="insight-card">
+                    <p class="insight-category">Best Zero-Friction Execution</p>
+                    <h4 class="insight-agent">Mark Pattison</h4>
+                    <p class="insight-reason">Strong logistics, inspections, access, and systems.</p>
+                </div>
+
+                <div class="insight-card">
+                    <p class="insight-category">Safest Conservative Option</p>
+                    <h4 class="insight-agent">Renee Casteel</h4>
+                    <p class="insight-reason">Lower risk, slightly less upside.</p>
+                </div>
+
+                <div class="insight-card">
+                    <p class="insight-category">Best Data-First Pricing</p>
+                    <h4 class="insight-agent">Justin Brennan</h4>
+                    <p class="insight-reason">Tight comps, disciplined pricing and negotiation.</p>
+                </div>
+
+                <div class="insight-card">
+                    <p class="insight-category">Best Valuation Expertise</p>
+                    <h4 class="insight-agent">Michael A. Willis</h4>
+                    <p class="insight-reason">Realtor + appraiser with deep local market accuracy.</p>
+                </div>
+
+                <div class="insight-card">
+                    <p class="insight-category">Broadest Market Exposure</p>
+                    <h4 class="insight-agent">Paul Fan</h4>
+                    <p class="insight-reason">Citywide experience; marketing background.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="recommendation-section">
+            <div class="section-header">
+                <h2>Shortlist Recommendation</h2>
+            </div>
+
+            <div class="recommendation-box">
+                <p class="recommendation-label">Recommended Interview Order</p>
+                <h3 class="recommendation-title">Compare pricing upside vs preparation strategy vs execution risk</h3>
+
+                <div class="interview-order">
+                    <div class="interview-item">
+                        <span class="interview-number">1</span>
+                        <div>
+                            <p class="interview-name">Emma Lefkowitz</p>
+                            <p class="interview-purpose">Benchmark pricing & demand</p>
+                        </div>
+                    </div>
+                    <div class="interview-item">
+                        <span class="interview-number">2</span>
+                        <div>
+                            <p class="interview-name">Joel Blumenfeld</p>
+                            <p class="interview-purpose">Prep & concierge comparison</p>
+                        </div>
+                    </div>
+                    <div class="interview-item">
+                        <span class="interview-number">3</span>
+                        <div>
+                            <p class="interview-name">Mark Pattison</p>
+                            <p class="interview-purpose">Systems & execution</p>
+                        </div>
+                    </div>
+                    <div class="interview-item">
+                        <span class="interview-number">4</span>
+                        <div>
+                            <p class="interview-name">Michael A. Willis</p>
+                            <p class="interview-purpose">Valuation sanity check</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>San Carlos / East County Realtor Scorecard — Full Comparison (7 Agents)</p>
+    </footer>
+
+    <script>
+        // Interactive column selection
+        document.querySelectorAll('.selection-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const agent = this.dataset.agent;
+                const cells = document.querySelectorAll(`[data-agent="${agent}"]`);
+                
+                cells.forEach(cell => {
+                    if (this.checked) {
+                        cell.classList.add('col-selected');
+                    } else {
+                        cell.classList.remove('col-selected');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
