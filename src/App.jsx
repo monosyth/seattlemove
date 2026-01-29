@@ -59,89 +59,193 @@ const initialData = {
     {
       id: 'r1',
       name: 'Emma Lefkowitz',
-      team: '',
-      brokerage: '',
-      phone: '',
+      rank: 1,
+      specialty: 'Top Dollar + Speed',
+      team: 'The Barron Team',
+      brokerage: 'Real Brokerage',
+      phone: '(858) 805-9899',
       email: '',
-      website: '',
-      notes: 'Rank #1 - Top Dollar + Speed. Primary neighborhoods: San Carlos, Allied Gardens, Del Cerro. Price range: $1.0M-$1.8M. Homes sold: ~40-60 (12mo). Avg days on market: 10-15 days. Sale-to-list ratio: 101-105%. Over-asking frequency: Very High. Pricing strategy: Data-driven + Aggressive. Remote seller experience: 5/5. Full coordination, included staging & ROI-focused updates. Marketing: High (Digital + Local). Negotiation: Exceptional. Concern: Large team; ensure lead agent involvement clearly defined.',
+      website: 'thebarronteam.com',
+      neighborhoods: 'San Carlos, Allied Gardens, Del Cerro',
+      priceRange: '$1.0M - $1.8M',
+      homesSold: '~40-60 (12mo)',
+      avgDaysOnMarket: '10-15 days',
+      saleToListRatio: '101-105%',
+      overAskingFrequency: 'Very High',
+      pricingStrategy: 'Data-driven + Aggressive',
+      remoteExperience: '5/5',
+      marketing: 'High (Digital + Local)',
+      negotiation: 'Exceptional',
+      concierge: 'Full coordination, included staging & ROI-focused updates',
+      concerns: 'Large team; ensure lead agent involvement clearly defined',
       recommended: true
     },
     {
       id: 'r2',
       name: 'Joel Blumenfeld',
-      team: '',
+      rank: 2,
+      specialty: 'White-Glove Prep',
+      team: 'Blumenfeld Group',
       brokerage: 'Compass',
-      phone: '',
-      email: '',
-      website: '',
-      notes: 'Rank #2 - White-Glove Prep. Primary neighborhoods: San Carlos, Del Cerro, La Mesa. Price range: $1.1M-$2.0M. Homes sold: ~10-15 (12mo). Avg days on market: 12-20 days. Sale-to-list ratio: 100-104%. Pricing strategy: Precision + Prep. Remote seller experience: 5/5. Compass Concierge available - fronts costs for staging, paint, flooring, landscaping, minor renovations. Marketing: Very High (Luxury Polish). Negotiation: Very Strong. Concern: Lower volume; upside depends on prep execution.',
+      phone: '(619) 508-2192',
+      email: 'joel.blumenfeld@compass.com',
+      website: 'theblumenfeldgroup.com',
+      neighborhoods: 'San Carlos, Del Cerro, La Mesa',
+      priceRange: '$1.1M - $2.0M',
+      homesSold: '~10-15 (12mo)',
+      avgDaysOnMarket: '12-20 days',
+      saleToListRatio: '100-104%',
+      overAskingFrequency: 'High',
+      pricingStrategy: 'Precision + Prep',
+      remoteExperience: '5/5',
+      marketing: 'Very High (Luxury Polish)',
+      negotiation: 'Very Strong',
+      concierge: 'Compass Concierge - fronts costs for staging, paint, flooring, landscaping, minor renovations',
+      concerns: 'Lower volume; upside depends on prep execution',
       recommended: true
     },
     {
       id: 'r3',
       name: 'Caitlin Thill',
+      rank: 3,
+      specialty: 'Prep + Pricing Balance',
       team: "O'Byrne Team",
       brokerage: 'Compass',
-      phone: '',
-      email: '',
-      website: '',
-      notes: 'Rank #3 - Prep + Pricing Balance. Primary neighborhoods: San Carlos, Allied Gardens, Del Cerro, La Mesa. Price range: $1.0M-$1.8M+. Homes sold: ~20-35 team (12mo). Avg days on market: 10-18 days. Sale-to-list ratio: ~100-104%. Pricing strategy: Team-driven, Data-informed. Remote seller experience: 4/5. Compass Concierge conditional, team-supported staging. Marketing: High (Compass + Team Reach). Negotiation: Very Strong. Concern: Team structure; confirm primary point of contact.',
+      phone: '(858) 869-3940',
+      email: 'caitlin@obyrneteam.com',
+      website: 'obyrneteam.com/agent/caitlin-thill',
+      neighborhoods: 'San Carlos, Allied Gardens, Del Cerro, La Mesa',
+      priceRange: '$1.0M - $1.8M+',
+      homesSold: '~20-35 team (12mo)',
+      avgDaysOnMarket: '10-18 days',
+      saleToListRatio: '~100-104%',
+      overAskingFrequency: 'High',
+      pricingStrategy: 'Team-driven, Data-informed',
+      remoteExperience: '4/5',
+      marketing: 'High (Compass + Team Reach)',
+      negotiation: 'Very Strong',
+      concierge: 'Compass Concierge conditional, team-supported staging',
+      concerns: 'Team structure; confirm primary point of contact',
       recommended: true
     },
     {
       id: 'r4',
       name: 'Mark Pattison',
-      team: '',
-      brokerage: '',
-      phone: '',
-      email: '',
-      website: '',
-      notes: 'Rank #4 - Operational Efficiency. Primary neighborhoods: La Mesa, San Carlos, Allied Gardens. Price range: $900K-$1.6M. Homes sold: ~25-35 (12mo). Avg days on market: 12-18 days. Sale-to-list ratio: ~99-102%. Pricing strategy: Volume-driven Comps. Remote seller experience: 4/5. Full team coordination for prep. Marketing: High (Systemized). Negotiation: Strong. Concern: Pricing may skew conservative vs peak upside.',
+      rank: 4,
+      specialty: 'Operational Efficiency',
+      team: 'PorchLight Realty Team',
+      brokerage: 'eXp Realty',
+      phone: '(619) 704-7170',
+      email: 'mark@porchlightsocal.com',
+      website: 'porchlightsocal.com',
+      neighborhoods: 'La Mesa, San Carlos, Allied Gardens',
+      priceRange: '$900K - $1.6M',
+      homesSold: '~25-35 (12mo)',
+      avgDaysOnMarket: '12-18 days',
+      saleToListRatio: '~99-102%',
+      overAskingFrequency: 'Moderate',
+      pricingStrategy: 'Volume-driven Comps',
+      remoteExperience: '4/5',
+      marketing: 'High (Systemized)',
+      negotiation: 'Strong',
+      concierge: 'Full team coordination for prep',
+      concerns: 'Pricing may skew conservative vs peak upside',
       recommended: false
     },
     {
       id: 'r5',
       name: 'Renee Casteel',
+      rank: 5,
+      specialty: 'Calm, Methodical',
       team: '',
       brokerage: '',
       phone: '',
       email: '',
       website: '',
-      notes: 'Rank #5 - Calm, Methodical. Primary neighborhoods: La Mesa, Allied Gardens. Price range: $950K-$1.6M. Homes sold: ~8-12 (12mo). Avg days on market: 18-25 days. Sale-to-list ratio: ~98-101%. Pricing strategy: Conservative, Market-safe. Remote seller experience: 4/5. Strong local vendors. Marketing: Solid, Traditional. Negotiation: Strong. Personal attention: Very Personal. Concern: Less aggressive pricing; may leave upside on table.',
+      neighborhoods: 'La Mesa, Allied Gardens',
+      priceRange: '$950K - $1.6M',
+      homesSold: '~8-12 (12mo)',
+      avgDaysOnMarket: '18-25 days',
+      saleToListRatio: '~98-101%',
+      overAskingFrequency: 'Moderate',
+      pricingStrategy: 'Conservative, Market-safe',
+      remoteExperience: '4/5',
+      marketing: 'Solid, Traditional',
+      negotiation: 'Strong',
+      concierge: 'Strong local vendors',
+      concerns: 'Less aggressive pricing; may leave upside on table',
       recommended: false
     },
     {
       id: 'r6',
       name: 'Justin Brennan',
-      team: '',
-      brokerage: '',
-      phone: '',
+      rank: 6,
+      specialty: 'Pricing Accuracy',
+      team: 'Brennan Real Estate Group',
+      brokerage: 'eXp Realty',
+      phone: '(619) 823-2120',
       email: '',
-      website: '',
-      notes: 'Rank #6 - Pricing Accuracy. Primary neighborhoods: San Carlos, Allied Gardens. Price range: $1.0M-$1.7M. Homes sold: ~12-18 (12mo). Avg days on market: 14-22 days. Sale-to-list ratio: ~99-103%. Pricing strategy: Analytical, Tight Comps. Remote seller experience: 4/5. Strong vendor network, guided prep with ROI lens. Marketing: Clean, Data-forward. Negotiation: Very Strong. Personal attention: Personal. Concern: Marketing less flashy; buyer excitement relies on pricing.',
+      website: 'justincbrennan.com',
+      neighborhoods: 'San Carlos, Allied Gardens',
+      priceRange: '$1.0M - $1.7M',
+      homesSold: '~12-18 (12mo)',
+      avgDaysOnMarket: '14-22 days',
+      saleToListRatio: '~99-103%',
+      overAskingFrequency: 'Moderate-High',
+      pricingStrategy: 'Analytical, Tight Comps',
+      remoteExperience: '4/5',
+      marketing: 'Clean, Data-forward',
+      negotiation: 'Very Strong',
+      concierge: 'Strong vendor network, guided prep with ROI lens',
+      concerns: 'Marketing less flashy; buyer excitement relies on pricing',
       recommended: false
     },
     {
       id: 'r7',
       name: 'Michael A. Willis',
+      rank: 7,
+      specialty: 'Valuation Expert',
       team: '',
-      brokerage: '',
-      phone: '',
-      email: '',
-      website: '',
-      notes: 'Rank #7 - Valuation Expert. Primary neighborhoods: San Carlos, Del Cerro, Allied Gardens. Price range: $800K-$2.3M+. Homes sold: ~15-30 (12mo). Avg days on market: ~10-20 days. Sale-to-list ratio: At/Above Asking. Pricing strategy: Appraiser-informed. Remote seller experience: 4/5. Locally guided prep, valuation-first mindset. Marketing: Traditional + Hyper-local. Negotiation: Strong. Personal attention: Very Personal, Owner-agent. Concern: Marketing reach may be narrower than large teams.',
+      brokerage: 'Keller Williams Realty',
+      phone: '(619) 881-7802',
+      email: 'michaelwillisre@gmail.com',
+      website: 'michaelwillisre.com',
+      neighborhoods: 'San Carlos, Del Cerro, Allied Gardens',
+      priceRange: '$800K - $2.3M+',
+      homesSold: '~15-30 (12mo)',
+      avgDaysOnMarket: '~10-20 days',
+      saleToListRatio: 'At/Above Asking',
+      overAskingFrequency: 'Moderate-High',
+      pricingStrategy: 'Appraiser-informed',
+      remoteExperience: '4/5',
+      marketing: 'Traditional + Hyper-local',
+      negotiation: 'Strong',
+      concierge: 'Locally guided prep, valuation-first mindset',
+      concerns: 'Marketing reach may be narrower than large teams',
       recommended: false
     },
     {
       id: 'r8',
       name: 'Paul Fan',
+      rank: 8,
+      specialty: 'Broad Market Exposure',
       team: '',
-      brokerage: '',
+      brokerage: 'Willis Allen Real Estate',
       phone: '',
       email: '',
-      website: '',
-      notes: 'Rank #8 - Broad Market Exposure. Primary neighborhoods: Broader San Diego (Del Mar, Encinitas, Citywide). Price range: $297K-$4M. Homes sold: ~20 (12mo). Avg days on market: Not published. Sale-to-list ratio: ~99-103%. Pricing strategy: Experienced + Marketing Background. Remote seller experience: 4/5. Agent-guided staging. Marketing: Traditional + Agent-driven. Negotiation: Strong. Personal attention: Very Personal. Concern: Less concentrated focus in San Carlos / East County.',
+      website: 'paulfan.willisallen.com',
+      neighborhoods: 'Broader San Diego (Del Mar, Encinitas, Citywide)',
+      priceRange: '$297K - $4M',
+      homesSold: '~20 (12mo)',
+      avgDaysOnMarket: 'Not published',
+      saleToListRatio: '~99-103%',
+      overAskingFrequency: 'Moderate-High',
+      pricingStrategy: 'Experienced + Marketing Background',
+      remoteExperience: '4/5',
+      marketing: 'Traditional + Agent-driven',
+      negotiation: 'Strong',
+      concierge: 'Agent-guided staging',
+      concerns: 'Less concentrated focus in San Carlos / East County',
       recommended: false
     }
   ],
@@ -1952,70 +2056,88 @@ function App() {
                         >
                           {editingRealtorId === realtor.id ? (
                             // Edit Mode
-                            <div style={styles.realtorEditForm}>
-                              <div style={styles.realtorFormRow}>
-                                <label style={styles.realtorFormLabel}>Name:</label>
-                                <input
-                                  type="text"
-                                  value={editingRealtorData.name || ''}
-                                  onChange={(e) => setEditingRealtorData({...editingRealtorData, name: e.target.value})}
-                                  style={styles.realtorFormInput}
-                                />
+                            <div style={{...styles.realtorEditForm, maxHeight: '600px', overflowY: 'auto'}}>
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Name:</label>
+                                  <input type="text" value={editingRealtorData.name || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, name: e.target.value})} style={styles.realtorFormInput} />
+                                </div>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Rank:</label>
+                                  <input type="number" value={editingRealtorData.rank || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, rank: parseInt(e.target.value) || ''})} style={styles.realtorFormInput} />
+                                </div>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Specialty:</label>
+                                  <input type="text" value={editingRealtorData.specialty || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, specialty: e.target.value})} style={styles.realtorFormInput} />
+                                </div>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Team:</label>
+                                  <input type="text" value={editingRealtorData.team || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, team: e.target.value})} style={styles.realtorFormInput} />
+                                </div>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Brokerage:</label>
+                                  <input type="text" value={editingRealtorData.brokerage || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, brokerage: e.target.value})} style={styles.realtorFormInput} />
+                                </div>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Phone:</label>
+                                  <input type="text" value={editingRealtorData.phone || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, phone: e.target.value})} style={styles.realtorFormInput} />
+                                </div>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Email:</label>
+                                  <input type="text" value={editingRealtorData.email || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, email: e.target.value})} style={styles.realtorFormInput} />
+                                </div>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Website:</label>
+                                  <input type="text" value={editingRealtorData.website || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, website: e.target.value})} style={styles.realtorFormInput} />
+                                </div>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Neighborhoods:</label>
+                                  <input type="text" value={editingRealtorData.neighborhoods || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, neighborhoods: e.target.value})} style={styles.realtorFormInput} />
+                                </div>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Price Range:</label>
+                                  <input type="text" value={editingRealtorData.priceRange || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, priceRange: e.target.value})} style={styles.realtorFormInput} />
+                                </div>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Homes Sold (12mo):</label>
+                                  <input type="text" value={editingRealtorData.homesSold || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, homesSold: e.target.value})} style={styles.realtorFormInput} />
+                                </div>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Avg Days on Market:</label>
+                                  <input type="text" value={editingRealtorData.avgDaysOnMarket || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, avgDaysOnMarket: e.target.value})} style={styles.realtorFormInput} />
+                                </div>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Sale-to-List Ratio:</label>
+                                  <input type="text" value={editingRealtorData.saleToListRatio || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, saleToListRatio: e.target.value})} style={styles.realtorFormInput} />
+                                </div>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Over-Asking Frequency:</label>
+                                  <input type="text" value={editingRealtorData.overAskingFrequency || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, overAskingFrequency: e.target.value})} style={styles.realtorFormInput} />
+                                </div>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Pricing Strategy:</label>
+                                  <input type="text" value={editingRealtorData.pricingStrategy || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, pricingStrategy: e.target.value})} style={styles.realtorFormInput} />
+                                </div>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Remote Experience:</label>
+                                  <input type="text" value={editingRealtorData.remoteExperience || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, remoteExperience: e.target.value})} style={styles.realtorFormInput} />
+                                </div>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Marketing:</label>
+                                  <input type="text" value={editingRealtorData.marketing || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, marketing: e.target.value})} style={styles.realtorFormInput} />
+                                </div>
+                                <div style={styles.realtorFormRow}>
+                                  <label style={styles.realtorFormLabel}>Negotiation:</label>
+                                  <input type="text" value={editingRealtorData.negotiation || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, negotiation: e.target.value})} style={styles.realtorFormInput} />
+                                </div>
                               </div>
                               <div style={styles.realtorFormRow}>
-                                <label style={styles.realtorFormLabel}>Team:</label>
-                                <input
-                                  type="text"
-                                  value={editingRealtorData.team || ''}
-                                  onChange={(e) => setEditingRealtorData({...editingRealtorData, team: e.target.value})}
-                                  style={styles.realtorFormInput}
-                                />
+                                <label style={styles.realtorFormLabel}>Concierge Services:</label>
+                                <textarea value={editingRealtorData.concierge || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, concierge: e.target.value})} style={styles.realtorFormTextarea} rows={3} />
                               </div>
                               <div style={styles.realtorFormRow}>
-                                <label style={styles.realtorFormLabel}>Brokerage:</label>
-                                <input
-                                  type="text"
-                                  value={editingRealtorData.brokerage || ''}
-                                  onChange={(e) => setEditingRealtorData({...editingRealtorData, brokerage: e.target.value})}
-                                  style={styles.realtorFormInput}
-                                />
-                              </div>
-                              <div style={styles.realtorFormRow}>
-                                <label style={styles.realtorFormLabel}>Phone:</label>
-                                <input
-                                  type="text"
-                                  value={editingRealtorData.phone || ''}
-                                  onChange={(e) => setEditingRealtorData({...editingRealtorData, phone: e.target.value})}
-                                  style={styles.realtorFormInput}
-                                />
-                              </div>
-                              <div style={styles.realtorFormRow}>
-                                <label style={styles.realtorFormLabel}>Email:</label>
-                                <input
-                                  type="text"
-                                  value={editingRealtorData.email || ''}
-                                  onChange={(e) => setEditingRealtorData({...editingRealtorData, email: e.target.value})}
-                                  style={styles.realtorFormInput}
-                                />
-                              </div>
-                              <div style={styles.realtorFormRow}>
-                                <label style={styles.realtorFormLabel}>Website:</label>
-                                <input
-                                  type="text"
-                                  value={editingRealtorData.website || ''}
-                                  onChange={(e) => setEditingRealtorData({...editingRealtorData, website: e.target.value})}
-                                  style={styles.realtorFormInput}
-                                  placeholder="https://..."
-                                />
-                              </div>
-                              <div style={styles.realtorFormRow}>
-                                <label style={styles.realtorFormLabel}>Notes:</label>
-                                <textarea
-                                  value={editingRealtorData.notes || ''}
-                                  onChange={(e) => setEditingRealtorData({...editingRealtorData, notes: e.target.value})}
-                                  style={styles.realtorFormTextarea}
-                                  rows={5}
-                                />
+                                <label style={styles.realtorFormLabel}>Concerns:</label>
+                                <textarea value={editingRealtorData.concerns || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, concerns: e.target.value})} style={styles.realtorFormTextarea} rows={2} />
                               </div>
                               <div style={styles.realtorFormActions}>
                                 <button style={styles.realtorSaveBtn} onClick={() => updateRealtor(realtor.id)}>Save</button>
@@ -2040,21 +2162,115 @@ function App() {
                               </div>
 
                               <div style={styles.realtorCardDetails}>
-                                {realtor.phone && <p style={styles.realtorDetailLine}>📞 {realtor.phone}</p>}
-                                {realtor.email && <p style={styles.realtorDetailLine}>✉️ {realtor.email}</p>}
-                                {realtor.website && (
-                                  <p style={styles.realtorDetailLine}>
-                                    🌐 <a
-                                      href={realtor.website.startsWith('http') ? realtor.website : `https://${realtor.website}`}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      style={styles.realtorWebsiteLink}
-                                    >
-                                      {realtor.website}
-                                    </a>
-                                  </p>
+                                {/* Specialty & Rank */}
+                                {realtor.specialty && (
+                                  <div style={{
+                                    padding: '8px 12px',
+                                    background: 'linear-gradient(135deg, rgba(30, 90, 142, 0.1), rgba(43, 146, 152, 0.1))',
+                                    borderLeft: '3px solid #2b9298',
+                                    marginBottom: '12px',
+                                    borderRadius: '4px'
+                                  }}>
+                                    <strong style={{ color: '#1e5a8e', fontSize: '0.9rem' }}>
+                                      #{realtor.rank} • {realtor.specialty}
+                                    </strong>
+                                  </div>
                                 )}
-                                {realtor.notes && <p style={styles.realtorNotes}>{realtor.notes}</p>}
+
+                                {/* Contact Info */}
+                                <div style={{ marginBottom: '12px' }}>
+                                  {realtor.phone && <p style={styles.realtorDetailLine}>📞 {realtor.phone}</p>}
+                                  {realtor.email && <p style={styles.realtorDetailLine}>✉️ {realtor.email}</p>}
+                                  {realtor.website && (
+                                    <p style={styles.realtorDetailLine}>
+                                      🌐 <a
+                                        href={realtor.website.startsWith('http') ? realtor.website : `https://${realtor.website}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={styles.realtorWebsiteLink}
+                                      >
+                                        {realtor.website}
+                                      </a>
+                                    </p>
+                                  )}
+                                </div>
+
+                                {/* Performance Metrics */}
+                                {(realtor.homesSold || realtor.avgDaysOnMarket || realtor.saleToListRatio) && (
+                                  <div style={{
+                                    background: 'rgba(248, 250, 251, 0.6)',
+                                    padding: '10px',
+                                    borderRadius: '6px',
+                                    marginBottom: '12px',
+                                    fontSize: '0.85rem'
+                                  }}>
+                                    <div style={{ fontWeight: 600, color: '#2b9298', marginBottom: '6px' }}>📊 Performance Metrics</div>
+                                    {realtor.homesSold && <p style={{ margin: '4px 0', color: '#555' }}>• Homes Sold: <strong>{realtor.homesSold}</strong></p>}
+                                    {realtor.avgDaysOnMarket && <p style={{ margin: '4px 0', color: '#555' }}>• Avg Days on Market: <strong>{realtor.avgDaysOnMarket}</strong></p>}
+                                    {realtor.saleToListRatio && <p style={{ margin: '4px 0', color: '#555' }}>• Sale-to-List Ratio: <strong>{realtor.saleToListRatio}</strong></p>}
+                                    {realtor.overAskingFrequency && <p style={{ margin: '4px 0', color: '#555' }}>• Over-Asking Frequency: <strong>{realtor.overAskingFrequency}</strong></p>}
+                                  </div>
+                                )}
+
+                                {/* Market Focus */}
+                                {(realtor.neighborhoods || realtor.priceRange) && (
+                                  <div style={{
+                                    background: 'rgba(212, 230, 245, 0.3)',
+                                    padding: '10px',
+                                    borderRadius: '6px',
+                                    marginBottom: '12px',
+                                    fontSize: '0.85rem'
+                                  }}>
+                                    <div style={{ fontWeight: 600, color: '#1e5a8e', marginBottom: '6px' }}>📍 Market Focus</div>
+                                    {realtor.neighborhoods && <p style={{ margin: '4px 0', color: '#555' }}>• Neighborhoods: <strong>{realtor.neighborhoods}</strong></p>}
+                                    {realtor.priceRange && <p style={{ margin: '4px 0', color: '#555' }}>• Price Range: <strong>{realtor.priceRange}</strong></p>}
+                                  </div>
+                                )}
+
+                                {/* Strategy & Approach */}
+                                {(realtor.pricingStrategy || realtor.marketing || realtor.negotiation) && (
+                                  <div style={{
+                                    background: 'rgba(138, 154, 123, 0.15)',
+                                    padding: '10px',
+                                    borderRadius: '6px',
+                                    marginBottom: '12px',
+                                    fontSize: '0.85rem'
+                                  }}>
+                                    <div style={{ fontWeight: 600, color: '#8a9a7b', marginBottom: '6px' }}>🎯 Strategy & Approach</div>
+                                    {realtor.pricingStrategy && <p style={{ margin: '4px 0', color: '#555' }}>• Pricing: <strong>{realtor.pricingStrategy}</strong></p>}
+                                    {realtor.marketing && <p style={{ margin: '4px 0', color: '#555' }}>• Marketing: <strong>{realtor.marketing}</strong></p>}
+                                    {realtor.negotiation && <p style={{ margin: '4px 0', color: '#555' }}>• Negotiation: <strong>{realtor.negotiation}</strong></p>}
+                                    {realtor.remoteExperience && <p style={{ margin: '4px 0', color: '#555' }}>• Remote Experience: <strong>{realtor.remoteExperience}</strong></p>}
+                                  </div>
+                                )}
+
+                                {/* Concierge Services */}
+                                {realtor.concierge && (
+                                  <div style={{
+                                    background: 'rgba(212, 160, 60, 0.1)',
+                                    padding: '10px',
+                                    borderRadius: '6px',
+                                    marginBottom: '12px',
+                                    fontSize: '0.85rem'
+                                  }}>
+                                    <div style={{ fontWeight: 600, color: '#d4a03c', marginBottom: '6px' }}>✨ Concierge Services</div>
+                                    <p style={{ margin: '4px 0', color: '#555' }}>{realtor.concierge}</p>
+                                  </div>
+                                )}
+
+                                {/* Concerns */}
+                                {realtor.concerns && (
+                                  <div style={{
+                                    background: 'rgba(255, 182, 193, 0.15)',
+                                    padding: '10px',
+                                    borderRadius: '6px',
+                                    fontSize: '0.85rem',
+                                    borderLeft: '3px solid #ff8c9d'
+                                  }}>
+                                    <div style={{ fontWeight: 600, color: '#c4775c', marginBottom: '4px' }}>⚠️ Considerations</div>
+                                    <p style={{ margin: '4px 0', color: '#666', fontStyle: 'italic' }}>{realtor.concerns}</p>
+                                  </div>
+                                )}
                               </div>
 
                               <div style={styles.realtorCardActions}>
