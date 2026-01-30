@@ -1614,7 +1614,7 @@ function App() {
           }}
         >
           <Tab value="checklist" label="Checklist" icon={<span>✓</span>} iconPosition="start" />
-          <Tab value="budget" label="Sale Proceeds" icon={<span>💰</span>} iconPosition="start" />
+          <Tab value="budget" label="Financials" icon={<span>💰</span>} iconPosition="start" />
           <Tab value="timeline" label="Timeline" icon={<span>📅</span>} iconPosition="start" />
           <Tab value="notes" label="Notes" icon={<span>📝</span>} iconPosition="start" />
           <Tab value="history" label="History" icon={<span>📜</span>} iconPosition="start" />
@@ -3333,7 +3333,7 @@ function App() {
 
             {/* Net Proceeds Summary Card */}
             <div style={styles.budgetSummary}>
-              <h3 style={styles.budgetSummaryTitle}>💰 Net Sale Proceeds</h3>
+              <h3 style={styles.budgetSummaryTitle}>💰 Financials</h3>
               <div style={styles.budgetGrandTotal}>
                 <span style={styles.budgetGrandTotalLabel}>Estimated Cash After Sale</span>
                 <span style={{...styles.budgetGrandTotalValue, color: getNetProceeds() >= 0 ? '#2ecc71' : '#e74c3c'}}>
@@ -3361,7 +3361,7 @@ function App() {
                         saveData(newData);
                       }}
                       placeholder="0"
-                      style={{...styles.costField, fontSize: '1.2rem', fontWeight: 600}}
+                      style={{...styles.costField, fontSize: '1.6rem', fontWeight: 700, padding: '12px'}}
                     />
                   </div>
                 </div>
@@ -3384,16 +3384,32 @@ function App() {
                 <thead>
                   <tr>
                     <th style={styles.budgetTh}>Item</th>
-                    <th style={{...styles.budgetTh, width: '150px', textAlign: 'right'}}>Amount</th>
+                    <th style={{...styles.budgetTh, width: '200px', textAlign: 'right'}}>Amount</th>
+                    <th style={{...styles.budgetTh, width: '80px', textAlign: 'center'}}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {(data.financial?.fixedDebts || []).map(item => (
                     <tr key={item.id}>
-                      <td style={styles.budgetTd}>{item.item}</td>
+                      <td style={styles.budgetTd}>
+                        <input
+                          type="text"
+                          value={item.item}
+                          onChange={(e) => {
+                            const newData = {...data};
+                            const debtItem = newData.financial.fixedDebts.find(d => d.id === item.id);
+                            if (debtItem) {
+                              debtItem.item = e.target.value;
+                              setData(newData);
+                              saveData(newData);
+                            }
+                          }}
+                          style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
+                        />
+                      </td>
                       <td style={{...styles.budgetTd, textAlign: 'right'}}>
                         <div style={styles.costInputWrapper}>
-                          <span style={styles.dollarSign}>$</span>
+                          <span style={{...styles.dollarSign, fontSize: '1.2rem', fontWeight: 700}}>$</span>
                           <input
                             type="number"
                             value={item.amount}
@@ -3407,14 +3423,49 @@ function App() {
                               }
                             }}
                             placeholder="0"
-                            style={styles.costField}
+                            style={{...styles.costField, fontSize: '1.1rem', fontWeight: 700}}
                           />
                         </div>
+                      </td>
+                      <td style={{...styles.budgetTd, textAlign: 'center'}}>
+                        <button
+                          style={styles.budgetTableBtn}
+                          onClick={() => {
+                            if (confirm(`Delete "${item.item}"?`)) {
+                              const newData = {...data};
+                              newData.financial.fixedDebts = newData.financial.fixedDebts.filter(d => d.id !== item.id);
+                              setData(newData);
+                              saveData(newData);
+                            }
+                          }}
+                          title="Delete"
+                        >
+                          🗑️
+                        </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              <button
+                style={styles.addBudgetItemBtn}
+                onClick={() => {
+                  const itemName = prompt('Enter debt name:');
+                  if (!itemName) return;
+                  const newData = {...data};
+                  if (!newData.financial.fixedDebts) newData.financial.fixedDebts = [];
+                  newData.financial.fixedDebts.push({
+                    id: 'fd_' + Date.now(),
+                    item: itemName,
+                    amount: '',
+                    type: 'debt'
+                  });
+                  setData(newData);
+                  saveData(newData);
+                }}
+              >
+                + Add debt
+              </button>
             </div>
 
             {/* Repairs (Read-only from Repairs tab) */}
@@ -3441,16 +3492,32 @@ function App() {
                 <thead>
                   <tr>
                     <th style={styles.budgetTh}>Item</th>
-                    <th style={{...styles.budgetTh, width: '150px', textAlign: 'right'}}>Amount</th>
+                    <th style={{...styles.budgetTh, width: '200px', textAlign: 'right'}}>Amount</th>
+                    <th style={{...styles.budgetTh, width: '80px', textAlign: 'center'}}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {(data.financial?.expenses || []).map(item => (
                     <tr key={item.id}>
-                      <td style={styles.budgetTd}>{item.item}</td>
+                      <td style={styles.budgetTd}>
+                        <input
+                          type="text"
+                          value={item.item}
+                          onChange={(e) => {
+                            const newData = {...data};
+                            const expItem = newData.financial.expenses.find(d => d.id === item.id);
+                            if (expItem) {
+                              expItem.item = e.target.value;
+                              setData(newData);
+                              saveData(newData);
+                            }
+                          }}
+                          style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
+                        />
+                      </td>
                       <td style={{...styles.budgetTd, textAlign: 'right'}}>
                         <div style={styles.costInputWrapper}>
-                          <span style={styles.dollarSign}>$</span>
+                          <span style={{...styles.dollarSign, fontSize: '1.2rem', fontWeight: 700}}>$</span>
                           <input
                             type="number"
                             value={item.amount}
@@ -3464,31 +3531,98 @@ function App() {
                               }
                             }}
                             placeholder="0"
-                            style={styles.costField}
+                            style={{...styles.costField, fontSize: '1.1rem', fontWeight: 700}}
                           />
                         </div>
+                      </td>
+                      <td style={{...styles.budgetTd, textAlign: 'center'}}>
+                        <button
+                          style={styles.budgetTableBtn}
+                          onClick={() => {
+                            if (confirm(`Delete "${item.item}"?`)) {
+                              const newData = {...data};
+                              newData.financial.expenses = newData.financial.expenses.filter(d => d.id !== item.id);
+                              setData(newData);
+                              saveData(newData);
+                            }
+                          }}
+                          title="Delete"
+                        >
+                          🗑️
+                        </button>
                       </td>
                     </tr>
                   ))}
                   {data.budget.other.map(item => (
                     <tr key={item.id}>
-                      <td style={styles.budgetTd}>{item.item}</td>
+                      <td style={styles.budgetTd}>
+                        {editingBudgetItemId === item.id ? (
+                          <input
+                            type="text"
+                            value={editBudgetItemText}
+                            onChange={(e) => setEditBudgetItemText(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && updateBudgetItemText('other', item.id)}
+                            onBlur={() => updateBudgetItemText('other', item.id)}
+                            style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
+                            autoFocus
+                          />
+                        ) : (
+                          <span
+                            style={{cursor: 'pointer', fontSize: '1rem', fontWeight: 600}}
+                            onClick={() => { setEditingBudgetItemId(item.id); setEditBudgetItemText(item.item); }}
+                          >
+                            {item.item}
+                          </span>
+                        )}
+                      </td>
                       <td style={{...styles.budgetTd, textAlign: 'right'}}>
                         <div style={styles.costInputWrapper}>
-                          <span style={styles.dollarSign}>$</span>
+                          <span style={{...styles.dollarSign, fontSize: '1.2rem', fontWeight: 700}}>$</span>
                           <input
                             type="number"
                             value={item.cost}
                             onChange={(e) => updateBudgetCost('other', item.id, e.target.value)}
                             placeholder="0"
-                            style={styles.costField}
+                            style={{...styles.costField, fontSize: '1.1rem', fontWeight: 700}}
                           />
                         </div>
+                      </td>
+                      <td style={{...styles.budgetTd, textAlign: 'center'}}>
+                        <button
+                          style={styles.budgetTableBtn}
+                          onClick={() => {
+                            if (confirm(`Delete "${item.item}"?`)) {
+                              deleteBudgetItem('other', item.id);
+                            }
+                          }}
+                          title="Delete"
+                        >
+                          🗑️
+                        </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              <button
+                style={styles.addBudgetItemBtn}
+                onClick={() => {
+                  const itemName = prompt('Enter expense name:');
+                  if (!itemName) return;
+                  const newData = {...data};
+                  if (!newData.financial.expenses) newData.financial.expenses = [];
+                  newData.financial.expenses.push({
+                    id: 'exp_' + Date.now(),
+                    item: itemName,
+                    amount: '',
+                    type: 'expense'
+                  });
+                  setData(newData);
+                  saveData(newData);
+                }}
+              >
+                + Add expense
+              </button>
             </div>
 
             {/* Funding Sources */}
@@ -3504,16 +3638,32 @@ function App() {
                 <thead>
                   <tr>
                     <th style={styles.budgetTh}>Item</th>
-                    <th style={{...styles.budgetTh, width: '150px', textAlign: 'right'}}>Amount</th>
+                    <th style={{...styles.budgetTh, width: '200px', textAlign: 'right'}}>Amount</th>
+                    <th style={{...styles.budgetTh, width: '80px', textAlign: 'center'}}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {(data.financial?.funding || []).map(item => (
                     <tr key={item.id}>
-                      <td style={styles.budgetTd}>{item.item}</td>
+                      <td style={styles.budgetTd}>
+                        <input
+                          type="text"
+                          value={item.item}
+                          onChange={(e) => {
+                            const newData = {...data};
+                            const fundItem = newData.financial.funding.find(d => d.id === item.id);
+                            if (fundItem) {
+                              fundItem.item = e.target.value;
+                              setData(newData);
+                              saveData(newData);
+                            }
+                          }}
+                          style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
+                        />
+                      </td>
                       <td style={{...styles.budgetTd, textAlign: 'right'}}>
                         <div style={styles.costInputWrapper}>
-                          <span style={styles.dollarSign}>$</span>
+                          <span style={{...styles.dollarSign, fontSize: '1.2rem', fontWeight: 700}}>$</span>
                           <input
                             type="number"
                             value={item.amount}
@@ -3527,14 +3677,49 @@ function App() {
                               }
                             }}
                             placeholder="0"
-                            style={styles.costField}
+                            style={{...styles.costField, fontSize: '1.1rem', fontWeight: 700}}
                           />
                         </div>
+                      </td>
+                      <td style={{...styles.budgetTd, textAlign: 'center'}}>
+                        <button
+                          style={styles.budgetTableBtn}
+                          onClick={() => {
+                            if (confirm(`Delete "${item.item}"?`)) {
+                              const newData = {...data};
+                              newData.financial.funding = newData.financial.funding.filter(d => d.id !== item.id);
+                              setData(newData);
+                              saveData(newData);
+                            }
+                          }}
+                          title="Delete"
+                        >
+                          🗑️
+                        </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              <button
+                style={styles.addBudgetItemBtn}
+                onClick={() => {
+                  const itemName = prompt('Enter funding source name:');
+                  if (!itemName) return;
+                  const newData = {...data};
+                  if (!newData.financial.funding) newData.financial.funding = [];
+                  newData.financial.funding.push({
+                    id: 'fun_' + Date.now(),
+                    item: itemName,
+                    amount: '',
+                    type: 'income'
+                  });
+                  setData(newData);
+                  saveData(newData);
+                }}
+              >
+                + Add funding source
+              </button>
             </div>
 
             {/* Custom Items */}
@@ -3559,22 +3744,52 @@ function App() {
                   <tbody>
                     {(data.financial?.customItems || []).map(item => (
                       <tr key={item.id}>
-                        <td style={styles.budgetTd}>{item.item}</td>
                         <td style={styles.budgetTd}>
-                          <span style={{
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                            fontSize: '0.85rem',
-                            fontWeight: 600,
-                            background: item.type === 'income' ? '#d4edda' : '#f8d7da',
-                            color: item.type === 'income' ? '#155724' : '#721c24'
-                          }}>
-                            {item.type === 'income' ? '+ Income' : '- Expense'}
-                          </span>
+                          <input
+                            type="text"
+                            value={item.item}
+                            onChange={(e) => {
+                              const newData = {...data};
+                              const customItem = newData.financial.customItems.find(d => d.id === item.id);
+                              if (customItem) {
+                                customItem.item = e.target.value;
+                                setData(newData);
+                                saveData(newData);
+                              }
+                            }}
+                            style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
+                          />
+                        </td>
+                        <td style={styles.budgetTd}>
+                          <select
+                            value={item.type}
+                            onChange={(e) => {
+                              const newData = {...data};
+                              const customItem = newData.financial.customItems.find(d => d.id === item.id);
+                              if (customItem) {
+                                customItem.type = e.target.value;
+                                setData(newData);
+                                saveData(newData);
+                              }
+                            }}
+                            style={{
+                              padding: '6px 10px',
+                              borderRadius: '4px',
+                              fontSize: '0.9rem',
+                              fontWeight: 600,
+                              border: '1px solid #ddd',
+                              background: item.type === 'income' ? '#d4edda' : '#f8d7da',
+                              color: item.type === 'income' ? '#155724' : '#721c24',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            <option value="income">+ Income</option>
+                            <option value="expense">- Expense</option>
+                          </select>
                         </td>
                         <td style={{...styles.budgetTd, textAlign: 'right'}}>
                           <div style={styles.costInputWrapper}>
-                            <span style={styles.dollarSign}>$</span>
+                            <span style={{...styles.dollarSign, fontSize: '1.2rem', fontWeight: 700}}>$</span>
                             <input
                               type="number"
                               value={item.amount}
@@ -3588,7 +3803,7 @@ function App() {
                                 }
                               }}
                               placeholder="0"
-                              style={styles.costField}
+                              style={{...styles.costField, fontSize: '1.1rem', fontWeight: 700}}
                             />
                           </div>
                         </td>
@@ -3596,10 +3811,12 @@ function App() {
                           <button
                             style={styles.budgetTableBtn}
                             onClick={() => {
-                              const newData = {...data};
-                              newData.financial.customItems = newData.financial.customItems.filter(i => i.id !== item.id);
-                              setData(newData);
-                              saveData(newData);
+                              if (confirm(`Delete "${item.item}"?`)) {
+                                const newData = {...data};
+                                newData.financial.customItems = newData.financial.customItems.filter(i => i.id !== item.id);
+                                setData(newData);
+                                saveData(newData);
+                              }
                             }}
                             title="Delete"
                           >
