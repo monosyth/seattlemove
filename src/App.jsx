@@ -456,6 +456,23 @@ const initialData = {
       { id: 'b26', item: 'Travel to Seattle (with pets)', cost: '' },
       { id: 'b27', item: 'Buffer/contingency', cost: '' },
     ]
+  },
+  financial: {
+    salePrice: '',
+    fixedDebts: [
+      { id: 'fd1', item: 'Remaining Mortgage', amount: '', type: 'debt' },
+      { id: 'fd2', item: 'HELOC Loan', amount: '150000', type: 'debt' },
+      { id: 'fd3', item: 'SoFi Loan', amount: '50000', type: 'debt' },
+      { id: 'fd4', item: 'Solar Loan', amount: '53000', type: 'debt' },
+      { id: 'fd5', item: 'Credit Cards', amount: '80000', type: 'debt' },
+    ],
+    expenses: [
+      { id: 'exp1', item: 'Concierge for Upgrades', amount: '', type: 'expense' },
+    ],
+    funding: [
+      { id: 'fun1', item: '401k Loan', amount: '', type: 'income' },
+    ],
+    customItems: []
   }
 };
 
@@ -1369,6 +1386,51 @@ function App() {
     return ['must', 'high', 'nice', 'other'].reduce((sum, cat) => sum + getBudgetTotal(cat), 0);
   };
 
+  // Financial calculator functions
+  const getRealtorFees = () => {
+    const salePrice = parseFloat(data.financial?.salePrice) || 0;
+    return salePrice * 0.05; // 5% realtor fees
+  };
+
+  const getTotalDebts = () => {
+    return (data.financial?.fixedDebts || []).reduce((sum, item) => {
+      return sum + (parseFloat(item.amount) || 0);
+    }, 0);
+  };
+
+  const getTotalExpenses = () => {
+    const expenses = (data.financial?.expenses || []).reduce((sum, item) => {
+      return sum + (parseFloat(item.amount) || 0);
+    }, 0);
+    const repairs = getBudgetTotal('must') + getBudgetTotal('high') + getBudgetTotal('nice');
+    const moving = getBudgetTotal('other');
+    return expenses + repairs + moving;
+  };
+
+  const getTotalFunding = () => {
+    return (data.financial?.funding || []).reduce((sum, item) => {
+      return sum + (parseFloat(item.amount) || 0);
+    }, 0);
+  };
+
+  const getCustomItemsTotal = () => {
+    return (data.financial?.customItems || []).reduce((sum, item) => {
+      const amount = parseFloat(item.amount) || 0;
+      return item.type === 'income' ? sum + amount : sum - amount;
+    }, 0);
+  };
+
+  const getNetProceeds = () => {
+    const salePrice = parseFloat(data.financial?.salePrice) || 0;
+    const realtorFees = getRealtorFees();
+    const debts = getTotalDebts();
+    const expenses = getTotalExpenses();
+    const funding = getTotalFunding();
+    const customItems = getCustomItemsTotal();
+
+    return salePrice + funding - realtorFees - debts - expenses + customItems;
+  };
+
   // One-time function to sync new realtor data to Firebase
   const syncRealtorsToFirebase = async () => {
     if (!confirm('This will update Firebase with all 8 realtors. Continue?')) return;
@@ -1552,7 +1614,7 @@ function App() {
           }}
         >
           <Tab value="checklist" label="Checklist" icon={<span>✓</span>} iconPosition="start" />
-          <Tab value="budget" label="Budget" icon={<span>💰</span>} iconPosition="start" />
+          <Tab value="budget" label="Sale Proceeds" icon={<span>💰</span>} iconPosition="start" />
           <Tab value="timeline" label="Timeline" icon={<span>📅</span>} iconPosition="start" />
           <Tab value="notes" label="Notes" icon={<span>📝</span>} iconPosition="start" />
           <Tab value="history" label="History" icon={<span>📜</span>} iconPosition="start" />
@@ -3248,7 +3310,7 @@ function App() {
           </Box>
         )}
 
-        {/* Budget Tab */}
+        {/* Sale Proceeds Calculator Tab */}
         {activeTab === 'budget' && (
           <Box sx={{
             backgroundImage: `url(${mtRainierView})`,
@@ -3268,68 +3330,149 @@ function App() {
             }
           }}>
             <Box sx={{ position: 'relative', zIndex: 1, ...styles.budgetContainer }}>
-            {/* Budget Summary Card */}
+
+            {/* Net Proceeds Summary Card */}
             <div style={styles.budgetSummary}>
-              <h3 style={styles.budgetSummaryTitle}>💰 Project Budget</h3>
-
-              {/* Budget Line Items */}
-              <div style={styles.budgetLineItems}>
-                <div style={styles.budgetLineItem}>
-                  <span style={styles.budgetLineItemName}>🔧 Repairs</span>
-                  <span style={styles.budgetLineItemValue}>${(getBudgetTotal('must') + getBudgetTotal('high') + getBudgetTotal('nice')).toLocaleString()}</span>
-                </div>
-                <div style={styles.budgetLineItem}>
-                  <span style={styles.budgetLineItemName}>🚚 Moving & Housing</span>
-                  <span style={styles.budgetLineItemValue}>${getBudgetTotal('other').toLocaleString()}</span>
-                </div>
-              </div>
-
-              {/* Grand Total */}
+              <h3 style={styles.budgetSummaryTitle}>💰 Net Sale Proceeds</h3>
               <div style={styles.budgetGrandTotal}>
-                <span style={styles.budgetGrandTotalLabel}>Total Project Budget</span>
-                <span style={styles.budgetGrandTotalValue}>${getGrandTotal().toLocaleString()}</span>
+                <span style={styles.budgetGrandTotalLabel}>Estimated Cash After Sale</span>
+                <span style={{...styles.budgetGrandTotalValue, color: getNetProceeds() >= 0 ? '#2ecc71' : '#e74c3c'}}>
+                  ${getNetProceeds().toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}
+                </span>
               </div>
             </div>
 
-            {/* Moving & Housing Section (Editable) */}
-            <div className="budget-section" style={{...styles.budgetSection, borderColor: colors.deepBlue}}>
-              <div style={{...styles.budgetTitle, background: colors.deepBlue}}>
-                <div>
-                  <h3 style={styles.budgetTitleText}>🚚 Moving & Housing Costs</h3>
-                  <p style={styles.budgetTitleDesc}>Temporary housing, movers, storage, travel, etc.</p>
-                </div>
-                <span style={styles.budgetTitleTotal}>${getBudgetTotal('other').toLocaleString()}</span>
+            {/* Sale Price Input */}
+            <div className="budget-section" style={{...styles.budgetSection, borderColor: '#2ecc71'}}>
+              <div style={{...styles.budgetTitle, background: '#2ecc71'}}>
+                <h3 style={styles.budgetTitleText}>🏠 Home Sale</h3>
               </div>
+              <div style={{padding: '20px'}}>
+                <div style={{marginBottom: '15px'}}>
+                  <label style={{display: 'block', fontWeight: 600, marginBottom: '8px', color: '#2c3e50'}}>Sale Price</label>
+                  <div style={styles.costInputWrapper}>
+                    <span style={styles.dollarSign}>$</span>
+                    <input
+                      type="number"
+                      value={data.financial?.salePrice || ''}
+                      onChange={(e) => {
+                        const newData = {...data, financial: {...data.financial, salePrice: e.target.value}};
+                        setData(newData);
+                        saveData(newData);
+                      }}
+                      placeholder="0"
+                      style={{...styles.costField, fontSize: '1.2rem', fontWeight: 600}}
+                    />
+                  </div>
+                </div>
+                <div style={{fontSize: '0.9rem', color: '#7f8c8d', padding: '10px', background: '#ecf0f1', borderRadius: '6px'}}>
+                  <strong>Realtor Fees (5%):</strong> -${getRealtorFees().toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}
+                </div>
+              </div>
+            </div>
 
+            {/* Debts to Pay Off */}
+            <div className="budget-section" style={{...styles.budgetSection, borderColor: '#e74c3c'}}>
+              <div style={{...styles.budgetTitle, background: '#e74c3c'}}>
+                <div>
+                  <h3 style={styles.budgetTitleText}>💳 Debts to Pay Off</h3>
+                  <p style={styles.budgetTitleDesc}>Outstanding loans and credit</p>
+                </div>
+                <span style={styles.budgetTitleTotal}>-${getTotalDebts().toLocaleString()}</span>
+              </div>
               <table style={styles.budgetTable}>
                 <thead>
                   <tr>
                     <th style={styles.budgetTh}>Item</th>
-                    <th style={{...styles.budgetTh, width: '120px', textAlign: 'right'}}>Cost</th>
-                    <th style={{...styles.budgetTh, width: '80px', textAlign: 'center'}}>Actions</th>
+                    <th style={{...styles.budgetTh, width: '150px', textAlign: 'right'}}>Amount</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {data.budget.other.map(item => (
-                    <tr key={item.id} style={item.done ? styles.budgetRowDone : {}}>
-                      <td style={styles.budgetTd}>
-                        {editingBudgetItemId === item.id ? (
+                  {(data.financial?.fixedDebts || []).map(item => (
+                    <tr key={item.id}>
+                      <td style={styles.budgetTd}>{item.item}</td>
+                      <td style={{...styles.budgetTd, textAlign: 'right'}}>
+                        <div style={styles.costInputWrapper}>
+                          <span style={styles.dollarSign}>$</span>
                           <input
-                            type="text"
-                            value={editBudgetItemText}
-                            onChange={(e) => setEditBudgetItemText(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && updateBudgetItemText('other', item.id)}
-                            onBlur={() => updateBudgetItemText('other', item.id)}
-                            style={styles.budgetTableInput}
-                            autoFocus
+                            type="number"
+                            value={item.amount}
+                            onChange={(e) => {
+                              const newData = {...data};
+                              const debtItem = newData.financial.fixedDebts.find(d => d.id === item.id);
+                              if (debtItem) {
+                                debtItem.amount = e.target.value;
+                                setData(newData);
+                                saveData(newData);
+                              }
+                            }}
+                            placeholder="0"
+                            style={styles.costField}
                           />
-                        ) : (
-                          <span style={item.done ? styles.budgetItemNameDone : styles.budgetItemName}>
-                            {item.done && <span style={styles.budgetDoneCheck}>✓</span>}
-                            {item.item}
-                          </span>
-                        )}
+                        </div>
                       </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Repairs (Read-only from Repairs tab) */}
+            <div className="budget-section" style={{...styles.budgetSection, borderColor: '#e67e22'}}>
+              <div style={{...styles.budgetTitle, background: '#e67e22'}}>
+                <div>
+                  <h3 style={styles.budgetTitleText}>🔧 Repairs</h3>
+                  <p style={styles.budgetTitleDesc}>From Repairs tab (read-only)</p>
+                </div>
+                <span style={styles.budgetTitleTotal}>-${(getBudgetTotal('must') + getBudgetTotal('high') + getBudgetTotal('nice')).toLocaleString()}</span>
+              </div>
+            </div>
+
+            {/* Expenses */}
+            <div className="budget-section" style={{...styles.budgetSection, borderColor: '#9b59b6'}}>
+              <div style={{...styles.budgetTitle, background: '#9b59b6'}}>
+                <div>
+                  <h3 style={styles.budgetTitleText}>💸 Additional Expenses</h3>
+                  <p style={styles.budgetTitleDesc}>Concierge, moving, housing, etc.</p>
+                </div>
+                <span style={styles.budgetTitleTotal}>-${(getTotalExpenses() - (getBudgetTotal('must') + getBudgetTotal('high') + getBudgetTotal('nice'))).toLocaleString()}</span>
+              </div>
+              <table style={styles.budgetTable}>
+                <thead>
+                  <tr>
+                    <th style={styles.budgetTh}>Item</th>
+                    <th style={{...styles.budgetTh, width: '150px', textAlign: 'right'}}>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(data.financial?.expenses || []).map(item => (
+                    <tr key={item.id}>
+                      <td style={styles.budgetTd}>{item.item}</td>
+                      <td style={{...styles.budgetTd, textAlign: 'right'}}>
+                        <div style={styles.costInputWrapper}>
+                          <span style={styles.dollarSign}>$</span>
+                          <input
+                            type="number"
+                            value={item.amount}
+                            onChange={(e) => {
+                              const newData = {...data};
+                              const expItem = newData.financial.expenses.find(d => d.id === item.id);
+                              if (expItem) {
+                                expItem.amount = e.target.value;
+                                setData(newData);
+                                saveData(newData);
+                              }
+                            }}
+                            placeholder="0"
+                            style={styles.costField}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {data.budget.other.map(item => (
+                    <tr key={item.id}>
+                      <td style={styles.budgetTd}>{item.item}</td>
                       <td style={{...styles.budgetTd, textAlign: 'right'}}>
                         <div style={styles.costInputWrapper}>
                           <span style={styles.dollarSign}>$</span>
@@ -3342,70 +3485,152 @@ function App() {
                           />
                         </div>
                       </td>
-                      <td style={{...styles.budgetTd, textAlign: 'center'}}>
-                        {confirmDeleteBudgetItemId === item.id ? (
-                          <div style={styles.budgetTableActions}>
-                            <button style={styles.confirmYesBtn} onClick={() => deleteBudgetItem('other', item.id)}>Yes</button>
-                            <button style={styles.confirmNoBtn} onClick={() => setConfirmDeleteBudgetItemId(null)}>No</button>
-                          </div>
-                        ) : (
-                          <div style={styles.budgetTableActions}>
-                            <button
-                              style={styles.budgetTableBtn}
-                              onClick={() => { setEditingBudgetItemId(item.id); setEditBudgetItemText(item.item); }}
-                              title="Edit"
-                            >
-                              ✏️
-                            </button>
-                            <button
-                              style={styles.budgetTableBtn}
-                              onClick={() => setConfirmDeleteBudgetItemId(item.id)}
-                              title="Delete"
-                            >
-                              🗑️
-                            </button>
-                          </div>
-                        )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Funding Sources */}
+            <div className="budget-section" style={{...styles.budgetSection, borderColor: '#3498db'}}>
+              <div style={{...styles.budgetTitle, background: '#3498db'}}>
+                <div>
+                  <h3 style={styles.budgetTitleText}>💵 Funding Sources</h3>
+                  <p style={styles.budgetTitleDesc}>401k loan and other income</p>
+                </div>
+                <span style={styles.budgetTitleTotal}>+${getTotalFunding().toLocaleString()}</span>
+              </div>
+              <table style={styles.budgetTable}>
+                <thead>
+                  <tr>
+                    <th style={styles.budgetTh}>Item</th>
+                    <th style={{...styles.budgetTh, width: '150px', textAlign: 'right'}}>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(data.financial?.funding || []).map(item => (
+                    <tr key={item.id}>
+                      <td style={styles.budgetTd}>{item.item}</td>
+                      <td style={{...styles.budgetTd, textAlign: 'right'}}>
+                        <div style={styles.costInputWrapper}>
+                          <span style={styles.dollarSign}>$</span>
+                          <input
+                            type="number"
+                            value={item.amount}
+                            onChange={(e) => {
+                              const newData = {...data};
+                              const fundItem = newData.financial.funding.find(d => d.id === item.id);
+                              if (fundItem) {
+                                fundItem.amount = e.target.value;
+                                setData(newData);
+                                saveData(newData);
+                              }
+                            }}
+                            placeholder="0"
+                            style={styles.costField}
+                          />
+                        </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
 
-              {/* Add New Item */}
-              {newBudgetItemCategory === 'other' ? (
-                <div style={styles.addBudgetRowForm}>
-                  <input
-                    type="text"
-                    value={newBudgetItemText}
-                    onChange={(e) => setNewBudgetItemText(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && addNewBudgetItem('other')}
-                    placeholder="Enter item name..."
-                    style={styles.addBudgetInput}
-                    autoFocus
-                  />
-                  <button
-                    style={styles.addItemSaveBtn}
-                    onClick={() => addNewBudgetItem('other')}
-                    disabled={!newBudgetItemText.trim()}
-                  >
-                    Add
-                  </button>
-                  <button
-                    style={styles.addItemCancelBtn}
-                    onClick={() => { setNewBudgetItemCategory(null); setNewBudgetItemText(''); }}
-                  >
-                    Cancel
-                  </button>
+            {/* Custom Items */}
+            <div className="budget-section" style={{...styles.budgetSection, borderColor: '#95a5a6'}}>
+              <div style={{...styles.budgetTitle, background: '#95a5a6'}}>
+                <div>
+                  <h3 style={styles.budgetTitleText}>📋 Custom Items</h3>
+                  <p style={styles.budgetTitleDesc}>Additional income or expenses</p>
                 </div>
-              ) : (
-                <button
-                  style={styles.addBudgetItemBtn}
-                  onClick={() => setNewBudgetItemCategory('other')}
-                >
-                  + Add expense
-                </button>
+                <span style={styles.budgetTitleTotal}>${getCustomItemsTotal().toLocaleString()}</span>
+              </div>
+              {(data.financial?.customItems || []).length > 0 && (
+                <table style={styles.budgetTable}>
+                  <thead>
+                    <tr>
+                      <th style={styles.budgetTh}>Item</th>
+                      <th style={{...styles.budgetTh, width: '100px'}}>Type</th>
+                      <th style={{...styles.budgetTh, width: '150px', textAlign: 'right'}}>Amount</th>
+                      <th style={{...styles.budgetTh, width: '80px', textAlign: 'center'}}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(data.financial?.customItems || []).map(item => (
+                      <tr key={item.id}>
+                        <td style={styles.budgetTd}>{item.item}</td>
+                        <td style={styles.budgetTd}>
+                          <span style={{
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            background: item.type === 'income' ? '#d4edda' : '#f8d7da',
+                            color: item.type === 'income' ? '#155724' : '#721c24'
+                          }}>
+                            {item.type === 'income' ? '+ Income' : '- Expense'}
+                          </span>
+                        </td>
+                        <td style={{...styles.budgetTd, textAlign: 'right'}}>
+                          <div style={styles.costInputWrapper}>
+                            <span style={styles.dollarSign}>$</span>
+                            <input
+                              type="number"
+                              value={item.amount}
+                              onChange={(e) => {
+                                const newData = {...data};
+                                const customItem = newData.financial.customItems.find(d => d.id === item.id);
+                                if (customItem) {
+                                  customItem.amount = e.target.value;
+                                  setData(newData);
+                                  saveData(newData);
+                                }
+                              }}
+                              placeholder="0"
+                              style={styles.costField}
+                            />
+                          </div>
+                        </td>
+                        <td style={{...styles.budgetTd, textAlign: 'center'}}>
+                          <button
+                            style={styles.budgetTableBtn}
+                            onClick={() => {
+                              const newData = {...data};
+                              newData.financial.customItems = newData.financial.customItems.filter(i => i.id !== item.id);
+                              setData(newData);
+                              saveData(newData);
+                            }}
+                            title="Delete"
+                          >
+                            🗑️
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               )}
+              <button
+                style={styles.addBudgetItemBtn}
+                onClick={() => {
+                  const itemName = prompt('Enter item name:');
+                  if (!itemName) return;
+                  const itemType = confirm('Click OK for INCOME (+), Cancel for EXPENSE (-)') ? 'income' : 'expense';
+                  const newData = {...data};
+                  if (!newData.financial.customItems) newData.financial.customItems = [];
+                  newData.financial.customItems.push({
+                    id: 'custom_' + Date.now(),
+                    item: itemName,
+                    amount: '',
+                    type: itemType
+                  });
+                  setData(newData);
+                  saveData(newData);
+                }}
+              >
+                + Add custom item
+              </button>
             </div>
 
             </Box>
