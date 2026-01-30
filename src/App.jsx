@@ -459,6 +459,7 @@ const initialData = {
   },
   financial: {
     salePrice: '',
+    realtorFeePercentage: 5,
     fixedDebts: [
       { id: 'fd1', item: 'Remaining Mortgage', amount: '', type: 'debt' },
       { id: 'fd2', item: 'HELOC Loan', amount: '150000', type: 'debt' },
@@ -1392,7 +1393,8 @@ function App() {
   // Financial calculator functions
   const getRealtorFees = () => {
     const salePrice = parseFloat(data.financial?.salePrice) || 0;
-    return salePrice * 0.05; // 5% realtor fees
+    const percentage = parseFloat(data.financial?.realtorFeePercentage) || 5;
+    return salePrice * (percentage / 100);
   };
 
   const getTotalDebts = () => {
@@ -3351,7 +3353,7 @@ function App() {
                 <h3 style={styles.budgetTitleText}>🏠 Home Sale</h3>
               </div>
               <div style={{padding: '20px'}}>
-                <div style={{marginBottom: '15px'}}>
+                <div style={{marginBottom: '20px'}}>
                   <label style={{display: 'block', fontWeight: 600, marginBottom: '8px', color: '#2c3e50'}}>Sale Price</label>
                   <div style={styles.costInputWrapper}>
                     <span style={styles.dollarSign}>$</span>
@@ -3368,8 +3370,68 @@ function App() {
                     />
                   </div>
                 </div>
-                <div style={{fontSize: '0.9rem', color: '#7f8c8d', padding: '10px', background: '#ecf0f1', borderRadius: '6px'}}>
-                  <strong>Realtor Fees (5%):</strong> -${getRealtorFees().toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}
+                <div style={{
+                  padding: '16px 20px',
+                  background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+                  borderRadius: '8px',
+                  borderLeft: '4px solid #e74c3c'
+                }}>
+                  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px'}}>
+                    <span style={{fontSize: '1rem', fontWeight: 600, color: '#2c3e50'}}>Realtor Fees:</span>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '6px'}}>
+                      {editingFinancialItemId === 'realtorFeePercentage' ? (
+                        <input
+                          type="number"
+                          value={editFinancialItemText}
+                          onChange={(e) => setEditFinancialItemText(e.target.value)}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              const newData = {...data, financial: {...data.financial, realtorFeePercentage: parseFloat(editFinancialItemText) || 5}};
+                              setData(newData);
+                              saveData(newData);
+                              setEditingFinancialItemId(null);
+                            }
+                          }}
+                          onBlur={() => {
+                            const newData = {...data, financial: {...data.financial, realtorFeePercentage: parseFloat(editFinancialItemText) || 5}};
+                            setData(newData);
+                            saveData(newData);
+                            setEditingFinancialItemId(null);
+                          }}
+                          style={{
+                            width: '50px',
+                            padding: '4px 8px',
+                            fontSize: '0.95rem',
+                            fontWeight: 600,
+                            border: '2px solid #3498db',
+                            borderRadius: '4px',
+                            textAlign: 'center'
+                          }}
+                          autoFocus
+                        />
+                      ) : (
+                        <span
+                          style={{
+                            cursor: 'pointer',
+                            fontSize: '0.95rem',
+                            fontWeight: 600,
+                            color: '#3498db',
+                            textDecoration: 'underline',
+                            userSelect: 'none'
+                          }}
+                          onClick={() => {
+                            setEditingFinancialItemId('realtorFeePercentage');
+                            setEditFinancialItemText(String(data.financial?.realtorFeePercentage || 5));
+                          }}
+                        >
+                          {data.financial?.realtorFeePercentage || 5}%
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{fontSize: '1.3rem', fontWeight: 700, color: '#e74c3c', textAlign: 'right'}}>
+                    -${getRealtorFees().toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}
+                  </div>
                 </div>
               </div>
             </div>
