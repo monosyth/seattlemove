@@ -1459,25 +1459,6 @@ function App() {
             </Typography>
           </Box>
           <Stack direction="row" spacing={2}>
-            <button
-              onClick={syncRealtorsToFirebase}
-              style={{
-                background: 'linear-gradient(135deg, #2b9298, #1abc9c)',
-                color: 'white',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '20px',
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(26, 188, 156, 0.3)',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'}
-              onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
-            >
-              🔄 Sync Realtors to Firebase
-            </button>
             <Box>
               {saving ? (
                 <Chip label="💾 Saving..." color="default" sx={{ background: 'linear-gradient(135deg, #1abc9c, #00d4ff)', color: 'white', fontWeight: 600, animation: 'pulseGlow 1s ease-in-out infinite', boxShadow: '0 0 10px rgba(26, 188, 156, 0.5)' }} />
