@@ -512,6 +512,9 @@ function App() {
   const [dragOverBudgetItemId, setDragOverBudgetItemId] = useState(null);
   const [newBudgetItemCategory, setNewBudgetItemCategory] = useState(null);
   const [newBudgetItemText, setNewBudgetItemText] = useState('');
+  // Financial item editing state
+  const [editingFinancialItemId, setEditingFinancialItemId] = useState(null);
+  const [editFinancialItemText, setEditFinancialItemText] = useState('');
   // Realtor management state
   const [editingRealtorId, setEditingRealtorId] = useState(null);
   const [editingRealtorData, setEditingRealtorData] = useState({});
@@ -3392,23 +3395,47 @@ function App() {
                   {(data.financial?.fixedDebts || []).map(item => (
                     <tr key={item.id}>
                       <td style={styles.budgetTd}>
-                        <input
-                          type="text"
-                          value={item.item}
-                          onChange={(e) => {
-                            const newData = {...data};
-                            const debtItem = newData.financial.fixedDebts.find(d => d.id === item.id);
-                            if (debtItem) {
-                              debtItem.item = e.target.value;
-                              setData(newData);
-                              saveData(newData);
-                            }
-                          }}
-                          style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
-                        />
+                        {editingFinancialItemId === item.id ? (
+                          <input
+                            type="text"
+                            value={editFinancialItemText}
+                            onChange={(e) => setEditFinancialItemText(e.target.value)}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                const newData = {...data};
+                                const debtItem = newData.financial.fixedDebts.find(d => d.id === item.id);
+                                if (debtItem) {
+                                  debtItem.item = editFinancialItemText;
+                                  setData(newData);
+                                  saveData(newData);
+                                }
+                                setEditingFinancialItemId(null);
+                              }
+                            }}
+                            onBlur={() => {
+                              const newData = {...data};
+                              const debtItem = newData.financial.fixedDebts.find(d => d.id === item.id);
+                              if (debtItem) {
+                                debtItem.item = editFinancialItemText;
+                                setData(newData);
+                                saveData(newData);
+                              }
+                              setEditingFinancialItemId(null);
+                            }}
+                            style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
+                            autoFocus
+                          />
+                        ) : (
+                          <span
+                            style={{cursor: 'pointer', fontSize: '1rem', fontWeight: 600}}
+                            onClick={() => { setEditingFinancialItemId(item.id); setEditFinancialItemText(item.item); }}
+                          >
+                            {item.item}
+                          </span>
+                        )}
                       </td>
                       <td style={{...styles.budgetTd, textAlign: 'right'}}>
-                        <div style={styles.costInputWrapper}>
+                        <div style={{...styles.costInputWrapper, minWidth: '180px'}}>
                           <span style={{...styles.dollarSign, fontSize: '1.2rem', fontWeight: 700}}>$</span>
                           <input
                             type="number"
@@ -3423,7 +3450,7 @@ function App() {
                               }
                             }}
                             placeholder="0"
-                            style={{...styles.costField, fontSize: '1.1rem', fontWeight: 700}}
+                            style={{...styles.costField, fontSize: '1.1rem', fontWeight: 700, minWidth: '150px'}}
                           />
                         </div>
                       </td>
@@ -3646,20 +3673,47 @@ function App() {
                   {(data.financial?.funding || []).map(item => (
                     <tr key={item.id}>
                       <td style={styles.budgetTd}>
-                        <input
-                          type="text"
-                          value={item.item}
-                          onChange={(e) => {
-                            const newData = {...data};
-                            const fundItem = newData.financial.funding.find(d => d.id === item.id);
-                            if (fundItem) {
-                              fundItem.item = e.target.value;
-                              setData(newData);
-                              saveData(newData);
-                            }
-                          }}
-                          style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
-                        />
+                        {editingFinancialItemId === item.id ? (
+                          <input
+                            type="text"
+                            value={editFinancialItemText}
+                            onChange={(e) => setEditFinancialItemText(e.target.value)}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                const newData = {...data};
+                                const fundItem = newData.financial.funding.find(d => d.id === item.id);
+                                if (fundItem) {
+                                  fundItem.item = editFinancialItemText;
+                                  setData(newData);
+                                  saveData(newData);
+                                }
+                                setEditingFinancialItemId(null);
+                              }
+                            }}
+                            onBlur={() => {
+                              const newData = {...data};
+                              const fundItem = newData.financial.funding.find(d => d.id === item.id);
+                              if (fundItem) {
+                                fundItem.item = editFinancialItemText;
+                                setData(newData);
+                                saveData(newData);
+                              }
+                              setEditingFinancialItemId(null);
+                            }}
+                            style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
+                            autoFocus
+                          />
+                        ) : (
+                          <span
+                            style={{cursor: 'pointer', fontSize: '1rem', fontWeight: 600}}
+                            onClick={() => {
+                              setEditingFinancialItemId(item.id);
+                              setEditFinancialItemText(item.item);
+                            }}
+                          >
+                            {item.item}
+                          </span>
+                        )}
                       </td>
                       <td style={{...styles.budgetTd, textAlign: 'right'}}>
                         <div style={styles.costInputWrapper}>
@@ -3745,20 +3799,47 @@ function App() {
                     {(data.financial?.customItems || []).map(item => (
                       <tr key={item.id}>
                         <td style={styles.budgetTd}>
-                          <input
-                            type="text"
-                            value={item.item}
-                            onChange={(e) => {
-                              const newData = {...data};
-                              const customItem = newData.financial.customItems.find(d => d.id === item.id);
-                              if (customItem) {
-                                customItem.item = e.target.value;
-                                setData(newData);
-                                saveData(newData);
-                              }
-                            }}
-                            style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
-                          />
+                          {editingFinancialItemId === item.id ? (
+                            <input
+                              type="text"
+                              value={editFinancialItemText}
+                              onChange={(e) => setEditFinancialItemText(e.target.value)}
+                              onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                  const newData = {...data};
+                                  const customItem = newData.financial.customItems.find(d => d.id === item.id);
+                                  if (customItem) {
+                                    customItem.item = editFinancialItemText;
+                                    setData(newData);
+                                    saveData(newData);
+                                  }
+                                  setEditingFinancialItemId(null);
+                                }
+                              }}
+                              onBlur={() => {
+                                const newData = {...data};
+                                const customItem = newData.financial.customItems.find(d => d.id === item.id);
+                                if (customItem) {
+                                  customItem.item = editFinancialItemText;
+                                  setData(newData);
+                                  saveData(newData);
+                                }
+                                setEditingFinancialItemId(null);
+                              }}
+                              style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
+                              autoFocus
+                            />
+                          ) : (
+                            <span
+                              style={{cursor: 'pointer', fontSize: '1rem', fontWeight: 600}}
+                              onClick={() => {
+                                setEditingFinancialItemId(item.id);
+                                setEditFinancialItemText(item.item);
+                              }}
+                            >
+                              {item.item}
+                            </span>
+                          )}
                         </td>
                         <td style={styles.budgetTd}>
                           <select
@@ -5745,7 +5826,8 @@ const styles = {
   costInputWrapper: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
+    minWidth: '180px'
   },
   budgetTableActions: {
     display: 'flex',
@@ -5876,6 +5958,7 @@ const styles = {
   },
   costField: {
     width: '70px',
+    minWidth: '150px',
     padding: '6px 8px',
     border: `1px solid ${colors.mist}`,
     borderRadius: '6px',
