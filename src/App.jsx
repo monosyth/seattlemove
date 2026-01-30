@@ -3427,7 +3427,7 @@ function App() {
                           />
                         ) : (
                           <span
-                            style={{cursor: 'pointer', fontSize: '1rem', fontWeight: 600}}
+                            style={{cursor: 'pointer', fontSize: '1rem', fontWeight: 600, userSelect: 'none'}}
                             onClick={() => { setEditingFinancialItemId(item.id); setEditFinancialItemText(item.item); }}
                           >
                             {item.item}
@@ -3527,20 +3527,47 @@ function App() {
                   {(data.financial?.expenses || []).map(item => (
                     <tr key={item.id}>
                       <td style={styles.budgetTd}>
-                        <input
-                          type="text"
-                          value={item.item}
-                          onChange={(e) => {
-                            const newData = {...data};
-                            const expItem = newData.financial.expenses.find(d => d.id === item.id);
-                            if (expItem) {
-                              expItem.item = e.target.value;
-                              setData(newData);
-                              saveData(newData);
-                            }
-                          }}
-                          style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
-                        />
+                        {editingFinancialItemId === item.id ? (
+                          <input
+                            type="text"
+                            value={editFinancialItemText}
+                            onChange={(e) => setEditFinancialItemText(e.target.value)}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                const newData = {...data};
+                                const expItem = newData.financial.expenses.find(d => d.id === item.id);
+                                if (expItem) {
+                                  expItem.item = editFinancialItemText;
+                                  setData(newData);
+                                  saveData(newData);
+                                }
+                                setEditingFinancialItemId(null);
+                              }
+                            }}
+                            onBlur={() => {
+                              const newData = {...data};
+                              const expItem = newData.financial.expenses.find(d => d.id === item.id);
+                              if (expItem) {
+                                expItem.item = editFinancialItemText;
+                                setData(newData);
+                                saveData(newData);
+                              }
+                              setEditingFinancialItemId(null);
+                            }}
+                            style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
+                            autoFocus
+                          />
+                        ) : (
+                          <span
+                            style={{cursor: 'pointer', fontSize: '1rem', fontWeight: 600, userSelect: 'none'}}
+                            onClick={() => {
+                              setEditingFinancialItemId(item.id);
+                              setEditFinancialItemText(item.item);
+                            }}
+                          >
+                            {item.item}
+                          </span>
+                        )}
                       </td>
                       <td style={{...styles.budgetTd, textAlign: 'right'}}>
                         <div style={styles.costInputWrapper}>
@@ -3595,7 +3622,7 @@ function App() {
                           />
                         ) : (
                           <span
-                            style={{cursor: 'pointer', fontSize: '1rem', fontWeight: 600}}
+                            style={{cursor: 'pointer', fontSize: '1rem', fontWeight: 600, userSelect: 'none'}}
                             onClick={() => { setEditingBudgetItemId(item.id); setEditBudgetItemText(item.item); }}
                           >
                             {item.item}
@@ -3705,7 +3732,7 @@ function App() {
                           />
                         ) : (
                           <span
-                            style={{cursor: 'pointer', fontSize: '1rem', fontWeight: 600}}
+                            style={{cursor: 'pointer', fontSize: '1rem', fontWeight: 600, userSelect: 'none'}}
                             onClick={() => {
                               setEditingFinancialItemId(item.id);
                               setEditFinancialItemText(item.item);
@@ -3831,7 +3858,7 @@ function App() {
                             />
                           ) : (
                             <span
-                              style={{cursor: 'pointer', fontSize: '1rem', fontWeight: 600}}
+                              style={{cursor: 'pointer', fontSize: '1rem', fontWeight: 600, userSelect: 'none'}}
                               onClick={() => {
                                 setEditingFinancialItemId(item.id);
                                 setEditFinancialItemText(item.item);
