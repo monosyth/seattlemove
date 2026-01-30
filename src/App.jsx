@@ -1401,6 +1401,14 @@ function App() {
     }, 0);
   };
 
+  const getDebtsWithoutMortgage = () => {
+    return (data.financial?.fixedDebts || [])
+      .filter(item => !item.item.toLowerCase().includes('mortgage'))
+      .reduce((sum, item) => {
+        return sum + (parseFloat(item.amount) || 0);
+      }, 0);
+  };
+
   const getTotalExpenses = () => {
     const expenses = (data.financial?.expenses || []).reduce((sum, item) => {
       return sum + (parseFloat(item.amount) || 0);
@@ -3530,6 +3538,21 @@ function App() {
                       </td>
                     </tr>
                   ))}
+                  {(data.financial?.fixedDebts || []).length > 0 && (
+                    <tr style={{borderTop: '2px solid #e74c3c'}}>
+                      <td style={{...styles.budgetTd, paddingTop: '12px', paddingBottom: '12px'}}>
+                        <span style={{fontSize: '1.05rem', fontWeight: 700, color: '#2c3e50'}}>
+                          Subtotal (excluding mortgage)
+                        </span>
+                      </td>
+                      <td style={{...styles.budgetTd, textAlign: 'right', paddingTop: '12px', paddingBottom: '12px'}}>
+                        <span style={{fontSize: '1.2rem', fontWeight: 700, color: '#e74c3c'}}>
+                          ${getDebtsWithoutMortgage().toLocaleString()}
+                        </span>
+                      </td>
+                      <td style={{...styles.budgetTd}}></td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
               <button
