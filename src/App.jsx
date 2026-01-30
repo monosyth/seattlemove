@@ -466,12 +466,10 @@ const initialData = {
       { id: 'fd3', item: 'SoFi Loan', amount: '50000', type: 'debt' },
       { id: 'fd4', item: 'Solar Loan', amount: '53000', type: 'debt' },
       { id: 'fd5', item: 'Credit Cards', amount: '80000', type: 'debt' },
+      { id: 'fd6', item: '401k Loan', amount: '', type: 'debt' },
     ],
     expenses: [
       { id: 'exp1', item: 'Concierge for Upgrades', amount: '', type: 'expense' },
-    ],
-    funding: [
-      { id: 'fun1', item: '401k Loan', amount: '', type: 'income' },
     ],
     customItems: []
   }
@@ -1413,9 +1411,7 @@ function App() {
   };
 
   const getTotalFunding = () => {
-    return (data.financial?.funding || []).reduce((sum, item) => {
-      return sum + (parseFloat(item.amount) || 0);
-    }, 0);
+    return 0; // Funding section removed - 401k moved to debts
   };
 
   const getCustomItemsTotal = () => {
@@ -3738,130 +3734,6 @@ function App() {
                 }}
               >
                 + Add expense
-              </button>
-            </div>
-
-            {/* Funding Sources */}
-            <div className="budget-section" style={{...styles.budgetSection, borderColor: '#3498db'}}>
-              <div style={{...styles.budgetTitle, background: '#3498db'}}>
-                <div>
-                  <h3 style={styles.budgetTitleText}>💵 Funding Sources</h3>
-                  <p style={styles.budgetTitleDesc}>401k loan and other income</p>
-                </div>
-                <span style={styles.budgetTitleTotal}>+${getTotalFunding().toLocaleString()}</span>
-              </div>
-              <table style={styles.budgetTable}>
-                <thead>
-                  <tr>
-                    <th style={styles.budgetTh}>Item</th>
-                    <th style={{...styles.budgetTh, width: '200px', textAlign: 'right'}}>Amount</th>
-                    <th style={{...styles.budgetTh, width: '80px', textAlign: 'center'}}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(data.financial?.funding || []).map(item => (
-                    <tr key={item.id}>
-                      <td style={styles.budgetTd}>
-                        {editingFinancialItemId === item.id ? (
-                          <input
-                            type="text"
-                            value={editFinancialItemText}
-                            onChange={(e) => setEditFinancialItemText(e.target.value)}
-                            onKeyPress={(e) => {
-                              if (e.key === 'Enter') {
-                                const newData = {...data};
-                                const fundItem = newData.financial.funding.find(d => d.id === item.id);
-                                if (fundItem) {
-                                  fundItem.item = editFinancialItemText;
-                                  setData(newData);
-                                  saveData(newData);
-                                }
-                                setEditingFinancialItemId(null);
-                              }
-                            }}
-                            onBlur={() => {
-                              const newData = {...data};
-                              const fundItem = newData.financial.funding.find(d => d.id === item.id);
-                              if (fundItem) {
-                                fundItem.item = editFinancialItemText;
-                                setData(newData);
-                                saveData(newData);
-                              }
-                              setEditingFinancialItemId(null);
-                            }}
-                            style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
-                            autoFocus
-                          />
-                        ) : (
-                          <span
-                            style={{cursor: 'pointer', fontSize: '1rem', fontWeight: 600, userSelect: 'none'}}
-                            onClick={() => {
-                              setEditingFinancialItemId(item.id);
-                              setEditFinancialItemText(item.item);
-                            }}
-                          >
-                            {item.item}
-                          </span>
-                        )}
-                      </td>
-                      <td style={{...styles.budgetTd, textAlign: 'right'}}>
-                        <div style={styles.costInputWrapper}>
-                          <span style={{...styles.dollarSign, fontSize: '1.2rem', fontWeight: 700}}>$</span>
-                          <input
-                            type="number"
-                            value={item.amount}
-                            onChange={(e) => {
-                              const newData = {...data};
-                              const fundItem = newData.financial.funding.find(d => d.id === item.id);
-                              if (fundItem) {
-                                fundItem.amount = e.target.value;
-                                setData(newData);
-                                saveData(newData);
-                              }
-                            }}
-                            placeholder="0"
-                            style={{...styles.costField, fontSize: '1.1rem', fontWeight: 700}}
-                          />
-                        </div>
-                      </td>
-                      <td style={{...styles.budgetTd, textAlign: 'center'}}>
-                        <button
-                          style={styles.budgetTableBtn}
-                          onClick={() => {
-                            if (confirm(`Delete "${item.item}"?`)) {
-                              const newData = {...data};
-                              newData.financial.funding = newData.financial.funding.filter(d => d.id !== item.id);
-                              setData(newData);
-                              saveData(newData);
-                            }
-                          }}
-                          title="Delete"
-                        >
-                          🗑️
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <button
-                style={styles.addBudgetItemBtn}
-                onClick={() => {
-                  const itemName = prompt('Enter funding source name:');
-                  if (!itemName) return;
-                  const newData = {...data};
-                  if (!newData.financial.funding) newData.financial.funding = [];
-                  newData.financial.funding.push({
-                    id: 'fun_' + Date.now(),
-                    item: itemName,
-                    amount: '',
-                    type: 'income'
-                  });
-                  setData(newData);
-                  saveData(newData);
-                }}
-              >
-                + Add funding source
               </button>
             </div>
 
