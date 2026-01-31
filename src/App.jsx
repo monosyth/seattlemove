@@ -289,129 +289,129 @@ const initialData = {
   ],
   neighborhoods: [],
   rentalProperties: [],
-  steps: {
-    1: {
-      title: 'Select Realtor',
-      description: 'Talk to realtor first to get real numbers for repair budget, timeline, and funding needs.',
-      targetDate: '',
-      items: [
-        { id: '1-1', text: 'Research realtors experienced with remote/vacant home sales', done: false },
-        { id: '1-2', text: 'Interview candidates', done: false },
-        { id: '1-3', text: 'Verify they will use their inspector before listing', done: false },
-        { id: '1-4', text: 'Confirm their strategy for maximizing home value', done: false },
-        { id: '1-5', text: 'Get realistic sale price estimate', done: false },
-        { id: '1-6', text: 'Get repair recommendations and cost estimates', done: false },
-        { id: '1-7', text: 'Sign listing agreement', done: false },
+  timeline: {
+    preparation: {
+      id: 'preparation',
+      title: '🎯 Preparation',
+      subtitle: 'Planning & Setup',
+      description: 'Initial research, realtor selection, and securing funding',
+      status: 'in-progress',
+      startDate: '',
+      endDate: '',
+      tasks: [
+        { id: 'prep-1', text: 'Research and interview realtors', done: false },
+        { id: 'prep-2', text: 'Get realistic sale price estimate from realtor', done: false },
+        { id: 'prep-3', text: 'Get repair recommendations and cost estimates', done: false },
+        { id: 'prep-4', text: 'Sign listing agreement', done: false },
+        { id: 'prep-5', text: 'Calculate total funding needed', done: false },
+        { id: 'prep-6', text: 'Apply for and secure 401k loan or Compass Concierge', done: false },
       ]
     },
-    2: {
-      title: 'Secure Funding',
-      description: 'Now that you have real numbers from the realtor, determine how much you need.',
-      targetDate: '',
-      items: [
-        { id: '2-1', text: 'Calculate total needed (repairs + temp housing + moving + buffer)', done: false },
-        { id: '2-2', text: 'Decide on 401k loan amount (or Compass Concierge)', done: false },
-        { id: '2-3', text: 'Apply for and secure the loan', done: false },
-        { id: '2-4', text: 'Open separate account to manage these funds', done: false },
+    houseReady: {
+      id: 'houseReady',
+      title: '🏠 House Ready',
+      subtitle: 'Repairs & Prep',
+      description: 'Complete repairs, declutter, clean, and stage the home',
+      status: 'pending',
+      startDate: '',
+      endDate: '',
+      tasks: [
+        { id: 'house-1', text: 'Complete must-do repairs (electrical, plumbing, safety)', done: false },
+        { id: 'house-2', text: 'Complete high-priority repairs (paint, fixtures, cleaning)', done: false },
+        { id: 'house-3', text: 'Sort belongings (keep, sell, donate, discard)', done: false },
+        { id: 'house-4', text: 'Sell items on Marketplace/OfferUp', done: false },
+        { id: 'house-5', text: 'Move keeper items to storage unit', done: false },
+        { id: 'house-6', text: 'Professional carpet and house cleaning', done: false },
+        { id: 'house-7', text: 'Pre-listing inspection', done: false },
+        { id: 'house-8', text: 'Address any inspection surprises', done: false },
       ]
     },
-    3: {
-      title: 'House Prep - Repairs',
-      description: 'Complete necessary repairs to maximize sale price.',
-      targetDate: '',
-      items: [
-        { id: '3-1', text: 'Fix garage exterior light (electrical issue)', done: false, category: 'must' },
-        { id: '3-2', text: 'Install GFCI outlet in bathroom', done: false, category: 'must' },
-        { id: '3-3', text: 'Unclog primary bathroom sink', done: false, category: 'must' },
-        { id: '3-4', text: 'Sealant around toilet', done: false, category: 'must' },
-        { id: '3-5', text: 'Reseal primary shower tile', done: false, category: 'must' },
-        { id: '3-6', text: 'Secure side gate/fence corner', done: false, category: 'must' },
-        { id: '3-7', text: 'Pressure wash concrete, exterior, windows', done: false, category: 'high' },
-        { id: '3-8', text: 'Professional carpet cleaning', done: false, category: 'high' },
-        { id: '3-9', text: 'Professional move-out cleaning', done: false, category: 'high' },
-        { id: '3-10', text: 'Replace bathroom light fixtures x3', done: false, category: 'high' },
-        { id: '3-11', text: 'Replace mirrors (primary + guest)', done: false, category: 'high' },
-        { id: '3-12', text: 'Patch and paint walls/baseboards', done: false, category: 'high' },
-        { id: '3-13', text: 'Reface guest bathtub', done: false, category: 'high' },
-        { id: '3-14', text: 'Weeds - spray/remove all', done: false, category: 'high' },
-        { id: '3-15', text: 'Clean and deodorize turf', done: false, category: 'high' },
+    onMarket: {
+      id: 'onMarket',
+      title: '📸 On Market',
+      subtitle: 'Listed & Showing',
+      description: 'Professional photos, listing goes live, showings begin',
+      status: 'pending',
+      startDate: '',
+      endDate: '',
+      tasks: [
+        { id: 'market-1', text: 'Professional photos and virtual tour', done: false },
+        { id: 'market-2', text: 'Staging consultation (if needed)', done: false },
+        { id: 'market-3', text: 'List the house on MLS', done: false },
+        { id: 'market-4', text: 'Schedule and host open houses', done: false },
+        { id: 'market-5', text: 'Coordinate private showings', done: false },
+        { id: 'market-6', text: 'Maintain house in showing condition', done: false },
       ]
     },
-    4: {
-      title: 'Sort & Reduce',
-      description: 'Decide what to keep, sell, donate, or discard.',
-      targetDate: '',
-      items: [
-        { id: '4-1', text: 'Decide what goes to Seattle (storage unit)', done: false },
-        { id: '4-2', text: 'Sell items (Marketplace, OfferUp, etc.)', done: false },
-        { id: '4-3', text: 'Donate items', done: false },
-        { id: '4-4', text: 'Discard/junk removal for bulky items', done: false },
-        { id: '4-5', text: 'Move items for Seattle to storage unit', done: false },
+    underContract: {
+      id: 'underContract',
+      title: '✍️ Under Contract',
+      subtitle: 'Offer Accepted',
+      description: 'Review offers, negotiate, accept offer, enter escrow',
+      status: 'pending',
+      startDate: '',
+      endDate: '',
+      tasks: [
+        { id: 'contract-1', text: 'Review incoming offers with realtor', done: false },
+        { id: 'contract-2', text: 'Negotiate terms if needed', done: false },
+        { id: 'contract-3', text: 'Accept best offer', done: false },
+        { id: 'contract-4', text: 'Sign purchase agreement', done: false },
+        { id: 'contract-5', text: 'Open escrow', done: false },
+        { id: 'contract-6', text: 'Secure temporary housing in San Diego', done: false },
       ]
     },
-    5: {
-      title: 'Temp Housing',
-      description: 'Find pet-friendly short-term rental in San Diego area.',
-      targetDate: '',
-      items: [
-        { id: '5-1', text: 'Research pet-friendly short-term rentals in San Diego area', done: false },
-        { id: '5-2', text: 'Confirm availability and pricing (2 dogs + senior cat)', done: false },
-        { id: '5-3', text: 'Secure the temporary rental', done: false },
-        { id: '5-4', text: 'Coordinate move-in date with house vacate date', done: false },
+    closing: {
+      id: 'closing',
+      title: '🏁 Closing',
+      subtitle: 'Finalizing Sale',
+      description: 'Buyer inspections, appraisal, final walkthrough, close escrow',
+      status: 'pending',
+      startDate: '',
+      endDate: '',
+      tasks: [
+        { id: 'close-1', text: 'Buyer\'s home inspection', done: false },
+        { id: 'close-2', text: 'Address inspection requests if any', done: false },
+        { id: 'close-3', text: 'Buyer\'s appraisal', done: false },
+        { id: 'close-4', text: 'Final walkthrough with buyer', done: false },
+        { id: 'close-5', text: 'Sign closing documents', done: false },
+        { id: 'close-6', text: 'Close escrow and receive proceeds', done: false },
+        { id: 'close-7', text: 'Hand over keys to new owners', done: false },
       ]
     },
-    6: {
-      title: 'Vacate House',
-      description: 'Leave the house empty and ready for showings.',
-      targetDate: '',
-      items: [
-        { id: '6-1', text: 'Schedule professional carpet cleaning', done: false },
-        { id: '6-2', text: 'Schedule professional move-out cleaning', done: false },
-        { id: '6-3', text: 'Final walkthrough with realtor', done: false },
-        { id: '6-4', text: 'Hand over keys / lockbox setup', done: false },
-        { id: '6-5', text: 'Move into temporary San Diego rental', done: false },
+    transition: {
+      id: 'transition',
+      title: '📦 Transition',
+      subtitle: 'Moving Out',
+      description: 'Vacate house, move to temporary housing, prepare for Seattle',
+      status: 'pending',
+      startDate: '',
+      endDate: '',
+      tasks: [
+        { id: 'trans-1', text: 'Vacate house before close date', done: false },
+        { id: 'trans-2', text: 'Move into temporary San Diego rental', done: false },
+        { id: 'trans-3', text: 'Research Seattle neighborhoods', done: false },
+        { id: 'trans-4', text: 'Find pet-friendly rental in Seattle', done: false },
+        { id: 'trans-5', text: 'Hire movers for Seattle move', done: false },
+        { id: 'trans-6', text: 'Pay off debts with sale proceeds', done: false },
       ]
     },
-    7: {
-      title: 'List & Sell',
-      description: 'Get the house on the market and close the sale.',
-      targetDate: '',
-      items: [
-        { id: '7-1', text: 'Pre-listing inspection (realtor\'s inspector)', done: false },
-        { id: '7-2', text: 'Address any inspection surprises', done: false },
-        { id: '7-3', text: 'Professional photos / staging consultation', done: false },
-        { id: '7-4', text: 'List the house', done: false },
-        { id: '7-5', text: 'Open houses / showings', done: false },
-        { id: '7-6', text: 'Review offers', done: false },
-        { id: '7-7', text: 'Accept offer / enter escrow', done: false },
-        { id: '7-8', text: 'Complete sale / close', done: false },
-      ]
-    },
-    8: {
-      title: 'Move to Seattle',
-      description: 'Make the big move to your new city!',
-      targetDate: '',
-      items: [
-        { id: '8-1', text: 'Research Seattle neighborhoods for long-term rental', done: false },
-        { id: '8-2', text: 'Find pet-friendly rental in Seattle', done: false },
-        { id: '8-3', text: 'Hire movers (storage unit → Seattle)', done: false },
-        { id: '8-4', text: 'Travel to Seattle (with pets)', done: false },
-        { id: '8-5', text: 'Move into Seattle rental', done: false },
-        { id: '8-6', text: 'Set up mail forwarding to Seattle', done: false },
-        { id: '8-7', text: 'Set up utilities at new place', done: false },
-        { id: '8-8', text: 'Update address with important accounts', done: false },
-      ]
-    },
-    9: {
-      title: 'Post-Closing',
-      description: 'Wrap up financial matters after the sale.',
-      targetDate: '',
-      items: [
-        { id: '9-1', text: 'Pay off all debts from proceeds', done: false },
-        { id: '9-2', text: 'Repay 401k loan (if taken)', done: false },
-        { id: '9-3', text: 'Cancel utilities at San Diego house', done: false },
-        { id: '9-4', text: 'Set up new bank accounts if needed', done: false },
-        { id: '9-5', text: 'Establish emergency fund', done: false },
+    settling: {
+      id: 'settling',
+      title: '🌲 Settling In',
+      subtitle: 'Welcome to Seattle!',
+      description: 'Move to Seattle, set up new home, wrap up loose ends',
+      status: 'pending',
+      startDate: '',
+      endDate: '',
+      tasks: [
+        { id: 'settle-1', text: 'Travel to Seattle with pets', done: false },
+        { id: 'settle-2', text: 'Move into Seattle rental', done: false },
+        { id: 'settle-3', text: 'Set up utilities at new place', done: false },
+        { id: 'settle-4', text: 'Set up mail forwarding', done: false },
+        { id: 'settle-5', text: 'Update address with important accounts', done: false },
+        { id: 'settle-6', text: 'Cancel San Diego utilities', done: false },
+        { id: 'settle-7', text: 'Establish emergency fund', done: false },
+        { id: 'settle-8', text: 'Explore your new city!', done: false },
       ]
     }
   },
@@ -3934,71 +3934,222 @@ function App() {
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: 'rgba(240, 244, 248, 0.92)',
+              backgroundColor: 'rgba(240, 244, 248, 0.95)',
               zIndex: 0
             }
           }}>
-            <Box sx={{ position: 'relative', zIndex: 1, ...styles.timelineWrapper }}>
-            <Box className="timeline-container" sx={styles.timelineContainer}>
-              {Object.entries(data.steps).map(([stepId, step], index) => {
-                const progress = getStepProgress(stepId);
-                const isComplete = progress === 100;
-                const isLast = index === Object.keys(data.steps).length - 1;
+            <Box sx={{ position: 'relative', zIndex: 1, padding: '40px 20px', maxWidth: '900px', margin: '0 auto' }}>
+              <Typography variant="h2" sx={{ fontSize: '2.5rem', fontWeight: 700, color: '#1a365d', marginBottom: '12px', textAlign: 'center' }}>
+                🗺️ Move Timeline
+              </Typography>
+              <Typography sx={{ fontSize: '1.1rem', color: '#4a5568', marginBottom: '40px', textAlign: 'center' }}>
+                Your journey from San Diego to Seattle
+              </Typography>
 
-                return (
-                  <div
-                    key={stepId}
-                    className="timeline-item"
-                    style={{
-                      ...styles.timelineItem,
-                      borderLeft: isLast ? 'none' : '2px solid #e0e0e0'
-                    }}
-                  >
-                    <div
-                      className="timeline-dot"
-                      style={{
-                        ...styles.timelineDot,
-                        background: isComplete ? colors.complete : `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`
-                      }}
-                    >
-                      {isComplete ? '✓' : stepId}
-                    </div>
-                    <div className="timeline-content" style={styles.timelineContent}>
-                      <div style={styles.timelineHeader}>
-                        <h3 className="timeline-title" style={styles.timelineTitle}>{step.title}</h3>
-                        {step.targetDate && (
-                          <span style={styles.timelineDateBadge}>
-                            {new Date(step.targetDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                          </span>
-                        )}
+              {/* Vertical Timeline */}
+              <div style={{ position: 'relative' }}>
+                {/* Connecting Line */}
+                <div style={{
+                  position: 'absolute',
+                  left: '24px',
+                  top: '24px',
+                  bottom: '80px',
+                  width: '3px',
+                  background: 'linear-gradient(180deg, #3498db 0%, #2ecc71 100%)',
+                  zIndex: 0
+                }} />
+
+                {Object.values(data.timeline || {}).map((phase, index) => {
+                  const totalTasks = phase.tasks?.length || 0;
+                  const completedTasks = phase.tasks?.filter(t => t.done).length || 0;
+                  const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+                  const isComplete = progress === 100;
+                  const isActive = phase.status === 'in-progress';
+
+                  return (
+                    <div key={phase.id} style={{ position: 'relative', marginBottom: '32px', paddingLeft: '70px' }}>
+                      {/* Timeline Dot */}
+                      <div style={{
+                        position: 'absolute',
+                        left: '0px',
+                        top: '16px',
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: '50%',
+                        background: isComplete ? '#2ecc71' : isActive ? '#3498db' : '#e0e0e0',
+                        border: '4px solid white',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '1.5rem',
+                        zIndex: 2
+                      }}>
+                        {isComplete ? '✓' : phase.title.split(' ')[0]}
                       </div>
-                      <div className="timeline-date-row" style={styles.timelineDateRow}>
-                        <label style={styles.timelineLabel}>Target Date:</label>
-                        <input
-                          type="date"
-                          className="date-input"
-                          value={step.targetDate || ''}
-                          onChange={(e) => updateTargetDate(stepId, e.target.value)}
-                          style={styles.dateInput}
-                        />
-                      </div>
-                      <div style={styles.timelineProgress}>
-                        <div style={styles.timelineProgressBar}>
-                          <div style={{
-                            ...styles.timelineProgressFill,
-                            width: `${progress}%`,
-                            background: isComplete ? colors.complete : colors.sage
-                          }}></div>
+
+                      {/* Phase Card */}
+                      <div style={{
+                        background: 'white',
+                        borderRadius: '12px',
+                        padding: '24px',
+                        boxShadow: isActive ? '0 8px 24px rgba(52, 152, 219, 0.2)' : '0 4px 12px rgba(0,0,0,0.08)',
+                        border: isActive ? '2px solid #3498db' : '1px solid #e0e0e0',
+                        transition: 'all 0.3s ease'
+                      }}>
+                        {/* Phase Header */}
+                        <div style={{ marginBottom: '16px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#2c3e50', margin: 0 }}>
+                              {phase.title}
+                            </h3>
+                            <span style={{
+                              padding: '4px 12px',
+                              borderRadius: '20px',
+                              fontSize: '0.85rem',
+                              fontWeight: 600,
+                              background: isComplete ? '#d4edda' : isActive ? '#cce5ff' : '#f0f0f0',
+                              color: isComplete ? '#155724' : isActive ? '#004085' : '#6c757d'
+                            }}>
+                              {isComplete ? 'Complete' : isActive ? 'In Progress' : 'Pending'}
+                            </span>
+                          </div>
+                          <p style={{ fontSize: '1rem', fontWeight: 600, color: '#7f8c8d', margin: '0 0 4px 0' }}>
+                            {phase.subtitle}
+                          </p>
+                          <p style={{ fontSize: '0.95rem', color: '#95a5a6', margin: 0 }}>
+                            {phase.description}
+                          </p>
                         </div>
-                        <span className="timeline-progress-text" style={styles.timelineProgressText}>
-                          {step.items.filter(i => i.done).length}/{step.items.length} tasks
-                        </span>
+
+                        {/* Progress Bar */}
+                        <div style={{ marginBottom: '16px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                            <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#34495e' }}>
+                              Progress: {completedTasks}/{totalTasks} tasks
+                            </span>
+                            <span style={{ fontSize: '1rem', fontWeight: 700, color: isComplete ? '#2ecc71' : '#3498db' }}>
+                              {progress}%
+                            </span>
+                          </div>
+                          <div style={{
+                            width: '100%',
+                            height: '8px',
+                            background: '#e0e0e0',
+                            borderRadius: '4px',
+                            overflow: 'hidden'
+                          }}>
+                            <div style={{
+                              width: `${progress}%`,
+                              height: '100%',
+                              background: isComplete ? '#2ecc71' : 'linear-gradient(90deg, #3498db, #2ecc71)',
+                              transition: 'width 0.3s ease'
+                            }} />
+                          </div>
+                        </div>
+
+                        {/* Dates */}
+                        <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
+                          <div style={{ flex: 1 }}>
+                            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#7f8c8d', marginBottom: '4px' }}>
+                              Start Date
+                            </label>
+                            <input
+                              type="date"
+                              value={phase.startDate || ''}
+                              onChange={(e) => {
+                                const newData = {...data};
+                                newData.timeline[phase.id].startDate = e.target.value;
+                                setData(newData);
+                                saveData(newData);
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: '8px 12px',
+                                border: '1px solid #ddd',
+                                borderRadius: '6px',
+                                fontSize: '0.95rem'
+                              }}
+                            />
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#7f8c8d', marginBottom: '4px' }}>
+                              End Date
+                            </label>
+                            <input
+                              type="date"
+                              value={phase.endDate || ''}
+                              onChange={(e) => {
+                                const newData = {...data};
+                                newData.timeline[phase.id].endDate = e.target.value;
+                                setData(newData);
+                                saveData(newData);
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: '8px 12px',
+                                border: '1px solid #ddd',
+                                borderRadius: '6px',
+                                fontSize: '0.95rem'
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Tasks */}
+                        <div>
+                          <h4 style={{ fontSize: '1rem', fontWeight: 600, color: '#2c3e50', marginBottom: '12px' }}>
+                            ✓ Tasks
+                          </h4>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {(phase.tasks || []).map(task => (
+                              <label key={task.id} style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: '10px 12px',
+                                background: task.done ? '#f0f8ff' : '#fafafa',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                border: task.done ? '1px solid #3498db' : '1px solid #e0e0e0'
+                              }}>
+                                <input
+                                  type="checkbox"
+                                  checked={task.done}
+                                  onChange={(e) => {
+                                    const newData = {...data};
+                                    const phaseTask = newData.timeline[phase.id].tasks.find(t => t.id === task.id);
+                                    if (phaseTask) {
+                                      phaseTask.done = e.target.checked;
+                                      setData(newData);
+                                      saveData(newData);
+                                    }
+                                  }}
+                                  style={{
+                                    width: '18px',
+                                    height: '18px',
+                                    marginRight: '12px',
+                                    cursor: 'pointer',
+                                    accentColor: '#3498db'
+                                  }}
+                                />
+                                <span style={{
+                                  fontSize: '0.95rem',
+                                  color: task.done ? '#7f8c8d' : '#2c3e50',
+                                  textDecoration: task.done ? 'line-through' : 'none',
+                                  fontWeight: task.done ? 400 : 500
+                                }}>
+                                  {task.text}
+                                </span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </Box>
+                  );
+                })}
+              </div>
             </Box>
           </Box>
         )}
