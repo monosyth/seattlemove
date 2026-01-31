@@ -29,7 +29,10 @@ import {
   Grow,
   Slide,
   Collapse,
-  Alert
+  Alert,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails
 } from '@mui/material';
 import {
   Home as HomeIcon,
@@ -43,7 +46,8 @@ import {
   Star as StarIcon,
   StarBorder as StarBorderIcon,
   Info as InfoIcon,
-  CheckCircleOutline as CheckCircleOutlineIcon
+  CheckCircleOutline as CheckCircleOutlineIcon,
+  ExpandMore as ExpandMoreIcon
 } from '@mui/icons-material';
 
 // Seattle photos
@@ -479,6 +483,15 @@ const initialData = {
 
 const DOCUMENT_ID = 'seattle-move-data';
 
+// Note categories
+const NOTE_CATEGORIES = {
+  property: { label: '🏠 Property', color: '#3498db' },
+  contacts: { label: '📞 Contacts', color: '#9b59b6' },
+  ideas: { label: '💭 Ideas', color: '#2ecc71' },
+  important: { label: '❗ Important', color: '#e74c3c' },
+  seattle: { label: '📍 Seattle', color: '#f39c12' }
+};
+
 function App() {
   const [data, setData] = useState(initialData);
   const [activeTab, setActiveTab] = useState('checklist');
@@ -494,7 +507,10 @@ function App() {
   const [newGeneralNoteText, setNewGeneralNoteText] = useState('');
   const [editingGeneralNoteId, setEditingGeneralNoteId] = useState(null);
   const [editGeneralNoteText, setEditGeneralNoteText] = useState('');
+  const [editGeneralNoteCategory, setEditGeneralNoteCategory] = useState('ideas');
   const [confirmDeleteGeneralNoteId, setConfirmDeleteGeneralNoteId] = useState(null);
+  const [newNoteCategory, setNewNoteCategory] = useState('ideas');
+  const [noteFilter, setNoteFilter] = useState('all');
   const [changelog, setChangelog] = useState([]);
   const [changelogLoading, setChangelogLoading] = useState(false);
   // List item management using custom hooks
@@ -507,7 +523,7 @@ function App() {
   const realtors = useEntityManager({ name: '', team: '', brokerage: '', phone: '', email: '', website: '', notes: '' });
   const questions = useEntityManager({ question: '', idealAnswer: '', answer: '' });
   const neighborhoods = useEntityManager({ name: '', pros: '', cons: '', priceRange: '', notes: '', rating: 0 });
-  const properties = useEntityManager({ address: '', neighborhood: '', price: '', bedrooms: '', bathrooms: '', sqft: '', petFriendly: false, url: '', notes: '', interested: false });
+  const properties = useEntityManager({ address: '', neighborhood: '', price: '', bedrooms: '', bathrooms: '', sqft: '', petFriendly: false, url: '', notes: '', interested: false, duration: 'short' });
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
@@ -1109,14 +1125,16 @@ function App() {
     newData.generalNotes.push({
       id: Date.now().toString(),
       text: noteText,
+      category: newNoteCategory,
       createdAt: new Date().toISOString()
     });
     setData(newData);
     saveData(newData);
     setNewGeneralNoteText('');
+    setNewNoteCategory('ideas'); // Reset to default
     addChangelogEntry(
       'general_note_added',
-      'Added general note',
+      `Added ${NOTE_CATEGORIES[newNoteCategory].label} note`,
       null,
       noteText
     );
@@ -1128,12 +1146,14 @@ function App() {
     const note = newData.generalNotes?.find(n => n.id === noteId);
     if (note) {
       const oldText = note.text;
+      const oldCategory = note.category;
       note.text = editGeneralNoteText.trim();
+      note.category = editGeneralNoteCategory;
       setData(newData);
       saveData(newData);
       addChangelogEntry(
         'general_note_edited',
-        'Edited general note',
+        `Edited ${NOTE_CATEGORIES[editGeneralNoteCategory].label} note`,
         oldText,
         note.text
       );
@@ -1408,6 +1428,21 @@ function App() {
             >
               San Diego → Seattle
             </Typography>
+            {activeTab === 'checklist' && data.steps[activeStep] && (
+              <Chip
+                label={`📍 Step ${activeStep}: ${data.steps[activeStep].title}`}
+                size="small"
+                sx={{
+                  mt: 1,
+                  background: 'rgba(255,255,255,0.15)',
+                  color: 'white',
+                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,255,255,0.3)'
+                }}
+              />
+            )}
           </Box>
           <Stack direction="row" spacing={2}>
             <Box>
@@ -3482,14 +3517,71 @@ function App() {
               </button>
             </div>
 
-            {/* Repairs (Read-only from Repairs tab) */}
+            {/* Repairs Summary (Detailed view in Step 3) */}
             <div className="budget-section" style={{...styles.budgetSection, borderColor: '#e67e22'}}>
               <div style={{...styles.budgetTitle, background: '#e67e22'}}>
                 <div>
-                  <h3 style={styles.budgetTitleText}>🔧 Repairs</h3>
-                  <p style={styles.budgetTitleDesc}>From Repairs tab (read-only)</p>
+                  <h3 style={styles.budgetTitleText}>🔧 Repairs Summary</h3>
+                  <p style={styles.budgetTitleDesc}>Breakdown of repair costs</p>
                 </div>
                 <span style={styles.budgetTitleTotal}>-${(budgetTotals.must + budgetTotals.high + budgetTotals.nice).toLocaleString()}</span>
+              </div>
+              <div style={{padding: '24px'}}>
+                <div style={{
+                  background: '#fff9f5',
+                  borderRadius: '8px',
+                  padding: '20px',
+                  border: '1px solid #ffe0cc'
+                }}>
+                  <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <span style={{fontSize: '0.95rem', color: '#c0392b', fontWeight: 600}}>Must Do (Safety/Inspection)</span>
+                      <span style={{fontSize: '1.1rem', fontWeight: 700, color: '#2c3e50'}}>${budgetTotals.must.toLocaleString()}</span>
+                    </div>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <span style={{fontSize: '0.95rem', color: '#e67e22', fontWeight: 600}}>High Impact (Buyers Notice)</span>
+                      <span style={{fontSize: '1.1rem', fontWeight: 700, color: '#2c3e50'}}>${budgetTotals.high.toLocaleString()}</span>
+                    </div>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <span style={{fontSize: '0.95rem', color: '#3498db', fontWeight: 600}}>Nice to Have</span>
+                      <span style={{fontSize: '1.1rem', fontWeight: 700, color: '#2c3e50'}}>${budgetTotals.nice.toLocaleString()}</span>
+                    </div>
+                    <div style={{
+                      marginTop: '12px',
+                      paddingTop: '12px',
+                      borderTop: '2px solid #e67e22',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <span style={{fontSize: '1.1rem', fontWeight: 700, color: '#2c3e50'}}>Total Repairs</span>
+                      <span style={{fontSize: '1.3rem', fontWeight: 800, color: '#e67e22'}}>${(budgetTotals.must + budgetTotals.high + budgetTotals.nice).toLocaleString()}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setActiveTab('checklist');
+                      setActiveStep('3');
+                    }}
+                    style={{
+                      marginTop: '16px',
+                      width: '100%',
+                      padding: '12px',
+                      background: 'linear-gradient(135deg, #e67e22 0%, #d35400 100%)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '0.95rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s',
+                    }}
+                    onMouseEnter={(e) => e.target.style.transform = 'scale(1.02)'}
+                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                  >
+                    📋 View & Edit Detailed Repairs in Step 3
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -4518,13 +4610,59 @@ function App() {
             <div style={styles.stepNotesSection}>
               <h4 style={styles.stepNotesTitle}>📝 General Notes</h4>
 
+              {/* Category Filter Buttons */}
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', marginBottom: 3 }}>
+                <Chip
+                  label="All Notes"
+                  onClick={() => setNoteFilter('all')}
+                  sx={{
+                    background: noteFilter === 'all' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#e0e0e0',
+                    color: noteFilter === 'all' ? 'white' : '#666',
+                    fontWeight: noteFilter === 'all' ? 600 : 400,
+                    cursor: 'pointer',
+                    '&:hover': { opacity: 0.8 }
+                  }}
+                />
+                {Object.entries(NOTE_CATEGORIES).map(([key, { label, color }]) => (
+                  <Chip
+                    key={key}
+                    label={label}
+                    onClick={() => setNoteFilter(key)}
+                    sx={{
+                      background: noteFilter === key ? color : '#e0e0e0',
+                      color: noteFilter === key ? 'white' : '#666',
+                      fontWeight: noteFilter === key ? 600 : 400,
+                      cursor: 'pointer',
+                      '&:hover': { opacity: 0.8 }
+                    }}
+                  />
+                ))}
+              </Box>
+
               {/* Existing General Notes */}
               {data.generalNotes?.length > 0 && (
                 <div style={styles.stepNotesList}>
-                  {data.generalNotes.map(note => (
+                  {data.generalNotes
+                    .filter(note => noteFilter === 'all' || note.category === noteFilter)
+                    .map(note => (
                     <div key={note.id} style={styles.stepNoteItem}>
                       {editingGeneralNoteId === note.id ? (
                         <div style={styles.noteEditForm}>
+                          <select
+                            value={editGeneralNoteCategory}
+                            onChange={(e) => setEditGeneralNoteCategory(e.target.value)}
+                            style={{
+                              ...styles.noteInput,
+                              padding: '8px 12px',
+                              marginBottom: '8px',
+                              height: 'auto',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            {Object.entries(NOTE_CATEGORIES).map(([key, { label }]) => (
+                              <option key={key} value={key}>{label}</option>
+                            ))}
+                          </select>
                           <textarea
                             value={editGeneralNoteText}
                             onChange={(e) => setEditGeneralNoteText(e.target.value)}
@@ -4549,7 +4687,19 @@ function App() {
                         </div>
                       ) : (
                         <>
-                          <span style={styles.noteText}>{note.text}</span>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+                            <Chip
+                              label={NOTE_CATEGORIES[note.category || 'ideas'].label}
+                              size="small"
+                              sx={{
+                                background: NOTE_CATEGORIES[note.category || 'ideas'].color,
+                                color: 'white',
+                                fontWeight: 600,
+                                width: 'fit-content'
+                              }}
+                            />
+                            <span style={styles.noteText}>{note.text}</span>
+                          </div>
                           <div style={styles.noteActions}>
                             {confirmDeleteGeneralNoteId === note.id ? (
                               <>
@@ -4571,7 +4721,11 @@ function App() {
                               <>
                                 <button
                                   style={styles.noteActionBtn}
-                                  onClick={() => { setEditingGeneralNoteId(note.id); setEditGeneralNoteText(note.text); }}
+                                  onClick={() => {
+                                    setEditingGeneralNoteId(note.id);
+                                    setEditGeneralNoteText(note.text);
+                                    setEditGeneralNoteCategory(note.category || 'ideas');
+                                  }}
                                   title="Edit"
                                 >
                                   ✏️
@@ -4593,8 +4747,36 @@ function App() {
                 </div>
               )}
 
+              {/* Show message when filter has no results */}
+              {data.generalNotes?.length > 0 && noteFilter !== 'all' &&
+               data.generalNotes.filter(note => note.category === noteFilter).length === 0 && (
+                <Box sx={{
+                  textAlign: 'center',
+                  padding: 3,
+                  color: '#999',
+                  fontStyle: 'italic'
+                }}>
+                  No {NOTE_CATEGORIES[noteFilter].label} notes yet
+                </Box>
+              )}
+
               {/* Add New General Note */}
               <div style={styles.addNoteForm}>
+                <select
+                  value={newNoteCategory}
+                  onChange={(e) => setNewNoteCategory(e.target.value)}
+                  style={{
+                    ...styles.noteInput,
+                    padding: '8px 12px',
+                    marginBottom: '8px',
+                    height: 'auto',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {Object.entries(NOTE_CATEGORIES).map(([key, { label }]) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
+                </select>
                 <textarea
                   value={newGeneralNoteText}
                   onChange={(e) => setNewGeneralNoteText(e.target.value)}
