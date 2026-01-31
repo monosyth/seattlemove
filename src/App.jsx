@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { db } from './firebase';
+import { useEntityManager, useListItemManager } from './hooks/useEntityManager';
+import { styles } from './App.styles';
 import { doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import {
   Box,
@@ -495,49 +497,17 @@ function App() {
   const [confirmDeleteGeneralNoteId, setConfirmDeleteGeneralNoteId] = useState(null);
   const [changelog, setChangelog] = useState([]);
   const [changelogLoading, setChangelogLoading] = useState(false);
-  // Checklist item editing/reordering state
-  const [editingItemId, setEditingItemId] = useState(null);
-  const [editItemText, setEditItemText] = useState('');
-  const [confirmDeleteItemId, setConfirmDeleteItemId] = useState(null);
-  const [draggedItemId, setDraggedItemId] = useState(null);
-  const [dragOverItemId, setDragOverItemId] = useState(null);
-  const [newItemStepId, setNewItemStepId] = useState(null);
-  const [newItemText, setNewItemText] = useState('');
-  // Budget item editing/reordering state
-  const [editingBudgetItemId, setEditingBudgetItemId] = useState(null);
-  const [editBudgetItemText, setEditBudgetItemText] = useState('');
-  const [confirmDeleteBudgetItemId, setConfirmDeleteBudgetItemId] = useState(null);
-  const [draggedBudgetItemId, setDraggedBudgetItemId] = useState(null);
-  const [dragOverBudgetItemId, setDragOverBudgetItemId] = useState(null);
-  const [newBudgetItemCategory, setNewBudgetItemCategory] = useState(null);
-  const [newBudgetItemText, setNewBudgetItemText] = useState('');
+  // List item management using custom hooks
+  const checklistItems = useListItemManager();
+  const budgetItems = useListItemManager();
   // Financial item editing state
   const [editingFinancialItemId, setEditingFinancialItemId] = useState(null);
   const [editFinancialItemText, setEditFinancialItemText] = useState('');
-  // Realtor management state
-  const [editingRealtorId, setEditingRealtorId] = useState(null);
-  const [editingRealtorData, setEditingRealtorData] = useState({});
-  const [addingRealtor, setAddingRealtor] = useState(false);
-  const [newRealtorData, setNewRealtorData] = useState({ name: '', team: '', brokerage: '', phone: '', email: '', website: '', notes: '' });
-  const [confirmDeleteRealtorId, setConfirmDeleteRealtorId] = useState(null);
-  // Realtor questions state
-  const [editingQuestionId, setEditingQuestionId] = useState(null);
-  const [editingQuestionData, setEditingQuestionData] = useState({});
-  const [addingQuestion, setAddingQuestion] = useState(false);
-  const [newQuestionData, setNewQuestionData] = useState({ question: '', idealAnswer: '', answer: '' });
-  const [confirmDeleteQuestionId, setConfirmDeleteQuestionId] = useState(null);
-  // Neighborhood management state
-  const [editingNeighborhoodId, setEditingNeighborhoodId] = useState(null);
-  const [editingNeighborhoodData, setEditingNeighborhoodData] = useState({});
-  const [addingNeighborhood, setAddingNeighborhood] = useState(false);
-  const [newNeighborhoodData, setNewNeighborhoodData] = useState({ name: '', pros: '', cons: '', priceRange: '', notes: '', rating: 0 });
-  const [confirmDeleteNeighborhoodId, setConfirmDeleteNeighborhoodId] = useState(null);
-  // Rental property management state
-  const [editingPropertyId, setEditingPropertyId] = useState(null);
-  const [editingPropertyData, setEditingPropertyData] = useState({});
-  const [addingProperty, setAddingProperty] = useState(false);
-  const [newPropertyData, setNewPropertyData] = useState({ address: '', neighborhood: '', price: '', bedrooms: '', bathrooms: '', sqft: '', petFriendly: false, url: '', notes: '', interested: false });
-  const [confirmDeletePropertyId, setConfirmDeletePropertyId] = useState(null);
+  // Entity management state using custom hooks
+  const realtors = useEntityManager({ name: '', team: '', brokerage: '', phone: '', email: '', website: '', notes: '' });
+  const questions = useEntityManager({ question: '', idealAnswer: '', answer: '' });
+  const neighborhoods = useEntityManager({ name: '', pros: '', cons: '', priceRange: '', notes: '', rating: 0 });
+  const properties = useEntityManager({ address: '', neighborhood: '', price: '', bedrooms: '', bathrooms: '', sqft: '', petFriendly: false, url: '', notes: '', interested: false });
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
@@ -623,33 +593,33 @@ function App() {
 
   // Update checklist item text
   const updateItemText = (stepId, itemId) => {
-    if (!editItemText.trim()) return;
+    if (!checklistItems.editText.trim()) return;
     const newData = { ...data };
     const item = newData.steps[stepId].items.find(i => i.id === itemId);
-    if (item && item.text !== editItemText.trim()) {
+    if (item && item.text !== checklistItems.editText.trim()) {
       const oldText = item.text;
-      item.text = editItemText.trim();
+      item.text = checklistItems.editText.trim();
       setData(newData);
       saveData(newData);
       addChangelogEntry(
         'item_edited',
         `Edited task in "${newData.steps[stepId].title}"`,
         oldText,
-        editItemText.trim()
+        checklistItems.editText.trim()
       );
     }
-    setEditingItemId(null);
-    setEditItemText('');
+    checklistItems.setEditingId(null);
+    checklistItems.setEditText('');
   };
 
   // Add new checklist item
   const addNewItem = (stepId) => {
-    if (!newItemText.trim()) return;
+    if (!checklistItems.newItemText.trim()) return;
     const newData = { ...data };
     const newId = `${stepId}-${Date.now()}`;
     newData.steps[stepId].items.push({
       id: newId,
-      text: newItemText.trim(),
+      text: checklistItems.newItemText.trim(),
       done: false
     });
     setData(newData);
@@ -658,10 +628,10 @@ function App() {
       'item_added',
       `Added task to "${newData.steps[stepId].title}"`,
       null,
-      newItemText.trim()
+      checklistItems.newItemText.trim()
     );
-    setNewItemStepId(null);
-    setNewItemText('');
+    checklistItems.setNewItemParent(null);
+    checklistItems.setNewItemText('');
   };
 
   // Delete checklist item
@@ -678,41 +648,41 @@ function App() {
       deletedText,
       null
     );
-    setConfirmDeleteItemId(null);
+    checklistItems.setConfirmDeleteId(null);
   };
 
   // Reorder checklist items via drag and drop
   const handleDragStart = (e, itemId) => {
-    setDraggedItemId(itemId);
+    checklistItems.setDraggedId(itemId);
     e.dataTransfer.effectAllowed = 'move';
   };
 
   const handleDragOver = (e, itemId) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    if (itemId !== dragOverItemId) {
-      setDragOverItemId(itemId);
+    if (itemId !== checklistItems.dragOverId) {
+      checklistItems.setDragOverId(itemId);
     }
   };
 
   const handleDragLeave = () => {
-    setDragOverItemId(null);
+    checklistItems.setDragOverId(null);
   };
 
   const handleDrop = (e, stepId, targetItemId) => {
     e.preventDefault();
-    if (!draggedItemId || draggedItemId === targetItemId) {
-      setDraggedItemId(null);
+    if (!checklistItems.draggedId || checklistItems.draggedId === targetItemId) {
+      checklistItems.setDraggedId(null);
       return;
     }
 
     const newData = { ...data };
     const items = newData.steps[stepId].items;
-    const draggedIndex = items.findIndex(i => i.id === draggedItemId);
+    const draggedIndex = items.findIndex(i => i.id === checklistItems.draggedId);
     const targetIndex = items.findIndex(i => i.id === targetItemId);
 
     if (draggedIndex === -1 || targetIndex === -1) {
-      setDraggedItemId(null);
+      checklistItems.setDraggedId(null);
       return;
     }
 
@@ -728,13 +698,13 @@ function App() {
       `Position ${draggedIndex + 1}`,
       `Position ${targetIndex + 1}`
     );
-    setDraggedItemId(null);
-    setDragOverItemId(null);
+    checklistItems.setDraggedId(null);
+    checklistItems.setDragOverId(null);
   };
 
   const handleDragEnd = () => {
-    setDraggedItemId(null);
-    setDragOverItemId(null);
+    checklistItems.setDraggedId(null);
+    checklistItems.setDragOverId(null);
   };
 
 
@@ -792,33 +762,33 @@ function App() {
 
   // Update budget item text
   const updateBudgetItemText = (category, itemId) => {
-    if (!editBudgetItemText.trim()) return;
+    if (!budgetItems.editText.trim()) return;
     const newData = { ...data };
     const item = newData.budget[category].find(i => i.id === itemId);
-    if (item && item.item !== editBudgetItemText.trim()) {
+    if (item && item.item !== budgetItems.editText.trim()) {
       const oldText = item.item;
-      item.item = editBudgetItemText.trim();
+      item.item = budgetItems.editText.trim();
       setData(newData);
       saveData(newData);
       addChangelogEntry(
         'budget_item_edited',
         `Edited budget item`,
         oldText,
-        editBudgetItemText.trim()
+        budgetItems.editText.trim()
       );
     }
-    setEditingBudgetItemId(null);
-    setEditBudgetItemText('');
+    budgetItems.setEditingId(null);
+    budgetItems.setEditText('');
   };
 
   // Add new budget item
   const addNewBudgetItem = (category) => {
-    if (!newBudgetItemText.trim()) return;
+    if (!budgetItems.newItemText.trim()) return;
     const newData = { ...data };
     const newId = `b-${Date.now()}`;
     newData.budget[category].push({
       id: newId,
-      item: newBudgetItemText.trim(),
+      item: budgetItems.newItemText.trim(),
       cost: '',
       done: false
     });
@@ -828,10 +798,10 @@ function App() {
       'budget_item_added',
       `Added budget item to ${category}`,
       null,
-      newBudgetItemText.trim()
+      budgetItems.newItemText.trim()
     );
-    setNewBudgetItemCategory(null);
-    setNewBudgetItemText('');
+    budgetItems.setNewItemParent(null);
+    budgetItems.setNewItemText('');
   };
 
   // Delete budget item
@@ -848,7 +818,7 @@ function App() {
       deletedText,
       null
     );
-    setConfirmDeleteBudgetItemId(null);
+    budgetItems.setConfirmDeleteId(null);
   };
 
   // Update budget item cost
@@ -865,38 +835,38 @@ function App() {
 
   // Drag and drop for budget items
   const handleBudgetDragStart = (e, itemId) => {
-    setDraggedBudgetItemId(itemId);
+    budgetItems.setDraggedId(itemId);
     e.dataTransfer.effectAllowed = 'move';
   };
 
   const handleBudgetDragOver = (e, itemId) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    if (itemId !== dragOverBudgetItemId) {
-      setDragOverBudgetItemId(itemId);
+    if (itemId !== budgetItems.dragOverId) {
+      budgetItems.setDragOverId(itemId);
     }
   };
 
   const handleBudgetDragLeave = () => {
-    setDragOverBudgetItemId(null);
+    budgetItems.setDragOverId(null);
   };
 
   const handleBudgetDrop = (e, category, targetItemId) => {
     e.preventDefault();
-    if (!draggedBudgetItemId || draggedBudgetItemId === targetItemId) {
-      setDraggedBudgetItemId(null);
-      setDragOverBudgetItemId(null);
+    if (!budgetItems.draggedId || budgetItems.draggedId === targetItemId) {
+      budgetItems.setDraggedId(null);
+      budgetItems.setDragOverId(null);
       return;
     }
 
     const newData = { ...data };
     const items = newData.budget[category];
-    const draggedIndex = items.findIndex(i => i.id === draggedBudgetItemId);
+    const draggedIndex = items.findIndex(i => i.id === budgetItems.draggedId);
     const targetIndex = items.findIndex(i => i.id === targetItemId);
 
     if (draggedIndex === -1 || targetIndex === -1) {
-      setDraggedBudgetItemId(null);
-      setDragOverBudgetItemId(null);
+      budgetItems.setDraggedId(null);
+      budgetItems.setDragOverId(null);
       return;
     }
 
@@ -911,13 +881,13 @@ function App() {
       `Position ${draggedIndex + 1}`,
       `Position ${targetIndex + 1}`
     );
-    setDraggedBudgetItemId(null);
-    setDragOverBudgetItemId(null);
+    budgetItems.setDraggedId(null);
+    budgetItems.setDragOverId(null);
   };
 
   const handleBudgetDragEnd = () => {
-    setDraggedBudgetItemId(null);
-    setDragOverBudgetItemId(null);
+    budgetItems.setDraggedId(null);
+    budgetItems.setDragOverId(null);
   };
 
   // Move budget item to a different category
@@ -963,247 +933,156 @@ function App() {
   };
 
   // Realtor management functions
-  const addRealtor = () => {
-    if (!newRealtorData.name.trim()) return;
+  // Generic CRUD helper functions
+  const createEntity = (entityKey, idPrefix, newEntityData, primaryField, changelogType, entityName, resetState) => {
+    if (!newEntityData[primaryField]?.trim()) return;
+
     const newData = { ...data };
-    if (!newData.realtors) newData.realtors = [];
-    const newId = `r-${Date.now()}`;
-    newData.realtors.push({
-      id: newId,
-      name: newRealtorData.name.trim(),
-      team: newRealtorData.team.trim(),
-      brokerage: newRealtorData.brokerage.trim(),
-      phone: newRealtorData.phone.trim(),
-      email: newRealtorData.email.trim(),
-      website: newRealtorData.website.trim(),
-      notes: newRealtorData.notes.trim(),
-      recommended: false
+    if (!newData[entityKey]) newData[entityKey] = [];
+
+    const newId = `${idPrefix}-${Date.now()}`;
+    const newEntity = { id: newId };
+
+    // Copy all fields, trimming strings
+    Object.keys(newEntityData).forEach(key => {
+      if (typeof newEntityData[key] === 'string') {
+        newEntity[key] = newEntityData[key].trim();
+      } else {
+        newEntity[key] = newEntityData[key];
+      }
     });
+
+    newData[entityKey].push(newEntity);
     setData(newData);
     saveData(newData);
-    addChangelogEntry('realtor_added', `Added realtor: ${newRealtorData.name.trim()}`, null, newRealtorData.name.trim());
-    setAddingRealtor(false);
-    setNewRealtorData({ name: '', team: '', brokerage: '', phone: '', email: '', website: '', notes: '' });
+    addChangelogEntry(changelogType, `Added ${entityName}: ${newEntityData[primaryField].trim()}`, null, newEntityData[primaryField].trim());
+    resetState();
   };
 
-  const updateRealtor = (realtorId) => {
+  const updateEntity = (entityKey, entityId, editingData, primaryField, changelogType, entityName, resetState) => {
     const newData = { ...data };
-    const realtor = newData.realtors?.find(r => r.id === realtorId);
-    if (realtor) {
-      const oldName = realtor.name;
-      realtor.name = editingRealtorData.name?.trim() || realtor.name;
-      realtor.team = editingRealtorData.team?.trim() || '';
-      realtor.brokerage = editingRealtorData.brokerage?.trim() || '';
-      realtor.phone = editingRealtorData.phone?.trim() || '';
-      realtor.email = editingRealtorData.email?.trim() || '';
-      realtor.website = editingRealtorData.website?.trim() || '';
-      realtor.notes = editingRealtorData.notes?.trim() || '';
+    const entity = newData[entityKey]?.find(e => e.id === entityId);
+
+    if (entity) {
+      const oldValue = entity[primaryField];
+
+      // Update all fields, trimming strings
+      Object.keys(editingData).forEach(key => {
+        if (typeof editingData[key] === 'string') {
+          entity[key] = editingData[key]?.trim() || '';
+        } else if (editingData[key] !== undefined) {
+          entity[key] = editingData[key];
+        }
+      });
+
       setData(newData);
       saveData(newData);
-      addChangelogEntry('realtor_updated', `Updated realtor: ${realtor.name}`, oldName, realtor.name);
+      addChangelogEntry(changelogType, `Updated ${entityName}: ${entity[primaryField]}`, oldValue, entity[primaryField]);
     }
-    setEditingRealtorId(null);
-    setEditingRealtorData({});
+    resetState();
   };
 
-  const deleteRealtor = (realtorId) => {
+  const deleteEntity = (entityKey, entityId, primaryField, changelogType, entityName, resetState) => {
     const newData = { ...data };
-    const realtor = newData.realtors?.find(r => r.id === realtorId);
-    const deletedName = realtor?.name || '';
-    newData.realtors = newData.realtors?.filter(r => r.id !== realtorId) || [];
+    const entity = newData[entityKey]?.find(e => e.id === entityId);
+    const deletedValue = entity?.[primaryField] || '';
+
+    newData[entityKey] = newData[entityKey]?.filter(e => e.id !== entityId) || [];
     setData(newData);
     saveData(newData);
-    addChangelogEntry('realtor_deleted', `Removed realtor: ${deletedName}`, deletedName, null);
-    setConfirmDeleteRealtorId(null);
+    addChangelogEntry(changelogType, `Removed ${entityName}: ${deletedValue}`, deletedValue, null);
+    resetState();
   };
 
-  const toggleRealtorRecommended = (realtorId) => {
+  const toggleEntityField = (entityKey, entityId, toggleField, primaryField, changelogType, actionVerbs) => {
     const newData = { ...data };
-    const realtor = newData.realtors?.find(r => r.id === realtorId);
-    if (realtor) {
-      realtor.recommended = !realtor.recommended;
+    const entity = newData[entityKey]?.find(e => e.id === entityId);
+    if (entity) {
+      entity[toggleField] = !entity[toggleField];
       setData(newData);
       saveData(newData);
       addChangelogEntry(
-        'realtor_recommendation',
-        `${realtor.recommended ? 'Marked' : 'Unmarked'} "${realtor.name}" as recommended`,
-        !realtor.recommended,
-        realtor.recommended
+        changelogType,
+        `${entity[toggleField] ? actionVerbs.onTrue : actionVerbs.onFalse} "${entity[primaryField]}" as ${toggleField}`,
+        !entity[toggleField],
+        entity[toggleField]
       );
     }
   };
+
+  // Realtor management functions
+  const addRealtor = () => createEntity(
+    'realtors', 'r', realtors.newData, 'name', 'realtor_added', 'realtor',
+    () => realtors.cancelAdding()
+  );
+
+  const updateRealtor = (realtorId) => updateEntity(
+    'realtors', realtorId, realtors.editingData, 'name', 'realtor_updated', 'realtor',
+    () => realtors.cancelEditing()
+  );
+
+  const deleteRealtor = (realtorId) => deleteEntity(
+    'realtors', realtorId, 'name', 'realtor_deleted', 'realtor',
+    () => realtors.cancelDelete()
+  );
+
+  const toggleRealtorRecommended = (realtorId) => toggleEntityField(
+    'realtors', realtorId, 'recommended', 'name', 'realtor_recommendation',
+    { onTrue: 'Marked', onFalse: 'Unmarked' }
+  );
 
   // Realtor questions management functions
-  const addQuestion = () => {
-    if (!newQuestionData.question.trim()) return;
-    const newData = { ...data };
-    if (!newData.realtorQuestions) newData.realtorQuestions = [];
-    const newId = `q-${Date.now()}`;
-    newData.realtorQuestions.push({
-      id: newId,
-      question: newQuestionData.question.trim(),
-      idealAnswer: newQuestionData.idealAnswer.trim(),
-      answer: newQuestionData.answer.trim()
-    });
-    setData(newData);
-    saveData(newData);
-    addChangelogEntry('question_added', `Added realtor question`, null, newQuestionData.question.trim());
-    setAddingQuestion(false);
-    setNewQuestionData({ question: '', idealAnswer: '', answer: '' });
-  };
+  const addQuestion = () => createEntity(
+    'realtorQuestions', 'q', questions.newData, 'question', 'question_added', 'realtor question',
+    () => questions.cancelAdding()
+  );
 
-  const updateQuestion = (questionId) => {
-    const newData = { ...data };
-    const question = newData.realtorQuestions?.find(q => q.id === questionId);
-    if (question) {
-      question.question = editingQuestionData.question?.trim() || question.question;
-      question.idealAnswer = editingQuestionData.idealAnswer?.trim() || '';
-      question.answer = editingQuestionData.answer?.trim() || '';
-      setData(newData);
-      saveData(newData);
-      addChangelogEntry('question_updated', `Updated realtor question`, null, question.question);
-    }
-    setEditingQuestionId(null);
-    setEditingQuestionData({});
-  };
+  const updateQuestion = (questionId) => updateEntity(
+    'realtorQuestions', questionId, questions.editingData, 'question', 'question_updated', 'realtor question',
+    () => questions.cancelEditing()
+  );
 
-  const deleteQuestion = (questionId) => {
-    const newData = { ...data };
-    const question = newData.realtorQuestions?.find(q => q.id === questionId);
-    const deletedText = question?.question || '';
-    newData.realtorQuestions = newData.realtorQuestions?.filter(q => q.id !== questionId) || [];
-    setData(newData);
-    saveData(newData);
-    addChangelogEntry('question_deleted', `Removed realtor question`, deletedText, null);
-    setConfirmDeleteQuestionId(null);
-  };
+  const deleteQuestion = (questionId) => deleteEntity(
+    'realtorQuestions', questionId, 'question', 'question_deleted', 'realtor question',
+    () => questions.cancelDelete()
+  );
 
   // Neighborhood management functions
-  const addNeighborhood = () => {
-    if (!newNeighborhoodData.name.trim()) return;
-    const newData = { ...data };
-    if (!newData.neighborhoods) newData.neighborhoods = [];
-    const newId = `n-${Date.now()}`;
-    newData.neighborhoods.push({
-      id: newId,
-      name: newNeighborhoodData.name.trim(),
-      pros: newNeighborhoodData.pros.trim(),
-      cons: newNeighborhoodData.cons.trim(),
-      priceRange: newNeighborhoodData.priceRange.trim(),
-      notes: newNeighborhoodData.notes.trim(),
-      rating: newNeighborhoodData.rating
-    });
-    setData(newData);
-    saveData(newData);
-    addChangelogEntry('neighborhood_added', `Added neighborhood: ${newNeighborhoodData.name.trim()}`, null, newNeighborhoodData.name.trim());
-    setAddingNeighborhood(false);
-    setNewNeighborhoodData({ name: '', pros: '', cons: '', priceRange: '', notes: '', rating: 0 });
-  };
+  const addNeighborhood = () => createEntity(
+    'neighborhoods', 'n', neighborhoods.newData, 'name', 'neighborhood_added', 'neighborhood',
+    () => neighborhoods.cancelAdding()
+  );
 
-  const updateNeighborhood = (neighborhoodId) => {
-    const newData = { ...data };
-    const neighborhood = newData.neighborhoods?.find(n => n.id === neighborhoodId);
-    if (neighborhood) {
-      const oldName = neighborhood.name;
-      neighborhood.name = editingNeighborhoodData.name?.trim() || neighborhood.name;
-      neighborhood.pros = editingNeighborhoodData.pros?.trim() || '';
-      neighborhood.cons = editingNeighborhoodData.cons?.trim() || '';
-      neighborhood.priceRange = editingNeighborhoodData.priceRange?.trim() || '';
-      neighborhood.notes = editingNeighborhoodData.notes?.trim() || '';
-      neighborhood.rating = editingNeighborhoodData.rating || 0;
-      setData(newData);
-      saveData(newData);
-      addChangelogEntry('neighborhood_updated', `Updated neighborhood: ${neighborhood.name}`, oldName, neighborhood.name);
-    }
-    setEditingNeighborhoodId(null);
-    setEditingNeighborhoodData({});
-  };
+  const updateNeighborhood = (neighborhoodId) => updateEntity(
+    'neighborhoods', neighborhoodId, neighborhoods.editingData, 'name', 'neighborhood_updated', 'neighborhood',
+    () => neighborhoods.cancelEditing()
+  );
 
-  const deleteNeighborhood = (neighborhoodId) => {
-    const newData = { ...data };
-    const neighborhood = newData.neighborhoods?.find(n => n.id === neighborhoodId);
-    const deletedName = neighborhood?.name || '';
-    newData.neighborhoods = newData.neighborhoods?.filter(n => n.id !== neighborhoodId) || [];
-    setData(newData);
-    saveData(newData);
-    addChangelogEntry('neighborhood_deleted', `Removed neighborhood: ${deletedName}`, deletedName, null);
-    setConfirmDeleteNeighborhoodId(null);
-  };
+  const deleteNeighborhood = (neighborhoodId) => deleteEntity(
+    'neighborhoods', neighborhoodId, 'name', 'neighborhood_deleted', 'neighborhood',
+    () => neighborhoods.cancelDelete()
+  );
 
   // Rental property management functions
-  const addProperty = () => {
-    if (!newPropertyData.address.trim()) return;
-    const newData = { ...data };
-    if (!newData.rentalProperties) newData.rentalProperties = [];
-    const newId = `p-${Date.now()}`;
-    newData.rentalProperties.push({
-      id: newId,
-      address: newPropertyData.address.trim(),
-      neighborhood: newPropertyData.neighborhood.trim(),
-      price: newPropertyData.price.trim(),
-      bedrooms: newPropertyData.bedrooms.trim(),
-      bathrooms: newPropertyData.bathrooms.trim(),
-      sqft: newPropertyData.sqft.trim(),
-      petFriendly: newPropertyData.petFriendly,
-      url: newPropertyData.url.trim(),
-      notes: newPropertyData.notes.trim(),
-      interested: false
-    });
-    setData(newData);
-    saveData(newData);
-    addChangelogEntry('property_added', `Added rental property: ${newPropertyData.address.trim()}`, null, newPropertyData.address.trim());
-    setAddingProperty(false);
-    setNewPropertyData({ address: '', neighborhood: '', price: '', bedrooms: '', bathrooms: '', sqft: '', petFriendly: false, url: '', notes: '', interested: false });
-  };
+  const addProperty = () => createEntity(
+    'rentalProperties', 'p', {...properties.newData, interested: false}, 'address', 'property_added', 'rental property',
+    () => properties.cancelAdding()
+  );
 
-  const updateProperty = (propertyId) => {
-    const newData = { ...data };
-    const property = newData.rentalProperties?.find(p => p.id === propertyId);
-    if (property) {
-      const oldAddress = property.address;
-      property.address = editingPropertyData.address?.trim() || property.address;
-      property.neighborhood = editingPropertyData.neighborhood?.trim() || '';
-      property.price = editingPropertyData.price?.trim() || '';
-      property.bedrooms = editingPropertyData.bedrooms?.trim() || '';
-      property.bathrooms = editingPropertyData.bathrooms?.trim() || '';
-      property.sqft = editingPropertyData.sqft?.trim() || '';
-      property.petFriendly = editingPropertyData.petFriendly || false;
-      property.url = editingPropertyData.url?.trim() || '';
-      property.notes = editingPropertyData.notes?.trim() || '';
-      setData(newData);
-      saveData(newData);
-      addChangelogEntry('property_updated', `Updated rental property: ${property.address}`, oldAddress, property.address);
-    }
-    setEditingPropertyId(null);
-    setEditingPropertyData({});
-  };
+  const updateProperty = (propertyId) => updateEntity(
+    'rentalProperties', propertyId, properties.editingData, 'address', 'property_updated', 'rental property',
+    () => properties.cancelEditing()
+  );
 
-  const deleteProperty = (propertyId) => {
-    const newData = { ...data };
-    const property = newData.rentalProperties?.find(p => p.id === propertyId);
-    const deletedAddress = property?.address || '';
-    newData.rentalProperties = newData.rentalProperties?.filter(p => p.id !== propertyId) || [];
-    setData(newData);
-    saveData(newData);
-    addChangelogEntry('property_deleted', `Removed rental property: ${deletedAddress}`, deletedAddress, null);
-    setConfirmDeletePropertyId(null);
-  };
+  const deleteProperty = (propertyId) => deleteEntity(
+    'rentalProperties', propertyId, 'address', 'property_deleted', 'rental property',
+    () => properties.cancelDelete()
+  );
 
-  const togglePropertyInterested = (propertyId) => {
-    const newData = { ...data };
-    const property = newData.rentalProperties?.find(p => p.id === propertyId);
-    if (property) {
-      property.interested = !property.interested;
-      setData(newData);
-      saveData(newData);
-      addChangelogEntry(
-        'property_interest',
-        `${property.interested ? 'Marked' : 'Unmarked'} "${property.address}" as interested`,
-        !property.interested,
-        property.interested
-      );
-    }
-  };
+  const togglePropertyInterested = (propertyId) => toggleEntityField(
+    'rentalProperties', propertyId, 'interested', 'address', 'property_interest',
+    { onTrue: 'Marked', onFalse: 'Unmarked' }
+  );
 
   const updateNotes = (notes) => {
     const oldNotes = data.notes;
@@ -1359,7 +1238,8 @@ function App() {
     return Math.round((done / step.items.length) * 100);
   };
 
-  const getOverallProgress = () => {
+  // Memoized calculation functions for performance
+  const overallProgress = useMemo(() => {
     let total = 0;
     let done = 0;
     Object.values(data.steps).forEach(step => {
@@ -1367,78 +1247,74 @@ function App() {
       done += step.items.filter(i => i.done).length;
     });
     return total ? Math.round((done / total) * 100) : 0;
-  };
+  }, [data.steps]);
 
-  const getTotalTasks = () => {
+  const totalTasks = useMemo(() => {
     return Object.values(data.steps).reduce((sum, step) => sum + step.items.length, 0);
-  };
+  }, [data.steps]);
 
-  const getCompletedTasks = () => {
+  const completedTasks = useMemo(() => {
     return Object.values(data.steps).reduce((sum, step) => sum + step.items.filter(i => i.done).length, 0);
-  };
+  }, [data.steps]);
 
-  const getBudgetTotal = (category) => {
-    return data.budget[category].reduce((sum, item) => {
-      const cost = parseFloat(item.cost) || 0;
-      return sum + cost;
-    }, 0);
-  };
+  const budgetTotals = useMemo(() => {
+    return {
+      must: data.budget.must.reduce((sum, item) => sum + (parseFloat(item.cost) || 0), 0),
+      high: data.budget.high.reduce((sum, item) => sum + (parseFloat(item.cost) || 0), 0),
+      nice: data.budget.nice.reduce((sum, item) => sum + (parseFloat(item.cost) || 0), 0),
+      other: data.budget.other.reduce((sum, item) => sum + (parseFloat(item.cost) || 0), 0)
+    };
+  }, [data.budget]);
 
-  const getGrandTotal = () => {
-    return ['must', 'high', 'nice', 'other'].reduce((sum, cat) => sum + getBudgetTotal(cat), 0);
-  };
+  const grandTotal = useMemo(() => {
+    return budgetTotals.must + budgetTotals.high + budgetTotals.nice + budgetTotals.other;
+  }, [budgetTotals]);
 
   // Financial calculator functions
-  const getRealtorFees = () => {
+  const realtorFees = useMemo(() => {
     const salePrice = parseFloat(data.financial?.salePrice) || 0;
     const percentage = parseFloat(data.financial?.realtorFeePercentage) || 5;
     return salePrice * (percentage / 100);
-  };
+  }, [data.financial?.salePrice, data.financial?.realtorFeePercentage]);
 
-  const getTotalDebts = () => {
+  const totalDebts = useMemo(() => {
     return (data.financial?.fixedDebts || []).reduce((sum, item) => {
       return sum + (parseFloat(item.amount) || 0);
     }, 0);
-  };
+  }, [data.financial?.fixedDebts]);
 
-  const getDebtsWithoutMortgage = () => {
+  const debtsWithoutMortgage = useMemo(() => {
     return (data.financial?.fixedDebts || [])
       .filter(item => !item.item.toLowerCase().includes('mortgage'))
       .reduce((sum, item) => {
         return sum + (parseFloat(item.amount) || 0);
       }, 0);
-  };
+  }, [data.financial?.fixedDebts]);
 
-  const getTotalExpenses = () => {
+  const totalExpenses = useMemo(() => {
     const expenses = (data.financial?.expenses || []).reduce((sum, item) => {
       return sum + (parseFloat(item.amount) || 0);
     }, 0);
-    const repairs = getBudgetTotal('must') + getBudgetTotal('high') + getBudgetTotal('nice');
-    const moving = getBudgetTotal('other');
+    const repairs = budgetTotals.must + budgetTotals.high + budgetTotals.nice;
+    const moving = budgetTotals.other;
     return expenses + repairs + moving;
-  };
+  }, [data.financial?.expenses, budgetTotals]);
 
-  const getTotalFunding = () => {
+  const totalFunding = useMemo(() => {
     return 0; // Funding section removed - 401k moved to debts
-  };
+  }, []);
 
-  const getCustomItemsTotal = () => {
+  const customItemsTotal = useMemo(() => {
     return (data.financial?.customItems || []).reduce((sum, item) => {
       const amount = parseFloat(item.amount) || 0;
       return item.type === 'income' ? sum + amount : sum - amount;
     }, 0);
-  };
+  }, [data.financial?.customItems]);
 
-  const getNetProceeds = () => {
+  const netProceeds = useMemo(() => {
     const salePrice = parseFloat(data.financial?.salePrice) || 0;
-    const realtorFees = getRealtorFees();
-    const debts = getTotalDebts();
-    const expenses = getTotalExpenses();
-    const funding = getTotalFunding();
-    const customItems = getCustomItemsTotal();
-
-    return salePrice + funding - realtorFees - debts - expenses + customItems;
-  };
+    return salePrice + totalFunding - realtorFees - totalDebts - totalExpenses + customItemsTotal;
+  }, [data.financial?.salePrice, totalFunding, realtorFees, totalDebts, totalExpenses, customItemsTotal]);
 
   // One-time function to sync new realtor data to Firebase
   const syncRealtorsToFirebase = async () => {
@@ -1738,7 +1614,7 @@ function App() {
                             {data.budget[key].map(item => (
                               <div
                                 key={item.id}
-                                draggable={editingBudgetItemId !== item.id}
+                                draggable={budgetItems.editingId !== item.id}
                                 onDragStart={(e) => handleBudgetDragStart(e, item.id)}
                                 onDragOver={(e) => handleBudgetDragOver(e, item.id)}
                                 onDragLeave={handleBudgetDragLeave}
@@ -1747,8 +1623,8 @@ function App() {
                                 style={{
                                   ...styles.repairItem,
                                   ...(item.done ? styles.repairItemDone : {}),
-                                  ...(draggedBudgetItemId === item.id ? styles.repairItemDragging : {}),
-                                  ...(dragOverBudgetItemId === item.id && draggedBudgetItemId !== item.id ? styles.repairItemDropTarget : {})
+                                  ...(budgetItems.draggedId === item.id ? styles.repairItemDragging : {}),
+                                  ...(budgetItems.dragOverId === item.id && budgetItems.draggedId !== item.id ? styles.repairItemDropTarget : {})
                                 }}
                               >
                                 <span style={styles.dragHandle} title="Drag to reorder">⋮⋮</span>
@@ -1760,12 +1636,12 @@ function App() {
                                   {item.done ? '✓' : ''}
                                 </span>
 
-                                {editingBudgetItemId === item.id ? (
+                                {budgetItems.editingId === item.id ? (
                                   <div style={styles.itemEditForm}>
                                     <input
                                       type="text"
-                                      value={editBudgetItemText}
-                                      onChange={(e) => setEditBudgetItemText(e.target.value)}
+                                      value={budgetItems.editText}
+                                      onChange={(e) => budgetItems.setEditText(e.target.value)}
                                       onKeyPress={(e) => e.key === 'Enter' && updateBudgetItemText(key, item.id)}
                                       onBlur={() => updateBudgetItemText(key, item.id)}
                                       style={styles.itemEditInput}
@@ -1795,9 +1671,9 @@ function App() {
                                   </>
                                 )}
 
-                                {editingBudgetItemId !== item.id && (
+                                {budgetItems.editingId !== item.id && (
                                   <div style={styles.itemActions}>
-                                    {confirmDeleteBudgetItemId === item.id ? (
+                                    {budgetItems.confirmDeleteId === item.id ? (
                                       <>
                                         <span style={styles.confirmDeleteText}>Delete?</span>
                                         <button
@@ -1808,7 +1684,7 @@ function App() {
                                         </button>
                                         <button
                                           style={styles.confirmNoBtn}
-                                          onClick={(e) => { e.stopPropagation(); setConfirmDeleteBudgetItemId(null); }}
+                                          onClick={(e) => { e.stopPropagation(); budgetItems.setConfirmDeleteId(null); }}
                                         >
                                           No
                                         </button>
@@ -1845,14 +1721,14 @@ function App() {
                                         )}
                                         <button
                                           style={styles.itemActionBtn}
-                                          onClick={(e) => { e.stopPropagation(); setEditingBudgetItemId(item.id); setEditBudgetItemText(item.item); }}
+                                          onClick={(e) => { e.stopPropagation(); budgetItems.setEditingId(item.id); budgetItems.setEditText(item.item); }}
                                           title="Edit"
                                         >
                                           ✏️
                                         </button>
                                         <button
                                           style={styles.itemActionBtn}
-                                          onClick={(e) => { e.stopPropagation(); setConfirmDeleteBudgetItemId(item.id); }}
+                                          onClick={(e) => { e.stopPropagation(); budgetItems.setConfirmDeleteId(item.id); }}
                                           title="Delete"
                                         >
                                           🗑️
@@ -1865,12 +1741,12 @@ function App() {
                             ))}
                           </div>
 
-                          {newBudgetItemCategory === key ? (
+                          {budgetItems.newItemParent === key ? (
                             <div style={styles.addRepairItemForm}>
                               <input
                                 type="text"
-                                value={newBudgetItemText}
-                                onChange={(e) => setNewBudgetItemText(e.target.value)}
+                                value={budgetItems.newItemText}
+                                onChange={(e) => budgetItems.setNewItemText(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && addNewBudgetItem(key)}
                                 placeholder="Enter new repair item..."
                                 style={styles.addItemInput}
@@ -1879,13 +1755,13 @@ function App() {
                               <button
                                 style={styles.addItemSaveBtn}
                                 onClick={() => addNewBudgetItem(key)}
-                                disabled={!newBudgetItemText.trim()}
+                                disabled={!budgetItems.newItemText.trim()}
                               >
                                 Add
                               </button>
                               <button
                                 style={styles.addItemCancelBtn}
-                                onClick={() => { setNewBudgetItemCategory(null); setNewBudgetItemText(''); }}
+                                onClick={() => { budgetItems.setNewItemParent(null); budgetItems.setNewItemText(''); }}
                               >
                                 Cancel
                               </button>
@@ -1893,7 +1769,7 @@ function App() {
                           ) : (
                             <button
                               style={styles.addRepairItemBtn}
-                              onClick={() => setNewBudgetItemCategory(key)}
+                              onClick={() => budgetItems.setNewItemParent(key)}
                             >
                               + Add repair
                             </button>
@@ -1917,7 +1793,7 @@ function App() {
                     <li
                       key={item.id}
                       className="checklist-item"
-                      draggable={editingItemId !== item.id}
+                      draggable={checklistItems.editingId !== item.id}
                       onDragStart={(e) => handleDragStart(e, item.id)}
                       onDragOver={(e) => handleDragOver(e, item.id)}
                       onDragLeave={handleDragLeave}
@@ -1926,8 +1802,8 @@ function App() {
                       style={{
                         ...styles.checklistItem,
                         ...(item.done ? styles.checklistItemDone : {}),
-                        ...(draggedItemId === item.id ? styles.checklistItemDragging : {}),
-                        ...(dragOverItemId === item.id && draggedItemId !== item.id ? styles.checklistItemDropTarget : {})
+                        ...(checklistItems.draggedId === item.id ? styles.checklistItemDragging : {}),
+                        ...(checklistItems.dragOverId === item.id && checklistItems.draggedId !== item.id ? styles.checklistItemDropTarget : {})
                       }}
                     >
                       {/* Drag Handle */}
@@ -1943,12 +1819,12 @@ function App() {
                       </span>
 
                       {/* Item Text or Edit Input */}
-                      {editingItemId === item.id ? (
+                      {checklistItems.editingId === item.id ? (
                         <div style={styles.itemEditForm}>
                           <input
                             type="text"
-                            value={editItemText}
-                            onChange={(e) => setEditItemText(e.target.value)}
+                            value={checklistItems.editText}
+                            onChange={(e) => checklistItems.setEditText(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && updateItemText(activeStep, item.id)}
                             onBlur={() => updateItemText(activeStep, item.id)}
                             style={styles.itemEditInput}
@@ -1980,9 +1856,9 @@ function App() {
                       )}
 
                       {/* Action Buttons */}
-                      {editingItemId !== item.id && (
+                      {checklistItems.editingId !== item.id && (
                         <div style={styles.itemActions}>
-                          {confirmDeleteItemId === item.id ? (
+                          {checklistItems.confirmDeleteId === item.id ? (
                             <>
                               <span style={styles.confirmDeleteText}>Delete?</span>
                               <button
@@ -1993,7 +1869,7 @@ function App() {
                               </button>
                               <button
                                 style={styles.confirmNoBtn}
-                                onClick={(e) => { e.stopPropagation(); setConfirmDeleteItemId(null); }}
+                                onClick={(e) => { e.stopPropagation(); checklistItems.setConfirmDeleteId(null); }}
                               >
                                 No
                               </button>
@@ -2002,14 +1878,14 @@ function App() {
                             <>
                               <button
                                 style={styles.itemActionBtn}
-                                onClick={(e) => { e.stopPropagation(); setEditingItemId(item.id); setEditItemText(item.text); }}
+                                onClick={(e) => { e.stopPropagation(); checklistItems.setEditingId(item.id); checklistItems.setEditText(item.text); }}
                                 title="Edit"
                               >
                                 ✏️
                               </button>
                               <button
                                 style={styles.itemActionBtn}
-                                onClick={(e) => { e.stopPropagation(); setConfirmDeleteItemId(item.id); }}
+                                onClick={(e) => { e.stopPropagation(); checklistItems.setConfirmDeleteId(item.id); }}
                                 title="Delete"
                               >
                                 🗑️
@@ -2023,12 +1899,12 @@ function App() {
                 </ul>
 
                 {/* Add New Item */}
-                {newItemStepId === activeStep ? (
+                {checklistItems.newItemParent === activeStep ? (
                   <div style={styles.addItemForm}>
                     <input
                       type="text"
-                      value={newItemText}
-                      onChange={(e) => setNewItemText(e.target.value)}
+                      value={checklistItems.newItemText}
+                      onChange={(e) => checklistItems.setNewItemText(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && addNewItem(activeStep)}
                       placeholder="Enter new task..."
                       style={styles.addItemInput}
@@ -2037,13 +1913,13 @@ function App() {
                     <button
                       style={styles.addItemSaveBtn}
                       onClick={() => addNewItem(activeStep)}
-                      disabled={!newItemText.trim()}
+                      disabled={!checklistItems.newItemText.trim()}
                     >
                       Add
                     </button>
                     <button
                       style={styles.addItemCancelBtn}
-                      onClick={() => { setNewItemStepId(null); setNewItemText(''); }}
+                      onClick={() => { checklistItems.setNewItemParent(null); checklistItems.setNewItemText(''); }}
                     >
                       Cancel
                     </button>
@@ -2051,7 +1927,7 @@ function App() {
                 ) : (
                   <button
                     style={styles.addItemBtn}
-                    onClick={() => setNewItemStepId(activeStep)}
+                    onClick={() => checklistItems.setNewItemParent(activeStep)}
                   >
                     + Add task
                   </button>
@@ -2106,94 +1982,94 @@ function App() {
                             ...(realtor.recommended ? styles.realtorCardRecommended : {})
                           }}
                         >
-                          {editingRealtorId === realtor.id ? (
+                          {realtors.editingId === realtor.id ? (
                             // Edit Mode
                             <div style={{...styles.realtorEditForm, maxHeight: '600px', overflowY: 'auto'}}>
                               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Name:</label>
-                                  <input type="text" value={editingRealtorData.name || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, name: e.target.value})} style={styles.realtorFormInput} />
+                                  <input type="text" value={realtors.editingData.name || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, name: e.target.value})} style={styles.realtorFormInput} />
                                 </div>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Rank:</label>
-                                  <input type="number" value={editingRealtorData.rank || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, rank: parseInt(e.target.value) || ''})} style={styles.realtorFormInput} />
+                                  <input type="number" value={realtors.editingData.rank || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, rank: parseInt(e.target.value) || ''})} style={styles.realtorFormInput} />
                                 </div>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Specialty:</label>
-                                  <input type="text" value={editingRealtorData.specialty || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, specialty: e.target.value})} style={styles.realtorFormInput} />
+                                  <input type="text" value={realtors.editingData.specialty || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, specialty: e.target.value})} style={styles.realtorFormInput} />
                                 </div>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Team:</label>
-                                  <input type="text" value={editingRealtorData.team || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, team: e.target.value})} style={styles.realtorFormInput} />
+                                  <input type="text" value={realtors.editingData.team || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, team: e.target.value})} style={styles.realtorFormInput} />
                                 </div>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Brokerage:</label>
-                                  <input type="text" value={editingRealtorData.brokerage || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, brokerage: e.target.value})} style={styles.realtorFormInput} />
+                                  <input type="text" value={realtors.editingData.brokerage || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, brokerage: e.target.value})} style={styles.realtorFormInput} />
                                 </div>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Phone:</label>
-                                  <input type="text" value={editingRealtorData.phone || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, phone: e.target.value})} style={styles.realtorFormInput} />
+                                  <input type="text" value={realtors.editingData.phone || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, phone: e.target.value})} style={styles.realtorFormInput} />
                                 </div>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Email:</label>
-                                  <input type="text" value={editingRealtorData.email || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, email: e.target.value})} style={styles.realtorFormInput} />
+                                  <input type="text" value={realtors.editingData.email || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, email: e.target.value})} style={styles.realtorFormInput} />
                                 </div>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Website:</label>
-                                  <input type="text" value={editingRealtorData.website || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, website: e.target.value})} style={styles.realtorFormInput} />
+                                  <input type="text" value={realtors.editingData.website || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, website: e.target.value})} style={styles.realtorFormInput} />
                                 </div>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Neighborhoods:</label>
-                                  <input type="text" value={editingRealtorData.neighborhoods || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, neighborhoods: e.target.value})} style={styles.realtorFormInput} />
+                                  <input type="text" value={realtors.editingData.neighborhoods || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, neighborhoods: e.target.value})} style={styles.realtorFormInput} />
                                 </div>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Price Range:</label>
-                                  <input type="text" value={editingRealtorData.priceRange || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, priceRange: e.target.value})} style={styles.realtorFormInput} />
+                                  <input type="text" value={realtors.editingData.priceRange || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, priceRange: e.target.value})} style={styles.realtorFormInput} />
                                 </div>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Homes Sold (12mo):</label>
-                                  <input type="text" value={editingRealtorData.homesSold || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, homesSold: e.target.value})} style={styles.realtorFormInput} />
+                                  <input type="text" value={realtors.editingData.homesSold || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, homesSold: e.target.value})} style={styles.realtorFormInput} />
                                 </div>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Avg Days on Market:</label>
-                                  <input type="text" value={editingRealtorData.avgDaysOnMarket || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, avgDaysOnMarket: e.target.value})} style={styles.realtorFormInput} />
+                                  <input type="text" value={realtors.editingData.avgDaysOnMarket || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, avgDaysOnMarket: e.target.value})} style={styles.realtorFormInput} />
                                 </div>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Sale-to-List Ratio:</label>
-                                  <input type="text" value={editingRealtorData.saleToListRatio || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, saleToListRatio: e.target.value})} style={styles.realtorFormInput} />
+                                  <input type="text" value={realtors.editingData.saleToListRatio || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, saleToListRatio: e.target.value})} style={styles.realtorFormInput} />
                                 </div>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Over-Asking Frequency:</label>
-                                  <input type="text" value={editingRealtorData.overAskingFrequency || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, overAskingFrequency: e.target.value})} style={styles.realtorFormInput} />
+                                  <input type="text" value={realtors.editingData.overAskingFrequency || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, overAskingFrequency: e.target.value})} style={styles.realtorFormInput} />
                                 </div>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Pricing Strategy:</label>
-                                  <input type="text" value={editingRealtorData.pricingStrategy || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, pricingStrategy: e.target.value})} style={styles.realtorFormInput} />
+                                  <input type="text" value={realtors.editingData.pricingStrategy || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, pricingStrategy: e.target.value})} style={styles.realtorFormInput} />
                                 </div>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Remote Experience:</label>
-                                  <input type="text" value={editingRealtorData.remoteExperience || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, remoteExperience: e.target.value})} style={styles.realtorFormInput} />
+                                  <input type="text" value={realtors.editingData.remoteExperience || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, remoteExperience: e.target.value})} style={styles.realtorFormInput} />
                                 </div>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Marketing:</label>
-                                  <input type="text" value={editingRealtorData.marketing || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, marketing: e.target.value})} style={styles.realtorFormInput} />
+                                  <input type="text" value={realtors.editingData.marketing || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, marketing: e.target.value})} style={styles.realtorFormInput} />
                                 </div>
                                 <div style={styles.realtorFormRow}>
                                   <label style={styles.realtorFormLabel}>Negotiation:</label>
-                                  <input type="text" value={editingRealtorData.negotiation || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, negotiation: e.target.value})} style={styles.realtorFormInput} />
+                                  <input type="text" value={realtors.editingData.negotiation || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, negotiation: e.target.value})} style={styles.realtorFormInput} />
                                 </div>
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Concierge Services:</label>
-                                <textarea value={editingRealtorData.concierge || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, concierge: e.target.value})} style={styles.realtorFormTextarea} rows={3} />
+                                <textarea value={realtors.editingData.concierge || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, concierge: e.target.value})} style={styles.realtorFormTextarea} rows={3} />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Concerns:</label>
-                                <textarea value={editingRealtorData.concerns || ''} onChange={(e) => setEditingRealtorData({...editingRealtorData, concerns: e.target.value})} style={styles.realtorFormTextarea} rows={2} />
+                                <textarea value={realtors.editingData.concerns || ''} onChange={(e) => realtors.setEditingData({...realtors.editingData, concerns: e.target.value})} style={styles.realtorFormTextarea} rows={2} />
                               </div>
                               <div style={styles.realtorFormActions}>
                                 <button style={styles.realtorSaveBtn} onClick={() => updateRealtor(realtor.id)}>Save</button>
-                                <button style={styles.realtorCancelBtn} onClick={() => { setEditingRealtorId(null); setEditingRealtorData({}); }}>Cancel</button>
+                                <button style={styles.realtorCancelBtn} onClick={() => { setEditingRealtorId(null); realtors.setEditingData({}); }}>Cancel</button>
                               </div>
                             </div>
                           ) : (
@@ -2326,11 +2202,11 @@ function App() {
                               </div>
 
                               <div style={styles.realtorCardActions}>
-                                {confirmDeleteRealtorId === realtor.id ? (
+                                {realtors.confirmDeleteId === realtor.id ? (
                                   <>
                                     <span style={styles.confirmDeleteText}>Delete?</span>
                                     <button style={styles.confirmYesBtn} onClick={() => deleteRealtor(realtor.id)}>Yes</button>
-                                    <button style={styles.confirmNoBtn} onClick={() => setConfirmDeleteRealtorId(null)}>No</button>
+                                    <button style={styles.confirmNoBtn} onClick={() => realtors.setConfirmDeleteId(null)}>No</button>
                                   </>
                                 ) : (
                                   <>
@@ -2343,14 +2219,14 @@ function App() {
                                     </button>
                                     <button
                                       style={styles.realtorEditBtn}
-                                      onClick={() => { setEditingRealtorId(realtor.id); setEditingRealtorData({...realtor}); }}
+                                      onClick={() => { setEditingRealtorId(realtor.id); realtors.setEditingData({...realtor}); }}
                                       title="Edit"
                                     >
                                       ✏️
                                     </button>
                                     <button
                                       style={styles.realtorDeleteBtn}
-                                      onClick={() => setConfirmDeleteRealtorId(realtor.id)}
+                                      onClick={() => realtors.setConfirmDeleteId(realtor.id)}
                                       title="Delete"
                                     >
                                       🗑️
@@ -2365,15 +2241,15 @@ function App() {
                     </div>
 
                     {/* Add New Realtor */}
-                    {addingRealtor ? (
+                    {realtors.adding ? (
                       <div style={styles.addRealtorForm}>
                         <h4 style={styles.addRealtorTitle}>Add New Realtor Candidate</h4>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Name:</label>
                           <input
                             type="text"
-                            value={newRealtorData.name}
-                            onChange={(e) => setNewRealtorData({...newRealtorData, name: e.target.value})}
+                            value={realtors.newData.name}
+                            onChange={(e) => realtors.setNewData({...realtors.newData, name: e.target.value})}
                             style={styles.realtorFormInput}
                             autoFocus
                           />
@@ -2382,8 +2258,8 @@ function App() {
                           <label style={styles.realtorFormLabel}>Team:</label>
                           <input
                             type="text"
-                            value={newRealtorData.team}
-                            onChange={(e) => setNewRealtorData({...newRealtorData, team: e.target.value})}
+                            value={realtors.newData.team}
+                            onChange={(e) => realtors.setNewData({...realtors.newData, team: e.target.value})}
                             style={styles.realtorFormInput}
                           />
                         </div>
@@ -2391,8 +2267,8 @@ function App() {
                           <label style={styles.realtorFormLabel}>Brokerage:</label>
                           <input
                             type="text"
-                            value={newRealtorData.brokerage}
-                            onChange={(e) => setNewRealtorData({...newRealtorData, brokerage: e.target.value})}
+                            value={realtors.newData.brokerage}
+                            onChange={(e) => realtors.setNewData({...realtors.newData, brokerage: e.target.value})}
                             style={styles.realtorFormInput}
                           />
                         </div>
@@ -2400,8 +2276,8 @@ function App() {
                           <label style={styles.realtorFormLabel}>Phone:</label>
                           <input
                             type="text"
-                            value={newRealtorData.phone}
-                            onChange={(e) => setNewRealtorData({...newRealtorData, phone: e.target.value})}
+                            value={realtors.newData.phone}
+                            onChange={(e) => realtors.setNewData({...realtors.newData, phone: e.target.value})}
                             style={styles.realtorFormInput}
                           />
                         </div>
@@ -2409,8 +2285,8 @@ function App() {
                           <label style={styles.realtorFormLabel}>Email:</label>
                           <input
                             type="text"
-                            value={newRealtorData.email}
-                            onChange={(e) => setNewRealtorData({...newRealtorData, email: e.target.value})}
+                            value={realtors.newData.email}
+                            onChange={(e) => realtors.setNewData({...realtors.newData, email: e.target.value})}
                             style={styles.realtorFormInput}
                           />
                         </div>
@@ -2418,8 +2294,8 @@ function App() {
                           <label style={styles.realtorFormLabel}>Website:</label>
                           <input
                             type="text"
-                            value={newRealtorData.website}
-                            onChange={(e) => setNewRealtorData({...newRealtorData, website: e.target.value})}
+                            value={realtors.newData.website}
+                            onChange={(e) => realtors.setNewData({...realtors.newData, website: e.target.value})}
                             style={styles.realtorFormInput}
                             placeholder="https://..."
                           />
@@ -2427,8 +2303,8 @@ function App() {
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Notes:</label>
                           <textarea
-                            value={newRealtorData.notes}
-                            onChange={(e) => setNewRealtorData({...newRealtorData, notes: e.target.value})}
+                            value={realtors.newData.notes}
+                            onChange={(e) => realtors.setNewData({...realtors.newData, notes: e.target.value})}
                             style={styles.realtorFormTextarea}
                             rows={5}
                           />
@@ -2437,20 +2313,20 @@ function App() {
                           <button
                             style={styles.realtorSaveBtn}
                             onClick={addRealtor}
-                            disabled={!newRealtorData.name.trim()}
+                            disabled={!realtors.newData.name.trim()}
                           >
                             Add Realtor
                           </button>
                           <button
                             style={styles.realtorCancelBtn}
-                            onClick={() => { setAddingRealtor(false); setNewRealtorData({ name: '', team: '', brokerage: '', phone: '', email: '', website: '', notes: '' }); }}
+                            onClick={() => { realtors.setAdding(false); realtors.setNewData({ name: '', team: '', brokerage: '', phone: '', email: '', website: '', notes: '' }); }}
                           >
                             Cancel
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <button style={styles.addRealtorBtn} onClick={() => setAddingRealtor(true)}>
+                      <button style={styles.addRealtorBtn} onClick={() => realtors.setAdding(true)}>
                         + Add Realtor Candidate
                       </button>
                     )}
@@ -2465,33 +2341,33 @@ function App() {
                     <div style={styles.questionsList}>
                       {(data.realtorQuestions || []).map((q, index) => (
                         <div key={q.id} style={styles.questionCard}>
-                          {editingQuestionId === q.id ? (
+                          {questions.editingId === q.id ? (
                             // Edit Mode
                             <div style={styles.questionEditForm}>
                               <label style={styles.questionLabel}>Question:</label>
                               <textarea
-                                value={editingQuestionData.question || ''}
-                                onChange={(e) => setEditingQuestionData({...editingQuestionData, question: e.target.value})}
+                                value={questions.editingData.question || ''}
+                                onChange={(e) => questions.setEditingData({...questions.editingData, question: e.target.value})}
                                 style={styles.questionTextarea}
                                 rows={4}
                               />
                               <label style={styles.questionLabel}>Ideal Answer / What to look for:</label>
                               <textarea
-                                value={editingQuestionData.idealAnswer || ''}
-                                onChange={(e) => setEditingQuestionData({...editingQuestionData, idealAnswer: e.target.value})}
+                                value={questions.editingData.idealAnswer || ''}
+                                onChange={(e) => questions.setEditingData({...questions.editingData, idealAnswer: e.target.value})}
                                 style={styles.questionTextarea}
                                 rows={4}
                               />
                               <label style={styles.questionLabel}>Notes / Their Answer:</label>
                               <textarea
-                                value={editingQuestionData.answer || ''}
-                                onChange={(e) => setEditingQuestionData({...editingQuestionData, answer: e.target.value})}
+                                value={questions.editingData.answer || ''}
+                                onChange={(e) => questions.setEditingData({...questions.editingData, answer: e.target.value})}
                                 style={styles.questionTextarea}
                                 rows={4}
                               />
                               <div style={styles.questionEditActions}>
                                 <button style={styles.questionSaveBtn} onClick={() => updateQuestion(q.id)}>Save</button>
-                                <button style={styles.questionCancelBtn} onClick={() => { setEditingQuestionId(null); setEditingQuestionData({}); }}>Cancel</button>
+                                <button style={styles.questionCancelBtn} onClick={() => { setEditingQuestionId(null); questions.setEditingData({}); }}>Cancel</button>
                               </div>
                             </div>
                           ) : (
@@ -2514,24 +2390,24 @@ function App() {
                                 </div>
                               )}
                               <div style={styles.questionActions}>
-                                {confirmDeleteQuestionId === q.id ? (
+                                {questions.confirmDeleteId === q.id ? (
                                   <>
                                     <span style={styles.confirmDeleteText}>Delete?</span>
                                     <button style={styles.confirmYesBtn} onClick={() => deleteQuestion(q.id)}>Yes</button>
-                                    <button style={styles.confirmNoBtn} onClick={() => setConfirmDeleteQuestionId(null)}>No</button>
+                                    <button style={styles.confirmNoBtn} onClick={() => questions.setConfirmDeleteId(null)}>No</button>
                                   </>
                                 ) : (
                                   <>
                                     <button
                                       style={styles.questionEditBtn}
-                                      onClick={() => { setEditingQuestionId(q.id); setEditingQuestionData({...q}); }}
+                                      onClick={() => { setEditingQuestionId(q.id); questions.setEditingData({...q}); }}
                                       title="Edit"
                                     >
                                       ✏️
                                     </button>
                                     <button
                                       style={styles.questionDeleteBtn}
-                                      onClick={() => setConfirmDeleteQuestionId(q.id)}
+                                      onClick={() => questions.setConfirmDeleteId(q.id)}
                                       title="Delete"
                                     >
                                       🗑️
@@ -2546,13 +2422,13 @@ function App() {
                     </div>
 
                     {/* Add New Question */}
-                    {addingQuestion ? (
+                    {questions.adding ? (
                       <div style={styles.addQuestionForm}>
                         <h4 style={styles.addQuestionTitle}>Add New Question</h4>
                         <label style={styles.questionLabel}>Question:</label>
                         <textarea
-                          value={newQuestionData.question}
-                          onChange={(e) => setNewQuestionData({...newQuestionData, question: e.target.value})}
+                          value={questions.newData.question}
+                          onChange={(e) => questions.setNewData({...questions.newData, question: e.target.value})}
                           placeholder="What do you want to ask?"
                           style={styles.questionTextarea}
                           rows={4}
@@ -2560,8 +2436,8 @@ function App() {
                         />
                         <label style={styles.questionLabel}>Ideal Answer / What to look for:</label>
                         <textarea
-                          value={newQuestionData.idealAnswer}
-                          onChange={(e) => setNewQuestionData({...newQuestionData, idealAnswer: e.target.value})}
+                          value={questions.newData.idealAnswer}
+                          onChange={(e) => questions.setNewData({...questions.newData, idealAnswer: e.target.value})}
                           placeholder="What should a good answer include?"
                           style={styles.questionTextarea}
                           rows={4}
@@ -2570,20 +2446,20 @@ function App() {
                           <button
                             style={styles.questionSaveBtn}
                             onClick={addQuestion}
-                            disabled={!newQuestionData.question.trim()}
+                            disabled={!questions.newData.question.trim()}
                           >
                             Add Question
                           </button>
                           <button
                             style={styles.questionCancelBtn}
-                            onClick={() => { setAddingQuestion(false); setNewQuestionData({ question: '', idealAnswer: '', answer: '' }); }}
+                            onClick={() => { questions.setAdding(false); questions.setNewData({ question: '', idealAnswer: '', answer: '' }); }}
                           >
                             Cancel
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <button style={styles.addQuestionBtn} onClick={() => setAddingQuestion(true)}>
+                      <button style={styles.addQuestionBtn} onClick={() => questions.setAdding(true)}>
                         + Add Question
                       </button>
                     )}
@@ -2634,15 +2510,15 @@ function App() {
                           key={neighborhood.id}
                           style={styles.realtorCard}
                         >
-                          {editingNeighborhoodId === neighborhood.id ? (
+                          {neighborhoods.editingId === neighborhood.id ? (
                             // Edit Mode
                             <div style={styles.realtorEditForm}>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Neighborhood Name:</label>
                                 <input
                                   type="text"
-                                  value={editingNeighborhoodData.name || ''}
-                                  onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, name: e.target.value})}
+                                  value={neighborhoods.editingData.name || ''}
+                                  onChange={(e) => neighborhoods.setEditingData({...neighborhoods.editingData, name: e.target.value})}
                                   style={styles.realtorFormInput}
                                 />
                               </div>
@@ -2650,8 +2526,8 @@ function App() {
                                 <label style={styles.realtorFormLabel}>Price Range:</label>
                                 <input
                                   type="text"
-                                  value={editingNeighborhoodData.priceRange || ''}
-                                  onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, priceRange: e.target.value})}
+                                  value={neighborhoods.editingData.priceRange || ''}
+                                  onChange={(e) => neighborhoods.setEditingData({...neighborhoods.editingData, priceRange: e.target.value})}
                                   style={styles.realtorFormInput}
                                   placeholder="e.g. $2000-3000/mo"
                                 />
@@ -2662,16 +2538,16 @@ function App() {
                                   type="number"
                                   min="0"
                                   max="5"
-                                  value={editingNeighborhoodData.rating || 0}
-                                  onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, rating: parseInt(e.target.value) || 0})}
+                                  value={neighborhoods.editingData.rating || 0}
+                                  onChange={(e) => neighborhoods.setEditingData({...neighborhoods.editingData, rating: parseInt(e.target.value) || 0})}
                                   style={styles.realtorFormInput}
                                 />
                               </div>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Pros:</label>
                                 <textarea
-                                  value={editingNeighborhoodData.pros || ''}
-                                  onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, pros: e.target.value})}
+                                  value={neighborhoods.editingData.pros || ''}
+                                  onChange={(e) => neighborhoods.setEditingData({...neighborhoods.editingData, pros: e.target.value})}
                                   style={styles.realtorFormTextarea}
                                   rows={5}
                                   placeholder="What you like about this area"
@@ -2680,8 +2556,8 @@ function App() {
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Cons:</label>
                                 <textarea
-                                  value={editingNeighborhoodData.cons || ''}
-                                  onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, cons: e.target.value})}
+                                  value={neighborhoods.editingData.cons || ''}
+                                  onChange={(e) => neighborhoods.setEditingData({...neighborhoods.editingData, cons: e.target.value})}
                                   style={styles.realtorFormTextarea}
                                   rows={5}
                                   placeholder="Concerns or drawbacks"
@@ -2690,15 +2566,15 @@ function App() {
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Notes:</label>
                                 <textarea
-                                  value={editingNeighborhoodData.notes || ''}
-                                  onChange={(e) => setEditingNeighborhoodData({...editingNeighborhoodData, notes: e.target.value})}
+                                  value={neighborhoods.editingData.notes || ''}
+                                  onChange={(e) => neighborhoods.setEditingData({...neighborhoods.editingData, notes: e.target.value})}
                                   style={styles.realtorFormTextarea}
                                   rows={5}
                                 />
                               </div>
                               <div style={styles.realtorFormActions}>
                                 <button style={styles.realtorSaveBtn} onClick={() => updateNeighborhood(neighborhood.id)}>Save</button>
-                                <button style={styles.realtorCancelBtn} onClick={() => { setEditingNeighborhoodId(null); setEditingNeighborhoodData({}); }}>Cancel</button>
+                                <button style={styles.realtorCancelBtn} onClick={() => { neighborhoods.setEditingId(null); neighborhoods.setEditingData({}); }}>Cancel</button>
                               </div>
                             </div>
                           ) : (
@@ -2742,24 +2618,24 @@ function App() {
                               </div>
 
                               <div style={styles.realtorCardActions}>
-                                {confirmDeleteNeighborhoodId === neighborhood.id ? (
+                                {neighborhoods.confirmDeleteId === neighborhood.id ? (
                                   <>
                                     <span style={styles.confirmDeleteText}>Delete?</span>
                                     <button style={styles.confirmYesBtn} onClick={() => deleteNeighborhood(neighborhood.id)}>Yes</button>
-                                    <button style={styles.confirmNoBtn} onClick={() => setConfirmDeleteNeighborhoodId(null)}>No</button>
+                                    <button style={styles.confirmNoBtn} onClick={() => neighborhoods.setConfirmDeleteId(null)}>No</button>
                                   </>
                                 ) : (
                                   <>
                                     <button
                                       style={styles.realtorEditBtn}
-                                      onClick={() => { setEditingNeighborhoodId(neighborhood.id); setEditingNeighborhoodData({...neighborhood}); }}
+                                      onClick={() => { neighborhoods.setEditingId(neighborhood.id); neighborhoods.setEditingData({...neighborhood}); }}
                                       title="Edit"
                                     >
                                       ✏️
                                     </button>
                                     <button
                                       style={styles.realtorDeleteBtn}
-                                      onClick={() => setConfirmDeleteNeighborhoodId(neighborhood.id)}
+                                      onClick={() => neighborhoods.setConfirmDeleteId(neighborhood.id)}
                                       title="Delete"
                                     >
                                       🗑️
@@ -2774,15 +2650,15 @@ function App() {
                     </div>
 
                     {/* Add New Neighborhood */}
-                    {addingNeighborhood ? (
+                    {neighborhoods.adding ? (
                       <div style={styles.addRealtorForm}>
                         <h4 style={styles.addRealtorTitle}>Add New Neighborhood</h4>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Neighborhood Name:</label>
                           <input
                             type="text"
-                            value={newNeighborhoodData.name}
-                            onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, name: e.target.value})}
+                            value={neighborhoods.newData.name}
+                            onChange={(e) => neighborhoods.setNewData({...neighborhoods.newData, name: e.target.value})}
                             style={styles.realtorFormInput}
                           />
                         </div>
@@ -2790,8 +2666,8 @@ function App() {
                           <label style={styles.realtorFormLabel}>Price Range:</label>
                           <input
                             type="text"
-                            value={newNeighborhoodData.priceRange}
-                            onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, priceRange: e.target.value})}
+                            value={neighborhoods.newData.priceRange}
+                            onChange={(e) => neighborhoods.setNewData({...neighborhoods.newData, priceRange: e.target.value})}
                             style={styles.realtorFormInput}
                             placeholder="e.g. $2000-3000/mo"
                           />
@@ -2802,16 +2678,16 @@ function App() {
                             type="number"
                             min="0"
                             max="5"
-                            value={newNeighborhoodData.rating}
-                            onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, rating: parseInt(e.target.value) || 0})}
+                            value={neighborhoods.newData.rating}
+                            onChange={(e) => neighborhoods.setNewData({...neighborhoods.newData, rating: parseInt(e.target.value) || 0})}
                             style={styles.realtorFormInput}
                           />
                         </div>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Pros:</label>
                           <textarea
-                            value={newNeighborhoodData.pros}
-                            onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, pros: e.target.value})}
+                            value={neighborhoods.newData.pros}
+                            onChange={(e) => neighborhoods.setNewData({...neighborhoods.newData, pros: e.target.value})}
                             style={styles.realtorFormTextarea}
                             rows={5}
                             placeholder="What you like about this area"
@@ -2820,8 +2696,8 @@ function App() {
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Cons:</label>
                           <textarea
-                            value={newNeighborhoodData.cons}
-                            onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, cons: e.target.value})}
+                            value={neighborhoods.newData.cons}
+                            onChange={(e) => neighborhoods.setNewData({...neighborhoods.newData, cons: e.target.value})}
                             style={styles.realtorFormTextarea}
                             rows={5}
                             placeholder="Concerns or drawbacks"
@@ -2830,8 +2706,8 @@ function App() {
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Notes:</label>
                           <textarea
-                            value={newNeighborhoodData.notes}
-                            onChange={(e) => setNewNeighborhoodData({...newNeighborhoodData, notes: e.target.value})}
+                            value={neighborhoods.newData.notes}
+                            onChange={(e) => neighborhoods.setNewData({...neighborhoods.newData, notes: e.target.value})}
                             style={styles.realtorFormTextarea}
                             rows={5}
                           />
@@ -2840,13 +2716,13 @@ function App() {
                           <button style={styles.addRealtorSaveBtn} onClick={addNeighborhood}>
                             Add Neighborhood
                           </button>
-                          <button style={styles.addRealtorCancelBtn} onClick={() => { setAddingNeighborhood(false); setNewNeighborhoodData({ name: '', pros: '', cons: '', priceRange: '', notes: '', rating: 0 }); }}>
+                          <button style={styles.addRealtorCancelBtn} onClick={() => { neighborhoods.setAdding(false); neighborhoods.setNewData({ name: '', pros: '', cons: '', priceRange: '', notes: '', rating: 0 }); }}>
                             Cancel
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <button style={styles.addRealtorBtn} onClick={() => setAddingNeighborhood(true)}>
+                      <button style={styles.addRealtorBtn} onClick={() => neighborhoods.setAdding(true)}>
                         + Add Neighborhood
                       </button>
                     )}
@@ -2900,15 +2776,15 @@ function App() {
                             ...(property.interested ? styles.realtorCardRecommended : {})
                           }}
                         >
-                          {editingPropertyId === property.id ? (
+                          {properties.editingId === property.id ? (
                             // Edit Mode
                             <div style={styles.realtorEditForm}>
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Address:</label>
                                 <input
                                   type="text"
-                                  value={editingPropertyData.address || ''}
-                                  onChange={(e) => setEditingPropertyData({...editingPropertyData, address: e.target.value})}
+                                  value={properties.editingData.address || ''}
+                                  onChange={(e) => properties.setEditingData({...properties.editingData, address: e.target.value})}
                                   style={styles.realtorFormInput}
                                 />
                               </div>
@@ -2916,8 +2792,8 @@ function App() {
                                 <label style={styles.realtorFormLabel}>Neighborhood:</label>
                                 <input
                                   type="text"
-                                  value={editingPropertyData.neighborhood || ''}
-                                  onChange={(e) => setEditingPropertyData({...editingPropertyData, neighborhood: e.target.value})}
+                                  value={properties.editingData.neighborhood || ''}
+                                  onChange={(e) => properties.setEditingData({...properties.editingData, neighborhood: e.target.value})}
                                   style={styles.realtorFormInput}
                                 />
                               </div>
@@ -2925,8 +2801,8 @@ function App() {
                                 <label style={styles.realtorFormLabel}>Price:</label>
                                 <input
                                   type="text"
-                                  value={editingPropertyData.price || ''}
-                                  onChange={(e) => setEditingPropertyData({...editingPropertyData, price: e.target.value})}
+                                  value={properties.editingData.price || ''}
+                                  onChange={(e) => properties.setEditingData({...properties.editingData, price: e.target.value})}
                                   style={styles.realtorFormInput}
                                   placeholder="e.g. $2500/mo"
                                 />
@@ -2935,8 +2811,8 @@ function App() {
                                 <label style={styles.realtorFormLabel}>Bedrooms:</label>
                                 <input
                                   type="text"
-                                  value={editingPropertyData.bedrooms || ''}
-                                  onChange={(e) => setEditingPropertyData({...editingPropertyData, bedrooms: e.target.value})}
+                                  value={properties.editingData.bedrooms || ''}
+                                  onChange={(e) => properties.setEditingData({...properties.editingData, bedrooms: e.target.value})}
                                   style={styles.realtorFormInput}
                                 />
                               </div>
@@ -2944,8 +2820,8 @@ function App() {
                                 <label style={styles.realtorFormLabel}>Bathrooms:</label>
                                 <input
                                   type="text"
-                                  value={editingPropertyData.bathrooms || ''}
-                                  onChange={(e) => setEditingPropertyData({...editingPropertyData, bathrooms: e.target.value})}
+                                  value={properties.editingData.bathrooms || ''}
+                                  onChange={(e) => properties.setEditingData({...properties.editingData, bathrooms: e.target.value})}
                                   style={styles.realtorFormInput}
                                 />
                               </div>
@@ -2953,8 +2829,8 @@ function App() {
                                 <label style={styles.realtorFormLabel}>Square Feet:</label>
                                 <input
                                   type="text"
-                                  value={editingPropertyData.sqft || ''}
-                                  onChange={(e) => setEditingPropertyData({...editingPropertyData, sqft: e.target.value})}
+                                  value={properties.editingData.sqft || ''}
+                                  onChange={(e) => properties.setEditingData({...properties.editingData, sqft: e.target.value})}
                                   style={styles.realtorFormInput}
                                 />
                               </div>
@@ -2962,8 +2838,8 @@ function App() {
                                 <label style={styles.realtorFormLabel}>
                                   <input
                                     type="checkbox"
-                                    checked={editingPropertyData.petFriendly || false}
-                                    onChange={(e) => setEditingPropertyData({...editingPropertyData, petFriendly: e.target.checked})}
+                                    checked={properties.editingData.petFriendly || false}
+                                    onChange={(e) => properties.setEditingData({...properties.editingData, petFriendly: e.target.checked})}
                                     style={{marginRight: '8px'}}
                                   />
                                   Pet Friendly
@@ -2973,8 +2849,8 @@ function App() {
                                 <label style={styles.realtorFormLabel}>Listing URL:</label>
                                 <input
                                   type="text"
-                                  value={editingPropertyData.url || ''}
-                                  onChange={(e) => setEditingPropertyData({...editingPropertyData, url: e.target.value})}
+                                  value={properties.editingData.url || ''}
+                                  onChange={(e) => properties.setEditingData({...properties.editingData, url: e.target.value})}
                                   style={styles.realtorFormInput}
                                   placeholder="https://..."
                                 />
@@ -2982,15 +2858,15 @@ function App() {
                               <div style={styles.realtorFormRow}>
                                 <label style={styles.realtorFormLabel}>Notes:</label>
                                 <textarea
-                                  value={editingPropertyData.notes || ''}
-                                  onChange={(e) => setEditingPropertyData({...editingPropertyData, notes: e.target.value})}
+                                  value={properties.editingData.notes || ''}
+                                  onChange={(e) => properties.setEditingData({...properties.editingData, notes: e.target.value})}
                                   style={styles.realtorFormTextarea}
                                   rows={5}
                                 />
                               </div>
                               <div style={styles.realtorFormActions}>
                                 <button style={styles.realtorSaveBtn} onClick={() => updateProperty(property.id)}>Save</button>
-                                <button style={styles.realtorCancelBtn} onClick={() => { setEditingPropertyId(null); setEditingPropertyData({}); }}>Cancel</button>
+                                <button style={styles.realtorCancelBtn} onClick={() => { properties.setEditingId(null); properties.setEditingData({}); }}>Cancel</button>
                               </div>
                             </div>
                           ) : (
@@ -3042,11 +2918,11 @@ function App() {
                               </div>
 
                               <div style={styles.realtorCardActions}>
-                                {confirmDeletePropertyId === property.id ? (
+                                {properties.confirmDeleteId === property.id ? (
                                   <>
                                     <span style={styles.confirmDeleteText}>Delete?</span>
                                     <button style={styles.confirmYesBtn} onClick={() => deleteProperty(property.id)}>Yes</button>
-                                    <button style={styles.confirmNoBtn} onClick={() => setConfirmDeletePropertyId(null)}>No</button>
+                                    <button style={styles.confirmNoBtn} onClick={() => properties.setConfirmDeleteId(null)}>No</button>
                                   </>
                                 ) : (
                                   <>
@@ -3059,14 +2935,14 @@ function App() {
                                     </button>
                                     <button
                                       style={styles.realtorEditBtn}
-                                      onClick={() => { setEditingPropertyId(property.id); setEditingPropertyData({...property}); }}
+                                      onClick={() => { properties.setEditingId(property.id); properties.setEditingData({...property}); }}
                                       title="Edit"
                                     >
                                       ✏️
                                     </button>
                                     <button
                                       style={styles.realtorDeleteBtn}
-                                      onClick={() => setConfirmDeletePropertyId(property.id)}
+                                      onClick={() => properties.setConfirmDeleteId(property.id)}
                                       title="Delete"
                                     >
                                       🗑️
@@ -3081,15 +2957,15 @@ function App() {
                     </div>
 
                     {/* Add New Property */}
-                    {addingProperty ? (
+                    {properties.adding ? (
                       <div style={styles.addRealtorForm}>
                         <h4 style={styles.addRealtorTitle}>Add New Rental Property</h4>
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Address:</label>
                           <input
                             type="text"
-                            value={newPropertyData.address}
-                            onChange={(e) => setNewPropertyData({...newPropertyData, address: e.target.value})}
+                            value={properties.newData.address}
+                            onChange={(e) => properties.setNewData({...properties.newData, address: e.target.value})}
                             style={styles.realtorFormInput}
                           />
                         </div>
@@ -3097,8 +2973,8 @@ function App() {
                           <label style={styles.realtorFormLabel}>Neighborhood:</label>
                           <input
                             type="text"
-                            value={newPropertyData.neighborhood}
-                            onChange={(e) => setNewPropertyData({...newPropertyData, neighborhood: e.target.value})}
+                            value={properties.newData.neighborhood}
+                            onChange={(e) => properties.setNewData({...properties.newData, neighborhood: e.target.value})}
                             style={styles.realtorFormInput}
                           />
                         </div>
@@ -3106,8 +2982,8 @@ function App() {
                           <label style={styles.realtorFormLabel}>Price:</label>
                           <input
                             type="text"
-                            value={newPropertyData.price}
-                            onChange={(e) => setNewPropertyData({...newPropertyData, price: e.target.value})}
+                            value={properties.newData.price}
+                            onChange={(e) => properties.setNewData({...properties.newData, price: e.target.value})}
                             style={styles.realtorFormInput}
                             placeholder="e.g. $2500/mo"
                           />
@@ -3116,8 +2992,8 @@ function App() {
                           <label style={styles.realtorFormLabel}>Bedrooms:</label>
                           <input
                             type="text"
-                            value={newPropertyData.bedrooms}
-                            onChange={(e) => setNewPropertyData({...newPropertyData, bedrooms: e.target.value})}
+                            value={properties.newData.bedrooms}
+                            onChange={(e) => properties.setNewData({...properties.newData, bedrooms: e.target.value})}
                             style={styles.realtorFormInput}
                           />
                         </div>
@@ -3125,8 +3001,8 @@ function App() {
                           <label style={styles.realtorFormLabel}>Bathrooms:</label>
                           <input
                             type="text"
-                            value={newPropertyData.bathrooms}
-                            onChange={(e) => setNewPropertyData({...newPropertyData, bathrooms: e.target.value})}
+                            value={properties.newData.bathrooms}
+                            onChange={(e) => properties.setNewData({...properties.newData, bathrooms: e.target.value})}
                             style={styles.realtorFormInput}
                           />
                         </div>
@@ -3134,8 +3010,8 @@ function App() {
                           <label style={styles.realtorFormLabel}>Square Feet:</label>
                           <input
                             type="text"
-                            value={newPropertyData.sqft}
-                            onChange={(e) => setNewPropertyData({...newPropertyData, sqft: e.target.value})}
+                            value={properties.newData.sqft}
+                            onChange={(e) => properties.setNewData({...properties.newData, sqft: e.target.value})}
                             style={styles.realtorFormInput}
                           />
                         </div>
@@ -3143,8 +3019,8 @@ function App() {
                           <label style={styles.realtorFormLabel}>
                             <input
                               type="checkbox"
-                              checked={newPropertyData.petFriendly}
-                              onChange={(e) => setNewPropertyData({...newPropertyData, petFriendly: e.target.checked})}
+                              checked={properties.newData.petFriendly}
+                              onChange={(e) => properties.setNewData({...properties.newData, petFriendly: e.target.checked})}
                               style={{marginRight: '8px'}}
                             />
                             Pet Friendly
@@ -3154,8 +3030,8 @@ function App() {
                           <label style={styles.realtorFormLabel}>Listing URL:</label>
                           <input
                             type="text"
-                            value={newPropertyData.url}
-                            onChange={(e) => setNewPropertyData({...newPropertyData, url: e.target.value})}
+                            value={properties.newData.url}
+                            onChange={(e) => properties.setNewData({...properties.newData, url: e.target.value})}
                             style={styles.realtorFormInput}
                             placeholder="https://..."
                           />
@@ -3163,8 +3039,8 @@ function App() {
                         <div style={styles.realtorFormRow}>
                           <label style={styles.realtorFormLabel}>Notes:</label>
                           <textarea
-                            value={newPropertyData.notes}
-                            onChange={(e) => setNewPropertyData({...newPropertyData, notes: e.target.value})}
+                            value={properties.newData.notes}
+                            onChange={(e) => properties.setNewData({...properties.newData, notes: e.target.value})}
                             style={styles.realtorFormTextarea}
                             rows={5}
                           />
@@ -3173,13 +3049,13 @@ function App() {
                           <button style={styles.addRealtorSaveBtn} onClick={addProperty}>
                             Add Property
                           </button>
-                          <button style={styles.addRealtorCancelBtn} onClick={() => { setAddingProperty(false); setNewPropertyData({ address: '', neighborhood: '', price: '', bedrooms: '', bathrooms: '', sqft: '', petFriendly: false, url: '', notes: '', interested: false }); }}>
+                          <button style={styles.addRealtorCancelBtn} onClick={() => { properties.setAdding(false); properties.setNewData({ address: '', neighborhood: '', price: '', bedrooms: '', bathrooms: '', sqft: '', petFriendly: false, url: '', notes: '', interested: false }); }}>
                             Cancel
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <button style={styles.addRealtorBtn} onClick={() => setAddingProperty(true)}>
+                      <button style={styles.addRealtorBtn} onClick={() => properties.setAdding(true)}>
                         + Add Rental Property
                       </button>
                     )}
@@ -3384,7 +3260,7 @@ function App() {
                     ✨ Cash After Sale
                   </span>
                   <span style={{fontSize: '2.8rem', fontWeight: 800, color: 'white', letterSpacing: '1px', textAlign: 'right'}}>
-                    ${getNetProceeds().toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}
+                    ${netProceeds.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}
                   </span>
                 </div>
               </div>
@@ -3456,7 +3332,7 @@ function App() {
                     </div>
                   </div>
                   <div style={{fontSize: '1.3rem', fontWeight: 700, color: '#e74c3c', textAlign: 'right'}}>
-                    -${getRealtorFees().toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}
+                    -${realtorFees.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}
                   </div>
                 </div>
               </div>
@@ -3469,7 +3345,7 @@ function App() {
                   <h3 style={styles.budgetTitleText}>💳 Debts to Pay Off</h3>
                   <p style={styles.budgetTitleDesc}>Outstanding loans and credit</p>
                 </div>
-                <span style={styles.budgetTitleTotal}>-${getTotalDebts().toLocaleString()}</span>
+                <span style={styles.budgetTitleTotal}>-${totalDebts.toLocaleString()}</span>
               </div>
               <table style={styles.budgetTable}>
                 <thead>
@@ -3572,7 +3448,7 @@ function App() {
                       </td>
                       <td style={{...styles.budgetTd, textAlign: 'right', paddingTop: '12px', paddingBottom: '12px'}}>
                         <span style={{fontSize: '1.2rem', fontWeight: 700, color: '#e74c3c'}}>
-                          ${getDebtsWithoutMortgage().toLocaleString()}
+                          ${debtsWithoutMortgage.toLocaleString()}
                         </span>
                       </td>
                       <td style={{...styles.budgetTd}}></td>
@@ -3608,7 +3484,7 @@ function App() {
                   <h3 style={styles.budgetTitleText}>🔧 Repairs</h3>
                   <p style={styles.budgetTitleDesc}>From Repairs tab (read-only)</p>
                 </div>
-                <span style={styles.budgetTitleTotal}>-${(getBudgetTotal('must') + getBudgetTotal('high') + getBudgetTotal('nice')).toLocaleString()}</span>
+                <span style={styles.budgetTitleTotal}>-${(budgetTotals.must + budgetTotals.high + budgetTotals.nice).toLocaleString()}</span>
               </div>
             </div>
 
@@ -3619,7 +3495,7 @@ function App() {
                   <h3 style={styles.budgetTitleText}>💸 Additional Expenses</h3>
                   <p style={styles.budgetTitleDesc}>Concierge, moving, housing, etc.</p>
                 </div>
-                <span style={styles.budgetTitleTotal}>-${(getTotalExpenses() - (getBudgetTotal('must') + getBudgetTotal('high') + getBudgetTotal('nice'))).toLocaleString()}</span>
+                <span style={styles.budgetTitleTotal}>-${(totalExpenses - (budgetTotals.must + budgetTotals.high + budgetTotals.nice)).toLocaleString()}</span>
               </div>
               <table style={styles.budgetTable}>
                 <thead>
@@ -3719,11 +3595,11 @@ function App() {
                   {data.budget.other.map(item => (
                     <tr key={item.id}>
                       <td style={styles.budgetTd}>
-                        {editingBudgetItemId === item.id ? (
+                        {budgetItems.editingId === item.id ? (
                           <input
                             type="text"
-                            value={editBudgetItemText}
-                            onChange={(e) => setEditBudgetItemText(e.target.value)}
+                            value={budgetItems.editText}
+                            onChange={(e) => budgetItems.setEditText(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && updateBudgetItemText('other', item.id)}
                             onBlur={() => updateBudgetItemText('other', item.id)}
                             style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
@@ -3732,7 +3608,7 @@ function App() {
                         ) : (
                           <span
                             style={{cursor: 'pointer', fontSize: '1rem', fontWeight: 600, userSelect: 'none'}}
-                            onClick={() => { setEditingBudgetItemId(item.id); setEditBudgetItemText(item.item); }}
+                            onClick={() => { budgetItems.setEditingId(item.id); budgetItems.setEditText(item.item); }}
                           >
                             {item.item}
                           </span>
@@ -3800,7 +3676,7 @@ function App() {
                   <h3 style={styles.budgetTitleText}>📋 Custom Items</h3>
                   <p style={styles.budgetTitleDesc}>Additional income or expenses</p>
                 </div>
-                <span style={styles.budgetTitleTotal}>${getCustomItemsTotal().toLocaleString()}</span>
+                <span style={styles.budgetTitleTotal}>${customItemsTotal.toLocaleString()}</span>
               </div>
               {(data.financial?.customItems || []).length > 0 && (
                 <table style={styles.budgetTable}>
@@ -4552,1850 +4428,5 @@ const colors = {
   white: '#ffffff'           // Pure white
 };
 
-const styles = {
-  // Container
-  container: {
-    maxWidth: '900px',
-    margin: '0 auto',
-    padding: '20px',
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'relative',
-    zIndex: 1
-  },
-
-  // Loading
-  loadingContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100vh',
-    color: 'white'
-  },
-  loadingSpinner: {
-    width: '48px',
-    height: '48px',
-    border: '4px solid rgba(255,255,255,0.3)',
-    borderTop: `4px solid ${colors.mist}`,
-    borderRadius: '50%',
-    animation: 'spin 1s linear infinite'
-  },
-  loadingText: {
-    marginTop: '16px',
-    fontSize: '1.1rem'
-  },
-
-  // Header
-  header: {
-    background: `linear-gradient(135deg, ${colors.pacificBlue} 0%, ${colors.teal} 100%)`,
-    backgroundSize: '200% 200%',
-    animation: 'gradientShift 15s ease infinite',
-    borderRadius: '20px',
-    padding: '32px 40px',
-    marginBottom: '24px',
-    boxShadow: '0 4px 16px rgba(30, 90, 142, 0.2)',
-    position: 'relative',
-    overflow: 'hidden'
-  },
-  headerContent: {
-    position: 'relative',
-    zIndex: 1
-  },
-  headerMain: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '20px'
-  },
-  titleSection: {
-    flex: 1,
-    minWidth: '250px'
-  },
-  title: {
-    fontSize: '2.2rem',
-    color: 'white',
-    marginBottom: '8px',
-    fontWeight: '700',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    textShadow: '0 2px 8px rgba(0,0,0,0.15)'
-  },
-  titleIcon: {
-    fontSize: '2.4rem'
-  },
-  subtitle: {
-    color: 'rgba(255,255,255,0.9)',
-    fontSize: '1.05rem',
-    fontWeight: '500',
-    letterSpacing: '0.5px'
-  },
-  saveStatus: {
-    textAlign: 'right',
-    minHeight: '20px'
-  },
-  savingIndicator: {
-    fontSize: '0.85rem',
-    color: 'white',
-    padding: '6px 12px',
-    background: `linear-gradient(135deg, ${colors.turquoise}, ${colors.teal})`,
-    borderRadius: '6px',
-    backdropFilter: 'blur(10px)',
-    fontWeight: '600',
-    animation: 'pulseGlow 1s ease-in-out infinite',
-    boxShadow: '0 2px 8px rgba(26, 188, 156, 0.3)'
-  },
-  savedIndicator: {
-    fontSize: '0.85rem',
-    color: 'white',
-    padding: '6px 12px',
-    background: `linear-gradient(135deg, ${colors.seaweed}, ${colors.emerald})`,
-    borderRadius: '6px',
-    backdropFilter: 'blur(10px)',
-    fontWeight: '600',
-    boxShadow: '0 2px 8px rgba(46, 204, 113, 0.25)'
-  },
-
-  // Tab Navigation
-  tabNav: {
-    display: 'flex',
-    gap: '8px',
-    marginBottom: '16px',
-    flexWrap: 'wrap'
-  },
-  tabBtn: {
-    flex: 1,
-    minWidth: '80px',
-    padding: '12px 16px',
-    border: 'none',
-    borderRadius: '12px',
-    background: 'rgba(255,255,255,0.85)',
-    color: colors.slate,
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '6px'
-  },
-  tabBtnActive: {
-    background: 'white',
-    color: colors.evergreen,
-    boxShadow: '0 4px 15px rgba(45,90,74,0.15)'
-  },
-  tabIcon: {
-    fontSize: '1rem'
-  },
-  tabLabel: {},
-
-  // Main Content
-  main: {
-    background: colors.fog,
-    borderRadius: '16px',
-    padding: '24px',
-    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.08)',
-    flex: 1
-  },
-
-  // Checklist
-  checklistContainer: {},
-  stepTabs: {
-    display: 'flex',
-    gap: '6px',
-    marginBottom: '20px',
-    padding: '6px',
-    background: colors.fog,
-    borderRadius: '12px',
-    overflowX: 'auto',
-    WebkitOverflowScrolling: 'touch'
-  },
-  stepTab: {
-    padding: '8px 12px',
-    border: 'none',
-    borderRadius: '8px',
-    background: 'transparent',
-    color: colors.slate,
-    fontSize: '0.8rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '6px',
-    whiteSpace: 'nowrap',
-    flexShrink: 0
-  },
-  stepTabActive: {
-    background: `linear-gradient(135deg, ${colors.pacificBlue}, ${colors.teal})`,
-    color: 'white',
-    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.3)',
-    transform: 'translateY(-2px)',
-    fontWeight: 700
-  },
-  stepTabComplete: {
-    color: colors.seaweed,
-    fontWeight: '700'
-  },
-  stepTabCheck: {
-    fontSize: '0.75rem',
-    fontWeight: 'bold'
-  },
-  stepTabLabel: {},
-  stepContent: {
-    background: colors.paleBlue,
-    borderRadius: '12px',
-    padding: '20px',
-    border: `1px solid ${colors.mist}`,
-    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.08)',
-    transition: 'all 0.3s ease'
-  },
-  stepContentHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '8px',
-    flexWrap: 'wrap',
-    gap: '12px'
-  },
-  stepContentTitle: {
-    fontSize: '1.25rem',
-    color: colors.evergreen,
-    fontWeight: '700',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    margin: 0
-  },
-  stepContentNumber: {
-    width: '36px',
-    height: '36px',
-    color: 'white',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontWeight: 'bold',
-    fontSize: '1rem'
-  },
-  stepContentProgress: {
-    fontSize: '0.95rem',
-    fontWeight: 'bold'
-  },
-  stepContentDesc: {
-    fontSize: '0.9rem',
-    color: colors.slate,
-    marginBottom: '16px'
-  },
-  stepProgressBar: {
-    height: '8px',
-    background: colors.mist,
-    borderRadius: '4px',
-    overflow: 'hidden',
-    marginBottom: '16px',
-    boxShadow: '0 2px 8px rgba(26, 188, 156, 0.1)'
-  },
-  stepProgressFill: {
-    height: '100%',
-    background: `linear-gradient(90deg, ${colors.pacificBlue}, ${colors.teal})`,
-    transition: 'width 0.4s ease',
-    boxShadow: '0 0 8px rgba(30, 90, 142, 0.15)'
-  },
-  stepNavigation: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginTop: '20px',
-    paddingTop: '16px',
-    borderTop: `1px solid ${colors.mist}`
-  },
-  stepNavBtn: {
-    padding: '10px 20px',
-    border: `2px solid ${colors.mist}`,
-    borderRadius: '8px',
-    background: 'white',
-    color: colors.slate,
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease'
-  },
-  stepNavBtnPrimary: {
-    background: `linear-gradient(135deg, ${colors.pacificBlue}, ${colors.teal})`,
-    color: 'white',
-    border: 'none',
-    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.2)',
-    '&:hover': {
-      boxShadow: '0 4px 12px rgba(30, 90, 142, 0.3)',
-      transform: 'translateY(-2px)'
-    }
-  },
-  stepNavBtnDisabled: {
-    opacity: 0.4,
-    cursor: 'not-allowed'
-  },
-
-  // Step Notes
-  stepNotesSection: {
-    marginTop: '0',
-    paddingTop: '0',
-    marginBottom: '32px'
-  },
-  stepNotesTitle: {
-    fontSize: '1.1rem',
-    color: colors.charcoal,
-    marginBottom: '20px',
-    fontWeight: '600'
-  },
-  stepNotesList: {
-    marginBottom: '20px'
-  },
-  stepNoteItem: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    padding: '14px 16px',
-    background: 'white',
-    borderRadius: '8px',
-    marginBottom: '10px',
-    border: `2px solid ${colors.mist}`,
-    boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-  },
-  noteText: {
-    flex: 1,
-    fontSize: '0.95rem',
-    color: colors.charcoal,
-    whiteSpace: 'pre-wrap',
-    lineHeight: '1.5',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif'
-  },
-  noteActions: {
-    display: 'flex',
-    gap: '4px',
-    marginLeft: '12px'
-  },
-  noteActionBtn: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '0.85rem',
-    padding: '4px',
-    borderRadius: '4px',
-    transition: 'background 0.2s'
-  },
-  addNoteForm: {
-    display: 'flex',
-    gap: '10px',
-    alignItems: 'flex-start'
-  },
-  noteInput: {
-    flex: 1,
-    padding: '12px 14px',
-    border: `2px solid ${colors.mist}`,
-    borderRadius: '8px',
-    fontSize: '0.95rem',
-    outline: 'none',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
-    lineHeight: '1.5',
-    resize: 'vertical',
-    transition: 'border-color 0.2s',
-    backgroundColor: 'white'
-  },
-  addNoteBtn: {
-    padding: '12px 20px',
-    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 4px 12px rgba(30, 90, 142, 0.2)',
-    flexShrink: 0
-  },
-  noteEditForm: {
-    display: 'flex',
-    flex: 1,
-    gap: '8px',
-    alignItems: 'center'
-  },
-  noteEditActions: {
-    display: 'flex',
-    gap: '6px'
-  },
-  noteSaveBtn: {
-    padding: '6px 12px',
-    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '0.8rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 2px 6px rgba(30, 90, 142, 0.15)'
-  },
-  noteCancelBtn: {
-    padding: '6px 12px',
-    background: colors.mist,
-    color: colors.slate,
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '0.8rem',
-    fontWeight: '600',
-    cursor: 'pointer'
-  },
-  confirmDeleteText: {
-    fontSize: '0.8rem',
-    color: colors.salmon,
-    fontWeight: '600',
-    marginRight: '4px'
-  },
-  confirmYesBtn: {
-    padding: '4px 10px',
-    background: colors.salmon,
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    fontSize: '0.75rem',
-    fontWeight: '600',
-    cursor: 'pointer'
-  },
-  confirmNoBtn: {
-    padding: '4px 10px',
-    background: colors.mist,
-    color: colors.slate,
-    border: 'none',
-    borderRadius: '4px',
-    fontSize: '0.75rem',
-    fontWeight: '600',
-    cursor: 'pointer'
-  },
-
-  // All Notes Section (in Notes tab)
-  allNotesSection: {
-    marginTop: '32px',
-    marginBottom: '24px',
-    padding: '20px',
-    background: colors.fog,
-    borderRadius: '12px',
-    border: `1px solid ${colors.mist}`
-  },
-  allNotesTitle: {
-    fontSize: '1.1rem',
-    color: colors.evergreen,
-    marginBottom: '16px',
-    fontWeight: '600'
-  },
-  allNotesStepGroup: {
-    marginBottom: '16px'
-  },
-  allNotesStepTitle: {
-    fontSize: '0.95rem',
-    color: colors.forest,
-    marginBottom: '8px',
-    fontWeight: '600',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px'
-  },
-  allNotesStepBadge: {
-    width: '24px',
-    height: '24px',
-    background: `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`,
-    color: 'white',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '0.75rem',
-    fontWeight: 'bold'
-  },
-  allNotesList: {},
-  allNotesItem: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '10px 12px',
-    background: 'white',
-    borderRadius: '8px',
-    marginBottom: '6px',
-    border: `1px solid ${colors.mist}`
-  },
-
-  checklist: {
-    listStyle: 'none',
-    padding: 0,
-    margin: 0
-  },
-  checklistItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '10px',
-    borderRadius: '8px',
-    transition: 'all 0.2s',
-    background: 'white',
-    marginBottom: '6px',
-    border: `1px solid ${colors.mist}`
-  },
-  checklistItemDone: {
-    opacity: 0.6
-  },
-  checklistItemDragging: {
-    opacity: 0.4,
-    background: colors.fog,
-    border: `2px dashed ${colors.slate}`,
-    transform: 'scale(0.98)'
-  },
-  checklistItemDropTarget: {
-    borderTop: `3px solid ${colors.evergreen}`,
-    background: `linear-gradient(180deg, ${colors.mist}40 0%, white 20%)`,
-    transform: 'translateY(2px)'
-  },
-  dragHandle: {
-    cursor: 'grab',
-    color: colors.slate,
-    fontSize: '1rem',
-    padding: '4px 2px',
-    userSelect: 'none',
-    fontWeight: 'bold',
-    letterSpacing: '-2px',
-    transition: 'all 0.2s'
-  },
-  checkbox: {
-    width: '22px',
-    height: '22px',
-    border: `2px solid ${colors.mist}`,
-    borderRadius: '6px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-    transition: 'all 0.2s'
-  },
-  checkboxDone: {
-    width: '22px',
-    height: '22px',
-    border: `2px solid ${colors.complete}`,
-    background: colors.complete,
-    color: 'white',
-    borderRadius: '6px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-    fontWeight: 'bold',
-    fontSize: '0.8rem'
-  },
-  checklistText: {
-    flex: 1,
-    color: colors.mountain,
-    fontSize: '0.9rem'
-  },
-  checklistTextDone: {
-    flex: 1,
-    color: colors.rain,
-    textDecoration: 'line-through',
-    fontSize: '0.9rem'
-  },
-  categoryBadge: {
-    fontSize: '0.65rem',
-    padding: '3px 8px',
-    borderRadius: '4px',
-    color: 'white',
-    fontWeight: 'bold',
-    textTransform: 'uppercase'
-  },
-  itemActions: {
-    display: 'flex',
-    gap: '4px',
-    marginLeft: 'auto',
-    flexShrink: 0
-  },
-  itemActionBtn: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '0.85rem',
-    padding: '4px',
-    borderRadius: '4px',
-    transition: 'background 0.2s',
-    opacity: 0.6
-  },
-  moveBtn: {
-    background: colors.fog,
-    border: `1px solid ${colors.mist}`,
-    cursor: 'pointer',
-    fontSize: '0.75rem',
-    padding: '2px 4px',
-    borderRadius: '4px',
-    transition: 'all 0.2s',
-    opacity: 0.7
-  },
-  itemEditForm: {
-    flex: 1,
-    display: 'flex'
-  },
-  itemEditInput: {
-    flex: 1,
-    padding: '8px 12px',
-    border: `2px solid ${colors.skyBlue}`,
-    borderRadius: '6px',
-    fontSize: '0.9rem',
-    outline: 'none'
-  },
-  addItemBtn: {
-    width: '100%',
-    padding: '12px',
-    marginTop: '8px',
-    background: 'transparent',
-    border: `2px dashed ${colors.mist}`,
-    borderRadius: '8px',
-    color: colors.slate,
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.2s'
-  },
-  addItemForm: {
-    display: 'flex',
-    gap: '8px',
-    marginTop: '8px',
-    padding: '12px',
-    background: colors.fog,
-    borderRadius: '8px',
-    border: `1px solid ${colors.mist}`
-  },
-  addItemInput: {
-    flex: 1,
-    padding: '10px 12px',
-    border: `1px solid ${colors.mist}`,
-    borderRadius: '6px',
-    fontSize: '0.9rem',
-    outline: 'none'
-  },
-  addItemSaveBtn: {
-    padding: '10px 16px',
-    background: `linear-gradient(135deg, ${colors.pacificBlue}, ${colors.teal})`,
-    color: 'white',
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '0.85rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.15)',
-    '&:hover': {
-      boxShadow: '0 4px 12px rgba(30, 90, 142, 0.25)',
-      transform: 'translateY(-2px)'
-    }
-  },
-  addItemCancelBtn: {
-    padding: '10px 16px',
-    background: colors.mist,
-    color: colors.slate,
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '0.85rem',
-    fontWeight: '600',
-    cursor: 'pointer'
-  },
-
-  // Realtors Section (Step 1)
-  realtorsSection: {
-    marginTop: '16px',
-    marginBottom: '20px'
-  },
-  realtorsSectionTitle: {
-    fontSize: '1rem',
-    fontWeight: '600',
-    color: colors.charcoal,
-    marginBottom: '12px'
-  },
-  realtorCards: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px'
-  },
-  realtorCard: {
-    background: colors.fog,
-    border: `2px solid ${colors.mist}`,
-    borderLeft: `4px solid ${colors.turquoise}`,
-    borderRadius: '10px',
-    padding: '14px',
-    position: 'relative',
-    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.08)',
-    transition: 'all 0.3s ease'
-  },
-  realtorCardRecommended: {
-    border: `3px solid ${colors.turquoise}`,
-    borderLeft: `4px solid ${colors.teal}`,
-    background: colors.paleBlue,
-    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.12)'
-  },
-  realtorCardHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    marginBottom: '8px'
-  },
-  realtorName: {
-    margin: 0,
-    fontSize: '1rem',
-    fontWeight: '600',
-    color: colors.charcoal
-  },
-  recommendedBadge: {
-    background: `linear-gradient(135deg, ${colors.turquoise}, ${colors.teal})`,
-    color: 'white',
-    fontSize: '0.7rem',
-    fontWeight: '600',
-    padding: '2px 8px',
-    borderRadius: '10px',
-    boxShadow: '0 2px 6px rgba(26, 188, 156, 0.25)'
-  },
-  realtorDetail: {
-    margin: '4px 0',
-    fontSize: '0.85rem',
-    color: colors.slate
-  },
-  realtorNotes: {
-    margin: '8px 0 0 0',
-    fontSize: '0.85rem',
-    color: colors.slate,
-    fontStyle: 'italic',
-    padding: '8px',
-    background: colors.fog,
-    borderRadius: '6px',
-    whiteSpace: 'pre-wrap'
-  },
-  realtorWebsiteLink: {
-    color: colors.evergreen,
-    textDecoration: 'none',
-    fontWeight: '500'
-  },
-  realtorActions: {
-    display: 'flex',
-    gap: '8px',
-    marginTop: '10px',
-    paddingTop: '10px',
-    borderTop: `1px solid ${colors.mist}`
-  },
-  realtorStarBtn: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '1.1rem',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    color: colors.slate,
-    transition: 'all 0.2s'
-  },
-  realtorUnstarBtn: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '1.1rem',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    color: colors.golden,
-    transition: 'all 0.2s'
-  },
-  realtorEditBtn: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '0.85rem',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    opacity: 0.8,
-    color: '#4a90e2',
-    transition: 'all 0.2s'
-  },
-  realtorDeleteBtn: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '0.85rem',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    opacity: 0.8,
-    color: colors.coralPink,
-    transition: 'all 0.2s'
-  },
-  realtorEditForm: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px'
-  },
-  realtorInput: {
-    padding: '10px 12px',
-    border: `1px solid ${colors.mist}`,
-    borderRadius: '6px',
-    fontSize: '0.9rem',
-    outline: 'none'
-  },
-  realtorTextarea: {
-    padding: '10px 12px',
-    border: `1px solid ${colors.mist}`,
-    borderRadius: '6px',
-    fontSize: '0.9rem',
-    outline: 'none',
-    resize: 'vertical',
-    fontFamily: 'inherit'
-  },
-  realtorEditActions: {
-    display: 'flex',
-    gap: '8px',
-    marginTop: '4px'
-  },
-  realtorSaveBtn: {
-    padding: '10px 20px',
-    background: `linear-gradient(135deg, ${colors.seaweed}, ${colors.emerald})`,
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 2px 8px rgba(46, 204, 113, 0.2)',
-    '&:hover': {
-      boxShadow: '0 4px 12px rgba(46, 204, 113, 0.3)',
-      transform: 'translateY(-2px)'
-    }
-  },
-  realtorCancelBtn: {
-    padding: '10px 20px',
-    background: 'white',
-    color: colors.charcoal,
-    border: `2px solid ${colors.mist}`,
-    borderRadius: '8px',
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.2s'
-  },
-  addRealtorBtn: {
-    width: '100%',
-    padding: '12px',
-    marginTop: '12px',
-    background: `linear-gradient(135deg, ${colors.pacificBlue}, ${colors.teal})`,
-    border: 'none',
-    borderRadius: '8px',
-    color: 'white',
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.15)',
-    '&:hover': {
-      boxShadow: '0 4px 12px rgba(30, 90, 142, 0.25)',
-      transform: 'translateY(-2px)'
-    }
-  },
-  addRealtorForm: {
-    marginTop: '12px',
-    padding: '16px',
-    background: colors.fog,
-    borderRadius: '10px',
-    border: `1px solid ${colors.mist}`
-  },
-  addRealtorTitle: {
-    margin: '0 0 12px 0',
-    fontSize: '0.95rem',
-    fontWeight: '600',
-    color: colors.charcoal
-  },
-  realtorFormRow: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px',
-    marginBottom: '12px'
-  },
-  realtorFormLabel: {
-    fontSize: '0.85rem',
-    fontWeight: '600',
-    color: colors.mountain,
-    letterSpacing: '0.2px'
-  },
-  realtorFormInput: {
-    padding: '10px 14px',
-    border: `2px solid ${colors.mist}`,
-    borderRadius: '8px',
-    fontSize: '0.95rem',
-    outline: 'none',
-    transition: 'all 0.2s',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
-    backgroundColor: 'white'
-  },
-  realtorFormTextarea: {
-    padding: '10px 14px',
-    border: `2px solid ${colors.mist}`,
-    borderRadius: '8px',
-    fontSize: '0.95rem',
-    outline: 'none',
-    resize: 'vertical',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
-    transition: 'all 0.2s',
-    backgroundColor: 'white',
-    lineHeight: '1.5',
-    minHeight: '80px'
-  },
-  realtorFormActions: {
-    display: 'flex',
-    gap: '10px',
-    marginTop: '16px',
-    paddingTop: '12px',
-    borderTop: `1px solid ${colors.mist}`
-  },
-  addRealtorActions: {
-    display: 'flex',
-    gap: '10px',
-    marginTop: '16px',
-    paddingTop: '12px',
-    borderTop: `1px solid ${colors.mist}`
-  },
-  addRealtorSaveBtn: {
-    padding: '10px 20px',
-    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 4px 12px rgba(30, 90, 142, 0.2)'
-  },
-  addRealtorCancelBtn: {
-    padding: '10px 20px',
-    background: 'white',
-    color: colors.charcoal,
-    border: `2px solid ${colors.mist}`,
-    borderRadius: '8px',
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.2s'
-  },
-
-  // Realtor Questions Section
-  questionsSection: {
-    marginTop: '24px',
-    paddingTop: '20px',
-    borderTop: `2px solid ${colors.mist}`
-  },
-  questionsSectionTitle: {
-    fontSize: '1rem',
-    fontWeight: '600',
-    color: colors.charcoal,
-    marginBottom: '12px'
-  },
-  questionsList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px'
-  },
-  questionCard: {
-    background: 'white',
-    border: `1px solid ${colors.mist}`,
-    borderRadius: '10px',
-    padding: '14px',
-    position: 'relative',
-    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.08)',
-    transition: 'all 0.3s ease'
-  },
-  questionHeader: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '10px'
-  },
-  questionNumber: {
-    background: colors.evergreen,
-    color: 'white',
-    width: '24px',
-    height: '24px',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '0.8rem',
-    fontWeight: '600',
-    flexShrink: 0
-  },
-  questionText: {
-    margin: 0,
-    fontSize: '0.95rem',
-    fontWeight: '600',
-    color: colors.charcoal,
-    lineHeight: '1.4',
-    whiteSpace: 'pre-wrap'
-  },
-  idealAnswerBox: {
-    marginTop: '10px',
-    marginLeft: '34px',
-    padding: '10px',
-    background: colors.fog,
-    borderRadius: '6px',
-    borderLeft: `3px solid ${colors.sage}`
-  },
-  idealAnswerLabel: {
-    fontSize: '0.75rem',
-    fontWeight: '600',
-    color: colors.evergreen,
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px'
-  },
-  idealAnswerText: {
-    margin: '4px 0 0 0',
-    fontSize: '0.85rem',
-    color: colors.slate,
-    lineHeight: '1.4',
-    whiteSpace: 'pre-wrap'
-  },
-  answerBox: {
-    marginTop: '10px',
-    marginLeft: '34px',
-    padding: '10px',
-    background: `${colors.skyBlue}22`,
-    borderRadius: '6px',
-    borderLeft: `3px solid ${colors.skyBlue}`
-  },
-  answerLabel: {
-    fontSize: '0.75rem',
-    fontWeight: '600',
-    color: colors.deepBlue,
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px'
-  },
-  answerText: {
-    margin: '4px 0 0 0',
-    fontSize: '0.85rem',
-    color: colors.charcoal,
-    lineHeight: '1.4',
-    whiteSpace: 'pre-wrap'
-  },
-  questionActions: {
-    display: 'flex',
-    gap: '8px',
-    marginTop: '10px',
-    marginLeft: '34px'
-  },
-  questionEditBtn: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '0.85rem',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    opacity: 0.6
-  },
-  questionDeleteBtn: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '0.85rem',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    opacity: 0.6
-  },
-  questionEditForm: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px'
-  },
-  questionLabel: {
-    fontSize: '0.85rem',
-    fontWeight: '600',
-    color: colors.mountain,
-    letterSpacing: '0.2px',
-    marginTop: '12px',
-    marginBottom: '6px',
-    display: 'block'
-  },
-  questionTextarea: {
-    padding: '10px 14px',
-    border: `2px solid ${colors.mist}`,
-    borderRadius: '8px',
-    fontSize: '0.95rem',
-    outline: 'none',
-    resize: 'vertical',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
-    transition: 'all 0.2s',
-    backgroundColor: 'white',
-    lineHeight: '1.5',
-    minHeight: '80px'
-  },
-  questionEditActions: {
-    display: 'flex',
-    gap: '10px',
-    marginTop: '16px',
-    paddingTop: '12px',
-    borderTop: `1px solid ${colors.mist}`
-  },
-  questionSaveBtn: {
-    padding: '10px 20px',
-    background: colors.evergreen,
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-  },
-  questionCancelBtn: {
-    padding: '10px 20px',
-    background: 'white',
-    color: colors.charcoal,
-    border: `2px solid ${colors.mist}`,
-    borderRadius: '8px',
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.2s'
-  },
-  addQuestionBtn: {
-    width: '100%',
-    padding: '12px',
-    marginTop: '12px',
-    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
-    border: 'none',
-    borderRadius: '8px',
-    color: 'white',
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 4px 12px rgba(30, 90, 142, 0.2)'
-  },
-  addQuestionForm: {
-    marginTop: '12px',
-    padding: '16px',
-    background: colors.fog,
-    borderRadius: '10px',
-    border: `1px solid ${colors.mist}`
-  },
-  addQuestionTitle: {
-    margin: '0 0 12px 0',
-    fontSize: '0.95rem',
-    fontWeight: '600',
-    color: colors.charcoal
-  },
-
-  // Repairs Section (Step 3)
-  repairsContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px'
-  },
-  repairSection: {
-    borderRadius: '10px',
-    border: '2px solid',
-    overflow: 'hidden',
-    background: colors.fog,
-    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.08)',
-    transition: 'all 0.3s ease'
-  },
-  repairSectionHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px 14px',
-    color: 'white'
-  },
-  repairSectionHeaderLeft: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px'
-  },
-  repairSectionTitle: {
-    margin: 0,
-    fontSize: '0.9rem',
-    fontWeight: '600'
-  },
-  repairSectionProgress: {
-    fontSize: '0.8rem',
-    opacity: 0.9
-  },
-  repairSectionTotal: {
-    fontSize: '0.95rem',
-    fontWeight: '600'
-  },
-  repairItemsList: {
-    padding: '10px'
-  },
-  repairItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '8px 10px',
-    borderRadius: '6px',
-    transition: 'all 0.3s ease',
-    background: colors.fog,
-    marginBottom: '6px',
-    border: `1px solid ${colors.mist}`,
-    boxShadow: '0 1px 4px rgba(30, 90, 142, 0.05)'
-  },
-  repairItemDone: {
-    opacity: 0.6
-  },
-  repairItemDragging: {
-    opacity: 0.4,
-    background: colors.paleBlue,
-    border: `2px dashed ${colors.slate}`,
-    transform: 'scale(0.98)'
-  },
-  repairItemDropTarget: {
-    borderTop: `3px solid ${colors.evergreen}`,
-    background: `linear-gradient(180deg, ${colors.mist}40 0%, ${colors.fog} 20%)`,
-    transform: 'translateY(2px)'
-  },
-  repairItemText: {
-    flex: 1,
-    color: colors.mountain,
-    fontSize: '0.85rem',
-    cursor: 'pointer'
-  },
-  repairItemTextDone: {
-    flex: 1,
-    color: colors.rain,
-    textDecoration: 'line-through',
-    fontSize: '0.85rem',
-    cursor: 'pointer'
-  },
-  repairCostInput: {
-    display: 'flex',
-    alignItems: 'center',
-    marginLeft: '8px',
-    marginRight: '8px',
-    flexShrink: 0
-  },
-  repairCostPrefix: {
-    color: colors.slate,
-    fontSize: '0.8rem',
-    marginRight: '2px'
-  },
-  repairCostField: {
-    width: '70px',
-    padding: '4px 6px',
-    border: `1px solid ${colors.mist}`,
-    borderRadius: '4px',
-    fontSize: '0.8rem',
-    textAlign: 'right',
-    color: colors.mountain,
-    background: colors.white
-  },
-  addRepairItemForm: {
-    display: 'flex',
-    gap: '8px',
-    padding: '10px',
-    background: colors.fog,
-    borderTop: `1px solid ${colors.mist}`
-  },
-  addRepairItemBtn: {
-    margin: '0 10px 10px 10px',
-    padding: '8px',
-    background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
-    border: 'none',
-    borderRadius: '6px',
-    color: 'white',
-    fontSize: '0.8rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.15)'
-  },
-
-  // Budget
-  budgetContainer: {
-    backgroundColor: colors.sand
-  },
-  budgetSummary: {
-    background: colors.fog,
-    borderRadius: '12px',
-    padding: '20px',
-    marginBottom: '24px',
-    border: `1px solid ${colors.mist}`,
-    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.08)',
-    transition: 'all 0.3s ease'
-  },
-  budgetSummaryTitle: {
-    fontSize: '1.1rem',
-    color: colors.forest,
-    marginBottom: '16px',
-    fontWeight: '600'
-  },
-  budgetLineItems: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-    marginBottom: '12px'
-  },
-  budgetLineItem: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '14px 16px',
-    background: 'white',
-    borderRadius: '10px'
-  },
-  budgetLineItemName: {
-    fontSize: '1rem',
-    fontWeight: '600',
-    color: colors.charcoal
-  },
-  budgetLineItemValue: {
-    fontSize: '1.1rem',
-    fontWeight: '700',
-    color: colors.evergreen
-  },
-  budgetGrandTotal: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '16px',
-    background: `linear-gradient(135deg, ${colors.pacificBlue}, ${colors.teal})`,
-    backgroundSize: '200% 200%',
-    animation: 'gradientShift 10s ease infinite',
-    borderRadius: '10px',
-    marginTop: '4px',
-    boxShadow: '0 4px 12px rgba(30, 90, 142, 0.2)'
-  },
-  budgetGrandTotalLabel: {
-    fontSize: '1.4rem',
-    fontWeight: '700',
-    color: 'white',
-    letterSpacing: '0.5px'
-  },
-  budgetGrandTotalValue: {
-    fontSize: '2.5rem',
-    fontWeight: '800',
-    color: 'white',
-    letterSpacing: '1px'
-  },
-  budgetSection: {
-    marginBottom: '20px',
-    borderRadius: '12px',
-    border: '2px solid',
-    borderLeft: '6px solid',
-    overflow: 'hidden',
-    background: 'white',
-    boxShadow: '0 4px 20px rgba(26, 188, 156, 0.12)',
-    transition: 'all 0.3s ease'
-  },
-  budgetTitle: {
-    color: 'white',
-    padding: '12px 16px',
-    margin: 0,
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  budgetTitleText: {
-    margin: 0,
-    fontSize: '0.95rem',
-    fontWeight: '600'
-  },
-  budgetTitleDesc: {
-    margin: '4px 0 0 0',
-    fontSize: '0.75rem',
-    opacity: 0.85
-  },
-  budgetTitleTotal: {
-    fontSize: '1.2rem',
-    fontWeight: 'bold'
-  },
-  budgetTable: {
-    width: '100%',
-    borderCollapse: 'collapse'
-  },
-  budgetTh: {
-    textAlign: 'left',
-    padding: '12px 16px',
-    background: colors.fog,
-    fontWeight: '600',
-    fontSize: '0.8rem',
-    color: colors.forest,
-    borderBottom: `1px solid ${colors.mist}`
-  },
-  budgetTd: {
-    padding: '10px 16px',
-    borderBottom: `1px solid ${colors.fog}`,
-    fontSize: '0.9rem',
-    verticalAlign: 'middle'
-  },
-  budgetRowDone: {
-    background: colors.fog,
-    opacity: 0.7
-  },
-  budgetItemName: {
-    color: colors.mountain
-  },
-  budgetItemNameDone: {
-    color: colors.rain,
-    textDecoration: 'line-through'
-  },
-  budgetDoneCheck: {
-    color: colors.complete,
-    marginRight: '6px',
-    fontWeight: 'bold'
-  },
-  budgetTableInput: {
-    width: '100%',
-    padding: '8px 10px',
-    border: `2px solid ${colors.skyBlue}`,
-    borderRadius: '6px',
-    fontSize: '0.9rem',
-    outline: 'none'
-  },
-  costInputWrapper: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    minWidth: '180px'
-  },
-  budgetTableActions: {
-    display: 'flex',
-    gap: '4px',
-    justifyContent: 'center'
-  },
-  budgetTableBtn: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '0.85rem',
-    padding: '4px',
-    borderRadius: '4px',
-    opacity: 0.6,
-    transition: 'opacity 0.2s'
-  },
-  addBudgetRowForm: {
-    display: 'flex',
-    gap: '8px',
-    padding: '12px 16px',
-    background: colors.fog,
-    borderTop: `1px solid ${colors.mist}`
-  },
-  addBudgetInput: {
-    flex: 1,
-    padding: '10px 12px',
-    border: `1px solid ${colors.mist}`,
-    borderRadius: '6px',
-    fontSize: '0.9rem',
-    outline: 'none'
-  },
-  budgetItemsList: {
-    padding: '12px'
-  },
-  budgetItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '10px 12px',
-    borderRadius: '8px',
-    transition: 'all 0.2s',
-    background: colors.fog,
-    marginBottom: '8px',
-    border: `1px solid ${colors.mist}`
-  },
-  budgetItemDone: {
-    opacity: 0.6
-  },
-  budgetItemDragging: {
-    opacity: 0.4,
-    background: colors.paleBlue,
-    border: `2px dashed ${colors.slate}`,
-    transform: 'scale(0.98)'
-  },
-  budgetItemDropTarget: {
-    borderTop: `4px solid ${colors.turquoise}`,
-    background: `linear-gradient(180deg, rgba(26, 188, 156, 0.1) 0%, ${colors.fog} 20%)`,
-    transform: 'translateY(2px)',
-    boxShadow: '0 0 15px rgba(26, 188, 156, 0.2)'
-  },
-  budgetItemText: {
-    flex: 1,
-    color: colors.mountain,
-    fontSize: '0.9rem',
-    cursor: 'pointer'
-  },
-  budgetItemTextDone: {
-    flex: 1,
-    color: colors.rain,
-    textDecoration: 'line-through',
-    fontSize: '0.9rem',
-    cursor: 'pointer'
-  },
-  budgetItemEditForm: {
-    flex: 1,
-    display: 'flex'
-  },
-  budgetCostWrapper: {
-    display: 'flex',
-    alignItems: 'center',
-    marginLeft: '8px'
-  },
-  budgetItemActions: {
-    display: 'flex',
-    gap: '4px',
-    marginLeft: '8px',
-    flexShrink: 0
-  },
-  addBudgetItemBtn: {
-    width: 'calc(100% - 24px)',
-    padding: '10px',
-    margin: '0 12px 12px 12px',
-    background: `linear-gradient(135deg, ${colors.pacificBlue}, ${colors.teal})`,
-    border: 'none',
-    borderRadius: '8px',
-    color: 'white',
-    fontSize: '0.85rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    boxSizing: 'border-box',
-    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.15)',
-    '&:hover': {
-      boxShadow: '0 4px 12px rgba(30, 90, 142, 0.25)',
-      transform: 'translateY(-2px)'
-    }
-  },
-  budgetSubtotal: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '12px 16px',
-    background: colors.fog,
-    borderTop: `1px solid ${colors.mist}`,
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    color: colors.mountain
-  },
-  budgetSubtotalAmount: {
-    color: colors.turquoise,
-    fontSize: '1rem',
-    fontWeight: '700'
-  },
-  dollarSign: {
-    color: colors.slate,
-    marginRight: '4px',
-    fontSize: '0.85rem'
-  },
-  costField: {
-    width: '70px',
-    minWidth: '150px',
-    padding: '6px 8px',
-    border: `1px solid ${colors.mist}`,
-    borderRadius: '6px',
-    fontSize: '0.85rem',
-    textAlign: 'right',
-    background: 'white'
-  },
-  grandTotal: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    background: `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`,
-    color: 'white',
-    padding: '20px 24px',
-    borderRadius: '12px',
-    fontSize: '1.1rem',
-    fontWeight: 'bold'
-  },
-  grandTotalAmount: {
-    fontSize: '1.5rem'
-  },
-
-  // Timeline
-  timelineWrapper: {},
-  timelineContainer: {
-    position: 'relative',
-    paddingLeft: '30px'
-  },
-  timelineItem: {
-    position: 'relative',
-    paddingBottom: '24px',
-    paddingLeft: '30px',
-    marginLeft: '15px',
-    backgroundColor: colors.cloud,
-    padding: '12px 14px 12px 30px',
-    borderRadius: '6px',
-    marginBottom: '8px'
-  },
-  timelineDot: {
-    position: 'absolute',
-    left: '-15px',
-    width: '30px',
-    height: '30px',
-    color: 'white',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontWeight: 'bold',
-    fontSize: '0.85rem'
-  },
-  timelineContent: {
-    background: colors.fog,
-    borderRadius: '12px',
-    padding: '16px',
-    border: `1px solid ${colors.mist}`
-  },
-  timelineHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '12px',
-    flexWrap: 'wrap',
-    gap: '8px'
-  },
-  timelineTitle: {
-    fontSize: '1rem',
-    color: colors.evergreen,
-    fontWeight: '600',
-    margin: 0
-  },
-  timelineDateBadge: {
-    background: colors.skyBlue,
-    color: 'white',
-    padding: '4px 10px',
-    borderRadius: '12px',
-    fontSize: '0.75rem',
-    fontWeight: '500'
-  },
-  timelineDateRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    marginBottom: '12px'
-  },
-  timelineLabel: {
-    fontSize: '0.85rem',
-    color: colors.slate
-  },
-  dateInput: {
-    padding: '8px 12px',
-    border: `1px solid ${colors.mist}`,
-    borderRadius: '8px',
-    fontSize: '0.9rem'
-  },
-  timelineProgress: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px'
-  },
-  timelineProgressBar: {
-    flex: 1,
-    height: '6px',
-    background: colors.mist,
-    borderRadius: '3px',
-    overflow: 'hidden'
-  },
-  timelineProgressFill: {
-    height: '100%',
-    transition: 'width 0.3s ease'
-  },
-  timelineProgressText: {
-    fontSize: '0.8rem',
-    color: colors.slate,
-    whiteSpace: 'nowrap'
-  },
-
-  // Notes
-  notesContainer: {
-    backgroundColor: colors.cloud,
-    padding: '20px',
-    borderRadius: '12px',
-    marginBottom: '24px'
-  },
-  notesTitle: {
-    fontSize: '1.3rem',
-    color: colors.evergreen,
-    marginBottom: '20px',
-    fontWeight: '600'
-  },
-  notesGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: '16px',
-    marginBottom: '24px'
-  },
-  reminderBox: {
-    background: colors.paleBlue,
-    border: `2px solid ${colors.mist}`,
-    borderRadius: '12px',
-    padding: '16px'
-  },
-  reminderTitle: {
-    color: colors.deepBlue,
-    marginBottom: '12px',
-    fontSize: '1rem',
-    fontWeight: '600'
-  },
-  reminderList: {
-    listStyle: 'none',
-    padding: 0,
-    margin: 0
-  },
-  reminderItem: {
-    marginBottom: '10px',
-    fontSize: '0.9rem',
-    color: colors.mountain,
-    lineHeight: '1.5'
-  },
-  notesInputSection: {},
-  notesLabel: {
-    display: 'block',
-    fontSize: '0.9rem',
-    color: colors.forest,
-    marginBottom: '8px',
-    fontWeight: '500'
-  },
-  notesTextarea: {
-    width: '100%',
-    minHeight: '180px',
-    padding: '16px',
-    border: `2px solid ${colors.mist}`,
-    borderRadius: '12px',
-    fontSize: '1rem',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
-    resize: 'vertical',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-    lineHeight: '1.5'
-  },
-
-  // History
-  historyContainer: {},
-  historyHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '8px',
-    flexWrap: 'wrap',
-    gap: '12px'
-  },
-  historyTitle: {
-    fontSize: '1.3rem',
-    color: colors.evergreen,
-    fontWeight: '600',
-    margin: 0
-  },
-  historySubtitle: {
-    fontSize: '0.9rem',
-    color: colors.slate,
-    marginBottom: '20px'
-  },
-  refreshBtn: {
-    padding: '8px 16px',
-    background: `linear-gradient(135deg, ${colors.skyBlue}, ${colors.duskBlue})`,
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '0.85rem',
-    fontWeight: '600',
-    cursor: 'pointer'
-  },
-  historyLoading: {
-    textAlign: 'center',
-    padding: '40px',
-    color: colors.slate,
-    fontSize: '1rem'
-  },
-  historyEmpty: {
-    textAlign: 'center',
-    padding: '40px',
-    background: colors.fog,
-    borderRadius: '12px',
-    color: colors.mountain
-  },
-  historyEmptyHint: {
-    fontSize: '0.85rem',
-    color: colors.slate,
-    marginTop: '8px'
-  },
-  historyList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px'
-  },
-  historyItem: {
-    background: colors.fog,
-    borderRadius: '10px',
-    padding: '14px',
-    border: `1px solid ${colors.mist}`
-  },
-  historyItemHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    flexWrap: 'wrap'
-  },
-  historyIcon: {
-    width: '28px',
-    height: '28px',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: 'white',
-    fontSize: '0.85rem',
-    flexShrink: 0
-  },
-  historyDescription: {
-    flex: 1,
-    fontSize: '0.9rem',
-    color: colors.mountain,
-    fontWeight: '500'
-  },
-  historyTime: {
-    fontSize: '0.75rem',
-    color: colors.slate,
-    whiteSpace: 'nowrap'
-  },
-  historyDetails: {
-    marginTop: '10px',
-    paddingTop: '10px',
-    borderTop: `1px solid ${colors.mist}`,
-    fontSize: '0.85rem'
-  },
-  historyOldValue: {
-    color: colors.salmon,
-    marginBottom: '4px',
-    padding: '6px 10px',
-    background: `${colors.salmon}15`,
-    borderRadius: '6px'
-  },
-  historyNewValue: {
-    color: colors.forest,
-    padding: '6px 10px',
-    background: `${colors.forest}15`,
-    borderRadius: '6px'
-  },
-  historyValueLabel: {
-    fontWeight: '600',
-    marginRight: '6px'
-  },
-
-  // Footer
-  footer: {
-    textAlign: 'center',
-    padding: '16px',
-    marginTop: '16px'
-  },
-  footerText: {
-    color: 'rgba(255,255,255,0.9)',
-    fontSize: '0.85rem'
-  }
-};
 
 export default App;
