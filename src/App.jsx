@@ -3,6 +3,7 @@ import { db } from './firebase';
 import { useEntityManager, useListItemManager } from './hooks/useEntityManager';
 import { styles, colors } from './App.styles';
 import { generateSearchURLs } from './services/geminiService';
+import GeminiTest from './components/GeminiTest';
 import { doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import {
   Box,
@@ -1629,6 +1630,7 @@ function App() {
           <Tab value="seattle" label="Seattle Research" icon={<span>🌆</span>} iconPosition="start" />
           <Tab value="notes" label="Notes" icon={<span>📝</span>} iconPosition="start" />
           <Tab value="history" label="History" icon={<span>📜</span>} iconPosition="start" />
+          <Tab value="test" label="🧪 API Test" icon={<span>🔧</span>} iconPosition="start" />
         </Tabs>
       </Paper>
 
@@ -5333,6 +5335,11 @@ function App() {
               </Box>
             )}
           </Box>
+        )}
+
+        {/* API Test Tab */}
+        {activeTab === 'test' && (
+          <GeminiTest />
         )}
       </Box>
 
