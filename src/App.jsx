@@ -3934,7 +3934,7 @@ function App() {
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: 'rgba(240, 244, 248, 0.95)',
+              backgroundColor: 'rgba(240, 244, 248, 0.75)',
               zIndex: 0
             }
           }}>
