@@ -3340,27 +3340,17 @@ function App() {
           }}>
             <Box sx={{ position: 'relative', zIndex: 1, ...styles.budgetContainer }}>
 
-            {/* Net Proceeds Summary Card */}
+            {/* Key Numbers Summary - Sale Price & Profit Side by Side */}
             <div style={styles.budgetSummary}>
               <h3 style={styles.budgetSummaryTitle}>💰 Financials</h3>
-              <div style={styles.budgetGrandTotal}>
-                <span style={styles.budgetGrandTotalLabel}>Estimated Cash After Sale</span>
-                <span style={{...styles.budgetGrandTotalValue, color: getNetProceeds() >= 0 ? '#2ecc71' : '#e74c3c'}}>
-                  ${getNetProceeds().toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}
-                </span>
-              </div>
-            </div>
-
-            {/* Sale Price Input */}
-            <div className="budget-section" style={{...styles.budgetSection, borderColor: '#2ecc71'}}>
-              <div style={{...styles.budgetTitle, background: '#2ecc71'}}>
-                <h3 style={styles.budgetTitleText}>🏠 Home Sale</h3>
-              </div>
-              <div style={{padding: '24px'}}>
-                <div style={{marginBottom: '20px'}}>
-                  <label style={{display: 'block', fontWeight: 700, marginBottom: '12px', color: '#2c3e50', fontSize: '1.3rem', letterSpacing: '0.5px'}}>💰 Sale Price</label>
-                  <div style={styles.costInputWrapper}>
-                    <span style={{...styles.dollarSign, fontSize: '2rem', fontWeight: 800}}>$</span>
+              <div style={{display: 'flex', gap: '24px', alignItems: 'stretch'}}>
+                {/* Sale Price */}
+                <div style={{flex: 1, background: 'linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)', borderRadius: '12px', padding: '24px', display: 'flex', flexDirection: 'column'}}>
+                  <label style={{fontSize: '1.2rem', fontWeight: 700, color: 'white', marginBottom: '12px', letterSpacing: '0.5px', opacity: 0.95}}>
+                    🏠 Sale Price
+                  </label>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                    <span style={{fontSize: '2.2rem', fontWeight: 800, color: 'white'}}>$</span>
                     <input
                       type="number"
                       value={data.financial?.salePrice || ''}
@@ -3370,10 +3360,39 @@ function App() {
                         saveData(newData);
                       }}
                       placeholder="0"
-                      style={{...styles.costField, fontSize: '2rem', fontWeight: 800, padding: '16px', minWidth: '200px'}}
+                      style={{
+                        background: 'rgba(255,255,255,0.25)',
+                        border: '2px solid rgba(255,255,255,0.4)',
+                        borderRadius: '8px',
+                        color: 'white',
+                        fontSize: '2.2rem',
+                        fontWeight: 800,
+                        padding: '12px 16px',
+                        width: '100%',
+                        outline: 'none'
+                      }}
                     />
                   </div>
                 </div>
+
+                {/* Net Profit */}
+                <div style={{flex: 1, background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)', borderRadius: '12px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
+                  <span style={{fontSize: '1.2rem', fontWeight: 700, color: 'white', letterSpacing: '0.5px', opacity: 0.95}}>
+                    ✨ Cash After Sale
+                  </span>
+                  <span style={{fontSize: '2.8rem', fontWeight: 800, color: 'white', letterSpacing: '1px', textAlign: 'right'}}>
+                    ${getNetProceeds().toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Home Sale Details */}
+            <div className="budget-section" style={{...styles.budgetSection, borderColor: '#2ecc71'}}>
+              <div style={{...styles.budgetTitle, background: '#2ecc71'}}>
+                <h3 style={styles.budgetTitleText}>🏠 Home Sale Details</h3>
+              </div>
+              <div style={{padding: '24px'}}>
                 <div style={{
                   padding: '16px 20px',
                   background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
