@@ -1505,6 +1505,7 @@ function App() {
           <Tab value="checklist" label="Checklist" icon={<span>✓</span>} iconPosition="start" />
           <Tab value="budget" label="Financials" icon={<span>💰</span>} iconPosition="start" />
           <Tab value="timeline" label="Timeline" icon={<span>📅</span>} iconPosition="start" />
+          <Tab value="seattle" label="Seattle Research" icon={<span>🌆</span>} iconPosition="start" />
           <Tab value="notes" label="Notes" icon={<span>📝</span>} iconPosition="start" />
           <Tab value="history" label="History" icon={<span>📜</span>} iconPosition="start" />
         </Tabs>
@@ -4027,6 +4028,467 @@ function App() {
                   );
                 })}
               </div>
+            </Box>
+          </Box>
+        )}
+
+        {/* Seattle Research Tab */}
+        {activeTab === 'seattle' && (
+          <Box sx={{
+            backgroundImage: `url(${spaceNeedleBuildings})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+            position: 'relative',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(240, 244, 248, 0.88)',
+              zIndex: 0
+            }
+          }}>
+            <Box sx={{ position: 'relative', zIndex: 1, padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
+              <Typography variant="h2" sx={{ fontSize: '2.5rem', fontWeight: 700, color: '#1a365d', marginBottom: '12px', textAlign: 'center' }}>
+                🌆 Seattle Housing Search
+              </Typography>
+              <Typography sx={{ fontSize: '1.1rem', color: '#4a5568', marginBottom: '32px', textAlign: 'center' }}>
+                Find your temporary and long-term rentals in Seattle
+              </Typography>
+
+              {/* Seattle Neighborhoods Section */}
+              <Box sx={{ background: 'white', borderRadius: 3, padding: 4, marginBottom: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+                <Typography variant="h3" sx={{ fontSize: '1.8rem', fontWeight: 700, color: '#2c3e50', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  🏘️ Seattle Neighborhoods to Research
+                  <Chip label={`${data.neighborhoods?.length || 0} neighborhoods`} size="small" color="success" />
+                </Typography>
+
+                <Typography sx={{ fontSize: '0.95rem', color: '#7f8c8d', marginBottom: 3, fontStyle: 'italic' }}>
+                  Research different Seattle neighborhoods to help narrow your rental search
+                </Typography>
+
+                {/* Add New Neighborhood Button */}
+                {!neighborhoods.adding && (
+                  <Button
+                    variant="outlined"
+                    startIcon={<AddIcon />}
+                    onClick={() => neighborhoods.setAdding(true)}
+                    sx={{ marginBottom: 3 }}
+                  >
+                    Add Neighborhood
+                  </Button>
+                )}
+
+                {/* Add Neighborhood Form */}
+                {neighborhoods.adding && (
+                  <Box sx={{ background: '#f8f9fa', padding: 3, borderRadius: 2, marginBottom: 3 }}>
+                    <Typography variant="h6" sx={{ marginBottom: 2 }}>Add Seattle Neighborhood</Typography>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={6}>
+                        <TextField fullWidth label="Neighborhood Name *" value={neighborhoods.newData.name} onChange={(e) => neighborhoods.setNewData({...neighborhoods.newData, name: e.target.value})} />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField fullWidth label="Typical Rent Range" value={neighborhoods.newData.priceRange} onChange={(e) => neighborhoods.setNewData({...neighborhoods.newData, priceRange: e.target.value})} placeholder="e.g. $2000-2800/mo" />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField fullWidth multiline rows={2} label="Pros" value={neighborhoods.newData.pros} onChange={(e) => neighborhoods.setNewData({...neighborhoods.newData, pros: e.target.value})} placeholder="Walkable, close to work, good schools, etc." />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField fullWidth multiline rows={2} label="Cons" value={neighborhoods.newData.cons} onChange={(e) => neighborhoods.setNewData({...neighborhoods.newData, cons: e.target.value})} placeholder="Traffic, expensive, far from amenities, etc." />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField fullWidth multiline rows={2} label="Notes" value={neighborhoods.newData.notes} onChange={(e) => neighborhoods.setNewData({...neighborhoods.newData, notes: e.target.value})} />
+                      </Grid>
+                    </Grid>
+                    <Box sx={{ marginTop: 2, display: 'flex', gap: 1 }}>
+                      <Button variant="contained" startIcon={<SaveIcon />} onClick={addNeighborhood}>Save Neighborhood</Button>
+                      <Button variant="outlined" onClick={() => neighborhoods.cancelAdding()}>Cancel</Button>
+                    </Box>
+                  </Box>
+                )}
+
+                {/* Neighborhoods Grid */}
+                {data.neighborhoods?.length > 0 ? (
+                  <Grid container spacing={3}>
+                    {data.neighborhoods.map(hood => (
+                      <Grid item xs={12} md={6} key={hood.id}>
+                        <Card>
+                          <CardContent>
+                            <Typography variant="h6" sx={{ fontWeight: 700, color: '#2c3e50', marginBottom: 1 }}>
+                              {hood.name}
+                            </Typography>
+                            {hood.priceRange && (
+                              <Chip label={hood.priceRange} size="small" sx={{ marginBottom: 2 }} />
+                            )}
+                            {hood.pros && (
+                              <Box sx={{ marginBottom: 1 }}>
+                                <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#27ae60' }}>✓ Pros:</Typography>
+                                <Typography sx={{ fontSize: '0.85rem', color: '#555' }}>{hood.pros}</Typography>
+                              </Box>
+                            )}
+                            {hood.cons && (
+                              <Box sx={{ marginBottom: 1 }}>
+                                <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#e74c3c' }}>✗ Cons:</Typography>
+                                <Typography sx={{ fontSize: '0.85rem', color: '#555' }}>{hood.cons}</Typography>
+                              </Box>
+                            )}
+                            {hood.notes && (
+                              <Typography sx={{ fontSize: '0.85rem', color: '#666', fontStyle: 'italic', marginTop: 1 }}>
+                                📝 {hood.notes}
+                              </Typography>
+                            )}
+                            <Box sx={{ marginTop: 2, display: 'flex', gap: 1 }}>
+                              <IconButton size="small" color="primary" onClick={() => neighborhoods.startEditing(hood.id, hood)}>
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                              <IconButton size="small" color="error" onClick={() => neighborhoods.startDelete(hood.id)}>
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Box>
+
+                            {/* Delete Confirmation */}
+                            {neighborhoods.confirmDeleteId === hood.id && (
+                              <Box sx={{ marginTop: 2, padding: 2, background: '#fff3cd', borderRadius: 1 }}>
+                                <Typography sx={{ fontSize: '0.9rem', marginBottom: 1 }}>Delete this neighborhood?</Typography>
+                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                  <Button size="small" variant="contained" color="error" onClick={() => deleteNeighborhood(hood.id)}>Delete</Button>
+                                  <Button size="small" variant="outlined" onClick={() => neighborhoods.cancelDelete()}>Cancel</Button>
+                                </Box>
+                              </Box>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                ) : (
+                  <Typography sx={{ textAlign: 'center', color: '#7f8c8d', padding: 4, background: '#f8f9fa', borderRadius: 2 }}>
+                    No neighborhoods added yet. Start researching Seattle areas to help with your rental search!
+                  </Typography>
+                )}
+              </Box>
+
+              {/* Short-Term Rentals Section (1 month) */}
+              <Box sx={{ background: 'white', borderRadius: 3, padding: 4, marginBottom: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+                <Typography variant="h3" sx={{ fontSize: '1.8rem', fontWeight: 700, color: '#2c3e50', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  🏠 Short-Term Rentals (1 Month)
+                  <Chip label={`${data.rentalProperties?.filter(p => p.duration === 'short').length || 0} options`} size="small" sx={{ background: '#e74c3c', color: 'white' }} />
+                </Typography>
+
+                <Typography sx={{ fontSize: '0.95rem', color: '#7f8c8d', marginBottom: 3, fontStyle: 'italic' }}>
+                  Temporary housing while you search for a long-term rental (furnished, month-to-month, Airbnb, etc.)
+                </Typography>
+
+                {/* Add New Property Button */}
+                {!properties.adding && (
+                  <Button
+                    variant="outlined"
+                    startIcon={<AddIcon />}
+                    onClick={() => {
+                      properties.setNewData({...properties.newData, duration: 'short'});
+                      properties.setAdding(true);
+                    }}
+                    sx={{ marginBottom: 3 }}
+                  >
+                    Add Short-Term Option
+                  </Button>
+                )}
+
+                {/* Add Property Form */}
+                {properties.adding && properties.newData.duration === 'short' && (
+                  <Box sx={{ background: '#fff3cd', padding: 3, borderRadius: 2, marginBottom: 3, border: '2px solid #e74c3c' }}>
+                    <Typography variant="h6" sx={{ marginBottom: 2, color: '#c0392b' }}>Add Short-Term Rental (1 Month)</Typography>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
+                        <TextField fullWidth label="Address or Name *" value={properties.newData.address} onChange={(e) => properties.setNewData({...properties.newData, address: e.target.value})} placeholder="e.g. Capitol Hill Furnished Studio" />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField fullWidth label="Neighborhood" value={properties.newData.neighborhood} onChange={(e) => properties.setNewData({...properties.newData, neighborhood: e.target.value})} />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField fullWidth label="Price/Month" value={properties.newData.price} onChange={(e) => properties.setNewData({...properties.newData, price: e.target.value})} placeholder="e.g. $2500" />
+                      </Grid>
+                      <Grid item xs={6} sm={3}>
+                        <TextField fullWidth label="Bedrooms" value={properties.newData.bedrooms} onChange={(e) => properties.setNewData({...properties.newData, bedrooms: e.target.value})} />
+                      </Grid>
+                      <Grid item xs={6} sm={3}>
+                        <TextField fullWidth label="Bathrooms" value={properties.newData.bathrooms} onChange={(e) => properties.setNewData({...properties.newData, bathrooms: e.target.value})} />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField fullWidth label="Sq Ft" value={properties.newData.sqft} onChange={(e) => properties.setNewData({...properties.newData, sqft: e.target.value})} />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={properties.newData.petFriendly}
+                              onChange={(e) => properties.setNewData({...properties.newData, petFriendly: e.target.checked})}
+                            />
+                          }
+                          label="Pet Friendly"
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField fullWidth label="URL" value={properties.newData.url} onChange={(e) => properties.setNewData({...properties.newData, url: e.target.value})} placeholder="Airbnb, VRBO, or listing URL" />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField fullWidth multiline rows={2} label="Notes" value={properties.newData.notes} onChange={(e) => properties.setNewData({...properties.newData, notes: e.target.value})} placeholder="Furnished? Flexible dates? Parking?" />
+                      </Grid>
+                    </Grid>
+                    <Box sx={{ marginTop: 2, display: 'flex', gap: 1 }}>
+                      <Button variant="contained" startIcon={<SaveIcon />} onClick={addProperty}>Save Short-Term Rental</Button>
+                      <Button variant="outlined" onClick={() => properties.cancelAdding()}>Cancel</Button>
+                    </Box>
+                  </Box>
+                )}
+
+                {/* Short-Term Properties Grid */}
+                {data.rentalProperties?.filter(p => p.duration === 'short').length > 0 ? (
+                  <Grid container spacing={3}>
+                    {data.rentalProperties.filter(p => p.duration === 'short').map(property => (
+                      <Grid item xs={12} md={6} key={property.id}>
+                        <Card sx={{ border: property.interested ? '2px solid #3498db' : '1px solid #e74c3c', background: '#fffaf0' }}>
+                          <CardContent>
+                            {property.interested && (
+                              <Chip label="⭐ Interested" size="small" sx={{ background: '#3498db', color: 'white', marginBottom: 1 }} />
+                            )}
+                            <Chip label="1 MONTH" size="small" sx={{ background: '#e74c3c', color: 'white', marginBottom: 1, marginLeft: property.interested ? 1 : 0 }} />
+
+                            <Typography variant="h6" sx={{ fontWeight: 700, color: '#2c3e50', marginBottom: 1 }}>
+                              {property.address}
+                            </Typography>
+
+                            <Stack spacing={0.5} sx={{ marginBottom: 2 }}>
+                              {property.neighborhood && <Chip label={property.neighborhood} size="small" variant="outlined" />}
+                              {property.price && (
+                                <Typography sx={{ fontSize: '1.1rem', fontWeight: 700, color: '#c0392b' }}>
+                                  {property.price}/mo
+                                </Typography>
+                              )}
+                              {(property.bedrooms || property.bathrooms || property.sqft) && (
+                                <Typography sx={{ fontSize: '0.9rem', color: '#555' }}>
+                                  {property.bedrooms && `${property.bedrooms} bed`}
+                                  {property.bathrooms && ` • ${property.bathrooms} bath`}
+                                  {property.sqft && ` • ${property.sqft} sq ft`}
+                                </Typography>
+                              )}
+                              {property.petFriendly && (
+                                <Chip label="🐾 Pet Friendly" size="small" sx={{ background: '#2ecc71', color: 'white' }} />
+                              )}
+                            </Stack>
+
+                            {property.url && (
+                              <Typography sx={{ fontSize: '0.85rem', marginBottom: 1 }}>
+                                🔗 <a href={property.url} target="_blank" rel="noopener noreferrer">View Listing</a>
+                              </Typography>
+                            )}
+
+                            {property.notes && (
+                              <Typography sx={{ fontSize: '0.85rem', color: '#666', fontStyle: 'italic', marginTop: 1 }}>
+                                📝 {property.notes}
+                              </Typography>
+                            )}
+
+                            <Box sx={{ marginTop: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                              <IconButton size="small" color="primary" onClick={() => properties.startEditing(property.id, property)}>
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                              <IconButton size="small" color="error" onClick={() => properties.startDelete(property.id)}>
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                              <Button
+                                size="small"
+                                variant={property.interested ? "outlined" : "contained"}
+                                onClick={() => togglePropertyInterested(property.id)}
+                              >
+                                {property.interested ? '⭐ Interested' : 'Mark Interested'}
+                              </Button>
+                            </Box>
+
+                            {/* Delete Confirmation */}
+                            {properties.confirmDeleteId === property.id && (
+                              <Box sx={{ marginTop: 2, padding: 2, background: '#fff3cd', borderRadius: 1 }}>
+                                <Typography sx={{ fontSize: '0.9rem', marginBottom: 1 }}>Delete this property?</Typography>
+                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                  <Button size="small" variant="contained" color="error" onClick={() => deleteProperty(property.id)}>Delete</Button>
+                                  <Button size="small" variant="outlined" onClick={() => properties.cancelDelete()}>Cancel</Button>
+                                </Box>
+                              </Box>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                ) : (
+                  <Typography sx={{ textAlign: 'center', color: '#7f8c8d', padding: 4, background: '#fffaf0', borderRadius: 2 }}>
+                    No short-term options added yet. Add Airbnbs, VRBOs, or month-to-month furnished rentals!
+                  </Typography>
+                )}
+              </Box>
+
+              {/* Long-Term Rentals Section (1 year) */}
+              <Box sx={{ background: 'white', borderRadius: 3, padding: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+                <Typography variant="h3" sx={{ fontSize: '1.8rem', fontWeight: 700, color: '#2c3e50', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  🏢 Long-Term Rentals (1 Year Lease)
+                  <Chip label={`${data.rentalProperties?.filter(p => p.duration === 'long').length || 0} options`} size="small" sx={{ background: '#27ae60', color: 'white' }} />
+                </Typography>
+
+                <Typography sx={{ fontSize: '0.95rem', color: '#7f8c8d', marginBottom: 3, fontStyle: 'italic' }}>
+                  Your permanent rental for the year - apartments, condos, houses with 12-month leases
+                </Typography>
+
+                {/* Add New Property Button */}
+                {!properties.adding && (
+                  <Button
+                    variant="outlined"
+                    startIcon={<AddIcon />}
+                    onClick={() => {
+                      properties.setNewData({...properties.newData, duration: 'long'});
+                      properties.setAdding(true);
+                    }}
+                    sx={{ marginBottom: 3 }}
+                  >
+                    Add Long-Term Rental
+                  </Button>
+                )}
+
+                {/* Add Property Form */}
+                {properties.adding && properties.newData.duration === 'long' && (
+                  <Box sx={{ background: '#e8f5e9', padding: 3, borderRadius: 2, marginBottom: 3, border: '2px solid #27ae60' }}>
+                    <Typography variant="h6" sx={{ marginBottom: 2, color: '#1e8449' }}>Add Long-Term Rental (1 Year)</Typography>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
+                        <TextField fullWidth label="Address *" value={properties.newData.address} onChange={(e) => properties.setNewData({...properties.newData, address: e.target.value})} placeholder="Full address or building name" />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField fullWidth label="Neighborhood" value={properties.newData.neighborhood} onChange={(e) => properties.setNewData({...properties.newData, neighborhood: e.target.value})} />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField fullWidth label="Rent/Month" value={properties.newData.price} onChange={(e) => properties.setNewData({...properties.newData, price: e.target.value})} placeholder="e.g. $2200" />
+                      </Grid>
+                      <Grid item xs={6} sm={3}>
+                        <TextField fullWidth label="Bedrooms" value={properties.newData.bedrooms} onChange={(e) => properties.setNewData({...properties.newData, bedrooms: e.target.value})} />
+                      </Grid>
+                      <Grid item xs={6} sm={3}>
+                        <TextField fullWidth label="Bathrooms" value={properties.newData.bathrooms} onChange={(e) => properties.setNewData({...properties.newData, bathrooms: e.target.value})} />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField fullWidth label="Sq Ft" value={properties.newData.sqft} onChange={(e) => properties.setNewData({...properties.newData, sqft: e.target.value})} />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={properties.newData.petFriendly}
+                              onChange={(e) => properties.setNewData({...properties.newData, petFriendly: e.target.checked})}
+                            />
+                          }
+                          label="Pet Friendly"
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField fullWidth label="URL" value={properties.newData.url} onChange={(e) => properties.setNewData({...properties.newData, url: e.target.value})} placeholder="Zillow, Apartments.com, or listing URL" />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField fullWidth multiline rows={2} label="Notes" value={properties.newData.notes} onChange={(e) => properties.setNewData({...properties.newData, notes: e.target.value})} placeholder="Parking? Laundry? Amenities? Move-in date?" />
+                      </Grid>
+                    </Grid>
+                    <Box sx={{ marginTop: 2, display: 'flex', gap: 1 }}>
+                      <Button variant="contained" startIcon={<SaveIcon />} onClick={addProperty}>Save Long-Term Rental</Button>
+                      <Button variant="outlined" onClick={() => properties.cancelAdding()}>Cancel</Button>
+                    </Box>
+                  </Box>
+                )}
+
+                {/* Long-Term Properties Grid */}
+                {data.rentalProperties?.filter(p => p.duration === 'long').length > 0 ? (
+                  <Grid container spacing={3}>
+                    {data.rentalProperties.filter(p => p.duration === 'long').map(property => (
+                      <Grid item xs={12} md={6} key={property.id}>
+                        <Card sx={{ border: property.interested ? '2px solid #3498db' : '1px solid #27ae60', background: '#f0fdf4' }}>
+                          <CardContent>
+                            {property.interested && (
+                              <Chip label="⭐ Interested" size="small" sx={{ background: '#3498db', color: 'white', marginBottom: 1 }} />
+                            )}
+                            <Chip label="1 YEAR LEASE" size="small" sx={{ background: '#27ae60', color: 'white', marginBottom: 1, marginLeft: property.interested ? 1 : 0 }} />
+
+                            <Typography variant="h6" sx={{ fontWeight: 700, color: '#2c3e50', marginBottom: 1 }}>
+                              {property.address}
+                            </Typography>
+
+                            <Stack spacing={0.5} sx={{ marginBottom: 2 }}>
+                              {property.neighborhood && <Chip label={property.neighborhood} size="small" variant="outlined" />}
+                              {property.price && (
+                                <Typography sx={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e8449' }}>
+                                  {property.price}/mo
+                                </Typography>
+                              )}
+                              {(property.bedrooms || property.bathrooms || property.sqft) && (
+                                <Typography sx={{ fontSize: '0.9rem', color: '#555' }}>
+                                  {property.bedrooms && `${property.bedrooms} bed`}
+                                  {property.bathrooms && ` • ${property.bathrooms} bath`}
+                                  {property.sqft && ` • ${property.sqft} sq ft`}
+                                </Typography>
+                              )}
+                              {property.petFriendly && (
+                                <Chip label="🐾 Pet Friendly" size="small" sx={{ background: '#2ecc71', color: 'white' }} />
+                              )}
+                            </Stack>
+
+                            {property.url && (
+                              <Typography sx={{ fontSize: '0.85rem', marginBottom: 1 }}>
+                                🔗 <a href={property.url} target="_blank" rel="noopener noreferrer">View Listing</a>
+                              </Typography>
+                            )}
+
+                            {property.notes && (
+                              <Typography sx={{ fontSize: '0.85rem', color: '#666', fontStyle: 'italic', marginTop: 1 }}>
+                                📝 {property.notes}
+                              </Typography>
+                            )}
+
+                            <Box sx={{ marginTop: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                              <IconButton size="small" color="primary" onClick={() => properties.startEditing(property.id, property)}>
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                              <IconButton size="small" color="error" onClick={() => properties.startDelete(property.id)}>
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                              <Button
+                                size="small"
+                                variant={property.interested ? "outlined" : "contained"}
+                                onClick={() => togglePropertyInterested(property.id)}
+                              >
+                                {property.interested ? '⭐ Interested' : 'Mark Interested'}
+                              </Button>
+                            </Box>
+
+                            {/* Delete Confirmation */}
+                            {properties.confirmDeleteId === property.id && (
+                              <Box sx={{ marginTop: 2, padding: 2, background: '#fff3cd', borderRadius: 1 }}>
+                                <Typography sx={{ fontSize: '0.9rem', marginBottom: 1 }}>Delete this property?</Typography>
+                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                  <Button size="small" variant="contained" color="error" onClick={() => deleteProperty(property.id)}>Delete</Button>
+                                  <Button size="small" variant="outlined" onClick={() => properties.cancelDelete()}>Cancel</Button>
+                                </Box>
+                              </Box>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                ) : (
+                  <Typography sx={{ textAlign: 'center', color: '#7f8c8d', padding: 4, background: '#f0fdf4', borderRadius: 2 }}>
+                    No long-term rentals added yet. Start searching for 1-year lease options on Zillow, Apartments.com, etc.!
+                  </Typography>
+                )}
+              </Box>
+
             </Box>
           </Box>
         )}
