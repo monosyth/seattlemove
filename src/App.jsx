@@ -4364,69 +4364,6 @@ function App() {
 }
 
 // Seattle Move - Ocean Blues Theme
-const colors = {
-  // Primary ocean blues
-  pacificBlue: '#1e5a8e',
-  pugetSound: '#2968a3',
-  skyBlue: '#4a90e2',
-  seafoam: '#6ba8c9',
-
-  // Deep water tones
-  deepOcean: '#154163',
-  midnight: '#0d2d44',
-
-  // Accent colors
-  teal: '#2b9298',
-  aqua: '#52b5bf',
-  coral: '#ff8c69',
-  sunrise: '#ffa366',
-
-  // NEW VIBRANT COLORS - Ocean & Tropical (Toned Down)
-  turquoise: '#1abc9c',
-  cyan: '#00d4ff',
-  aquamarine: '#7fffd4',
-  coralPink: '#e8a5a5',      // Toned down from #ff6b9d
-  starfish: '#ff7f50',
-  golden: '#e8d4a5',         // Toned down from #ffd700
-  bioluminescent: '#00ffff',
-  neonBlue: '#1e90ff',
-  glowGreen: '#39ff14',
-  seaweed: '#2ecc71',
-  emerald: '#27ae60',
-  jade: '#00a86b',
-
-  // Neutrals - sand and stone
-  charcoal: '#2c3e50',
-  slate: '#5f6c7b',
-  driftwood: '#8b9ba8',
-  sand: '#e8eff5',
-  cloud: '#f0f4f8',
-  fog: '#f8fafb',
-  mist: '#e5edf3',
-
-  // Status
-  complete: '#2da771',
-
-  // Legacy compatibility mappings
-  evergreen: '#1e5a8e',      // → pacificBlue
-  forest: '#154163',         // → deepOcean
-  sage: '#6ba8c9',           // → seafoam
-  moss: '#52b5bf',           // → aqua
-  mountain: '#2c3e50',       // → charcoal
-  salmon: '#ff8c69',         // → coral
-  sunset: '#ffa366',         // → sunrise
-  deepBlue: '#0d2d44',       // → midnight
-  duskBlue: '#1a4d6f',       // Dusk over water
-  paleBlue: '#d4e6f5',       // Pale water
-  goldenHour: '#ffd89b',     // Sunset reflection
-  rain: '#94c5d9',           // Rain over water
-  bark: '#8b9ba8',           // → driftwood
-  cedar: '#b8c5d1',          // Cedar tone
-  wheat: '#e8d4b8',          // Wheat/sand
-  honey: '#d4aa6a',          // Honey
-  cream: '#faf7f2',          // Cream
-  white: '#ffffff'           // Pure white
-};
 
 
 export default App;
