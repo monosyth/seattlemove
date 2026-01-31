@@ -4,7 +4,7 @@
  */
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 /**
  * Generate optimized search URLs for rental sites
@@ -77,7 +77,10 @@ Make sure the URLs are properly formatted with query parameters for filters.`;
       if (response.status === 429) {
         throw new Error('Rate limit reached. Please wait a minute and try again.');
       }
-      throw new Error(`Gemini API error: ${response.statusText}`);
+      // Get detailed error message
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage = errorData.error?.message || response.statusText;
+      throw new Error(`Gemini API error (${response.status}): ${errorMessage}`);
     }
 
     const data = await response.json();
@@ -178,7 +181,10 @@ Return ONLY a JSON object:
       if (response.status === 429) {
         throw new Error('Rate limit reached. Please wait a minute and try again.');
       }
-      throw new Error(`Gemini API error: ${response.statusText}`);
+      // Get detailed error message
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage = errorData.error?.message || response.statusText;
+      throw new Error(`Gemini API error (${response.status}): ${errorMessage}`);
     }
 
     const data = await response.json();
