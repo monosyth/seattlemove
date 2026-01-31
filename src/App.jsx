@@ -3343,21 +3343,24 @@ function App() {
             {/* Key Numbers Summary - Sale Price & Profit Side by Side */}
             <div style={styles.budgetSummary}>
               <h3 style={styles.budgetSummaryTitle}>💰 Financials</h3>
-              <div style={{display: 'flex', gap: '24px', alignItems: 'stretch'}}>
+              <div style={{display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'stretch'}}>
                 {/* Sale Price */}
-                <div style={{flex: 1, background: 'linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)', borderRadius: '12px', padding: '24px', display: 'flex', flexDirection: 'column'}}>
+                <div style={{flex: '1 1 300px', minWidth: '300px', background: 'linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)', borderRadius: '12px', padding: '24px', display: 'flex', flexDirection: 'column'}}>
                   <label style={{fontSize: '1.2rem', fontWeight: 700, color: 'white', marginBottom: '12px', letterSpacing: '0.5px', opacity: 0.95}}>
                     🏠 Sale Price
                   </label>
                   <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
                     <span style={{fontSize: '2.2rem', fontWeight: 800, color: 'white'}}>$</span>
                     <input
-                      type="number"
-                      value={data.financial?.salePrice || ''}
+                      type="text"
+                      value={data.financial?.salePrice ? parseFloat(data.financial.salePrice).toLocaleString() : ''}
                       onChange={(e) => {
-                        const newData = {...data, financial: {...data.financial, salePrice: e.target.value}};
-                        setData(newData);
-                        saveData(newData);
+                        const value = e.target.value.replace(/,/g, '');
+                        if (value === '' || !isNaN(value)) {
+                          const newData = {...data, financial: {...data.financial, salePrice: value}};
+                          setData(newData);
+                          saveData(newData);
+                        }
                       }}
                       placeholder="0"
                       style={{
@@ -3376,7 +3379,7 @@ function App() {
                 </div>
 
                 {/* Net Profit */}
-                <div style={{flex: 1, background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)', borderRadius: '12px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
+                <div style={{flex: '1 1 300px', minWidth: '300px', background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)', borderRadius: '12px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
                   <span style={{fontSize: '1.2rem', fontWeight: 700, color: 'white', letterSpacing: '0.5px', opacity: 0.95}}>
                     ✨ Cash After Sale
                   </span>
@@ -3523,15 +3526,18 @@ function App() {
                         <div style={{...styles.costInputWrapper, minWidth: '180px'}}>
                           <span style={{...styles.dollarSign, fontSize: '1.2rem', fontWeight: 700}}>$</span>
                           <input
-                            type="number"
-                            value={item.amount}
+                            type="text"
+                            value={item.amount ? parseFloat(item.amount).toLocaleString() : ''}
                             onChange={(e) => {
-                              const newData = {...data};
-                              const debtItem = newData.financial.fixedDebts.find(d => d.id === item.id);
-                              if (debtItem) {
-                                debtItem.amount = e.target.value;
-                                setData(newData);
-                                saveData(newData);
+                              const value = e.target.value.replace(/,/g, '');
+                              if (value === '' || !isNaN(value)) {
+                                const newData = {...data};
+                                const debtItem = newData.financial.fixedDebts.find(d => d.id === item.id);
+                                if (debtItem) {
+                                  debtItem.amount = value;
+                                  setData(newData);
+                                  saveData(newData);
+                                }
                               }
                             }}
                             placeholder="0"
@@ -3673,15 +3679,18 @@ function App() {
                         <div style={styles.costInputWrapper}>
                           <span style={{...styles.dollarSign, fontSize: '1.2rem', fontWeight: 700}}>$</span>
                           <input
-                            type="number"
-                            value={item.amount}
+                            type="text"
+                            value={item.amount ? parseFloat(item.amount).toLocaleString() : ''}
                             onChange={(e) => {
-                              const newData = {...data};
-                              const expItem = newData.financial.expenses.find(d => d.id === item.id);
-                              if (expItem) {
-                                expItem.amount = e.target.value;
-                                setData(newData);
-                                saveData(newData);
+                              const value = e.target.value.replace(/,/g, '');
+                              if (value === '' || !isNaN(value)) {
+                                const newData = {...data};
+                                const expItem = newData.financial.expenses.find(d => d.id === item.id);
+                                if (expItem) {
+                                  expItem.amount = value;
+                                  setData(newData);
+                                  saveData(newData);
+                                }
                               }
                             }}
                             placeholder="0"
@@ -3733,9 +3742,14 @@ function App() {
                         <div style={styles.costInputWrapper}>
                           <span style={{...styles.dollarSign, fontSize: '1.2rem', fontWeight: 700}}>$</span>
                           <input
-                            type="number"
-                            value={item.cost}
-                            onChange={(e) => updateBudgetCost('other', item.id, e.target.value)}
+                            type="text"
+                            value={item.cost ? parseFloat(item.cost).toLocaleString() : ''}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/,/g, '');
+                              if (value === '' || !isNaN(value)) {
+                                updateBudgetCost('other', item.id, value);
+                              }
+                            }}
                             placeholder="0"
                             style={{...styles.costField, fontSize: '1.1rem', fontWeight: 700}}
                           />
@@ -3875,15 +3889,18 @@ function App() {
                           <div style={styles.costInputWrapper}>
                             <span style={{...styles.dollarSign, fontSize: '1.2rem', fontWeight: 700}}>$</span>
                             <input
-                              type="number"
-                              value={item.amount}
+                              type="text"
+                              value={item.amount ? parseFloat(item.amount).toLocaleString() : ''}
                               onChange={(e) => {
-                                const newData = {...data};
-                                const customItem = newData.financial.customItems.find(d => d.id === item.id);
-                                if (customItem) {
-                                  customItem.amount = e.target.value;
-                                  setData(newData);
-                                  saveData(newData);
+                                const value = e.target.value.replace(/,/g, '');
+                                if (value === '' || !isNaN(value)) {
+                                  const newData = {...data};
+                                  const customItem = newData.financial.customItems.find(d => d.id === item.id);
+                                  if (customItem) {
+                                    customItem.amount = value;
+                                    setData(newData);
+                                    saveData(newData);
+                                  }
                                 }
                               }}
                               placeholder="0"
