@@ -1603,7 +1603,7 @@ function App() {
                       { key: 'nice', title: 'Nice to Have', color: '#a5d4e8' }
                     ].map(({ key, title, color }) => {
                       const progress = getBudgetCategoryProgress(key);
-                      const categoryTotal = getBudgetTotal(key);
+                      const categoryTotal = budgetTotals[key];
                       return (
                         <div key={key} style={{...styles.repairSection, borderColor: color}}>
                           <div style={{...styles.repairSectionHeader, background: color}}>
