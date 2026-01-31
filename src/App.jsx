@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { db } from './firebase';
 import { useEntityManager, useListItemManager } from './hooks/useEntityManager';
 import { styles, colors } from './App.styles';
+import { generateSearchURLs } from './services/geminiService';
 import { doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import {
   Box,
@@ -478,6 +479,30 @@ const initialData = {
       { id: 'exp1', item: 'Concierge for Upgrades', amount: '', type: 'expense' },
     ],
     customItems: []
+  },
+  // AI Rental Finder
+  aiRentalFinder: {
+    searchCriteria: {
+      bedrooms: { min: 1, max: 3 },
+      bathrooms: { min: 1, max: null },
+      priceRange: { min: 0, max: 2500 },
+      petFriendly: true,
+      neighborhoods: [],
+      duration: 'both', // 'short' | 'long' | 'both'
+      descriptionKeywords: [],
+      moveInDate: '',
+    },
+    learnedPreferences: {
+      dealBreakers: [],
+      preferredFeatures: [],
+      descriptionKeywords: []
+    },
+    generatedURLs: {
+      zillow: '',
+      redfin: '',
+      hotpads: ''
+    },
+    lastSearch: null
   }
 };
 
@@ -513,6 +538,10 @@ function App() {
   const [noteFilter, setNoteFilter] = useState('all');
   const [changelog, setChangelog] = useState([]);
   const [changelogLoading, setChangelogLoading] = useState(false);
+  // AI Rental Finder state
+  const [aiSearchLoading, setAiSearchLoading] = useState(false);
+  const [aiSearchError, setAiSearchError] = useState(null);
+  const [newDescriptionKeyword, setNewDescriptionKeyword] = useState('');
   // List item management using custom hooks
   const checklistItems = useListItemManager();
   const budgetItems = useListItemManager();
@@ -1176,6 +1205,63 @@ function App() {
       null
     );
     setConfirmDeleteGeneralNoteId(null);
+  };
+
+  // AI Rental Finder functions
+  const addDescriptionKeyword = (keyword) => {
+    if (!keyword.trim()) return;
+    const newData = { ...data };
+    if (!newData.aiRentalFinder.searchCriteria.descriptionKeywords.includes(keyword.trim())) {
+      newData.aiRentalFinder.searchCriteria.descriptionKeywords.push(keyword.trim());
+      setData(newData);
+      saveData(newData);
+    }
+    setNewDescriptionKeyword('');
+  };
+
+  const removeDescriptionKeyword = (keyword) => {
+    const newData = { ...data };
+    newData.aiRentalFinder.searchCriteria.descriptionKeywords =
+      newData.aiRentalFinder.searchCriteria.descriptionKeywords.filter(k => k !== keyword);
+    setData(newData);
+    saveData(newData);
+  };
+
+  const updateSearchCriteria = (field, value) => {
+    const newData = { ...data };
+    newData.aiRentalFinder.searchCriteria[field] = value;
+    setData(newData);
+    saveData(newData);
+  };
+
+  const handleAISearch = async () => {
+    setAiSearchLoading(true);
+    setAiSearchError(null);
+
+    try {
+      const criteria = data.aiRentalFinder.searchCriteria;
+      const learnedPreferences = data.aiRentalFinder.learnedPreferences;
+
+      const urls = await generateSearchURLs(criteria, learnedPreferences);
+
+      const newData = { ...data };
+      newData.aiRentalFinder.generatedURLs = urls;
+      newData.aiRentalFinder.lastSearch = new Date().toISOString();
+      setData(newData);
+      saveData(newData);
+
+      addChangelogEntry(
+        'ai_search',
+        'Generated rental search URLs with AI',
+        null,
+        `Searched for ${criteria.bedrooms.min}-${criteria.bedrooms.max} bed, max $${criteria.priceRange.max}`
+      );
+    } catch (error) {
+      console.error('AI search error:', error);
+      setAiSearchError(error.message || 'Failed to generate search URLs. Please try again.');
+    } finally {
+      setAiSearchLoading(false);
+    }
   };
 
   const addStepNote = (stepId) => {
@@ -4150,6 +4236,264 @@ function App() {
               <Typography sx={{ fontSize: '1.1rem', color: '#4a5568', marginBottom: '32px', textAlign: 'center' }}>
                 Find your temporary and long-term rentals in Seattle
               </Typography>
+
+              {/* AI Rental Finder Section */}
+              <Box sx={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: 3, padding: 4, marginBottom: 4, boxShadow: '0 8px 24px rgba(102, 126, 234, 0.3)' }}>
+                <Typography variant="h3" sx={{ fontSize: '1.8rem', fontWeight: 700, color: 'white', marginBottom: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  🤖 AI Rental Finder
+                  <Chip label="Powered by Gemini" size="small" sx={{ background: 'rgba(255,255,255,0.2)', color: 'white', fontWeight: 600 }} />
+                </Typography>
+                <Typography sx={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.9)', marginBottom: 3 }}>
+                  Let AI help you find the perfect rental on Zillow, Redfin, and Hotpads
+                </Typography>
+
+                {/* Search Criteria Form */}
+                <Box sx={{ background: 'white', borderRadius: 2, padding: 3, marginBottom: 3 }}>
+                  <Typography variant="h6" sx={{ marginBottom: 2, color: '#2c3e50' }}>Search Criteria</Typography>
+
+                  <Grid container spacing={2}>
+                    {/* Bedrooms */}
+                    <Grid item xs={12} sm={6} md={3}>
+                      <Typography variant="caption" sx={{ display: 'block', marginBottom: 1, color: '#7f8c8d', fontWeight: 600 }}>
+                        Bedrooms
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: 1 }}>
+                        <TextField
+                          type="number"
+                          label="Min"
+                          value={data.aiRentalFinder.searchCriteria.bedrooms.min}
+                          onChange={(e) => updateSearchCriteria('bedrooms', { ...data.aiRentalFinder.searchCriteria.bedrooms, min: parseInt(e.target.value) || 0 })}
+                          size="small"
+                          fullWidth
+                        />
+                        <TextField
+                          type="number"
+                          label="Max"
+                          value={data.aiRentalFinder.searchCriteria.bedrooms.max}
+                          onChange={(e) => updateSearchCriteria('bedrooms', { ...data.aiRentalFinder.searchCriteria.bedrooms, max: parseInt(e.target.value) || 3 })}
+                          size="small"
+                          fullWidth
+                        />
+                      </Box>
+                    </Grid>
+
+                    {/* Bathrooms */}
+                    <Grid item xs={12} sm={6} md={3}>
+                      <Typography variant="caption" sx={{ display: 'block', marginBottom: 1, color: '#7f8c8d', fontWeight: 600 }}>
+                        Bathrooms (min)
+                      </Typography>
+                      <TextField
+                        type="number"
+                        value={data.aiRentalFinder.searchCriteria.bathrooms.min}
+                        onChange={(e) => updateSearchCriteria('bathrooms', { ...data.aiRentalFinder.searchCriteria.bathrooms, min: parseInt(e.target.value) || 1 })}
+                        size="small"
+                        fullWidth
+                      />
+                    </Grid>
+
+                    {/* Max Price */}
+                    <Grid item xs={12} sm={6} md={3}>
+                      <Typography variant="caption" sx={{ display: 'block', marginBottom: 1, color: '#7f8c8d', fontWeight: 600 }}>
+                        Max Price/Month
+                      </Typography>
+                      <TextField
+                        type="number"
+                        value={data.aiRentalFinder.searchCriteria.priceRange.max}
+                        onChange={(e) => updateSearchCriteria('priceRange', { ...data.aiRentalFinder.searchCriteria.priceRange, max: parseInt(e.target.value) || 2500 })}
+                        size="small"
+                        fullWidth
+                        InputProps={{
+                          startAdornment: <Typography sx={{ marginRight: 0.5, color: '#7f8c8d' }}>$</Typography>
+                        }}
+                      />
+                    </Grid>
+
+                    {/* Duration */}
+                    <Grid item xs={12} sm={6} md={3}>
+                      <Typography variant="caption" sx={{ display: 'block', marginBottom: 1, color: '#7f8c8d', fontWeight: 600 }}>
+                        Rental Duration
+                      </Typography>
+                      <TextField
+                        select
+                        value={data.aiRentalFinder.searchCriteria.duration}
+                        onChange={(e) => updateSearchCriteria('duration', e.target.value)}
+                        size="small"
+                        fullWidth
+                        SelectProps={{ native: true }}
+                      >
+                        <option value="short">Short-term (1 month)</option>
+                        <option value="long">Long-term (1 year)</option>
+                        <option value="both">Both</option>
+                      </TextField>
+                    </Grid>
+
+                    {/* Pet Friendly */}
+                    <Grid item xs={12}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={data.aiRentalFinder.searchCriteria.petFriendly}
+                            onChange={(e) => updateSearchCriteria('petFriendly', e.target.checked)}
+                          />
+                        }
+                        label="Pet-Friendly Required"
+                      />
+                    </Grid>
+
+                    {/* Description Keywords */}
+                    <Grid item xs={12}>
+                      <Typography variant="caption" sx={{ display: 'block', marginBottom: 1, color: '#7f8c8d', fontWeight: 600 }}>
+                        Description Keywords
+                      </Typography>
+                      <Typography variant="caption" sx={{ display: 'block', marginBottom: 1, color: '#95a5a6', fontStyle: 'italic' }}>
+                        Search for features not in standard filters (e.g., "natural light", "quiet", "walkable", "updated kitchen")
+                      </Typography>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        placeholder="Type a keyword and press Enter"
+                        value={newDescriptionKeyword}
+                        onChange={(e) => setNewDescriptionKeyword(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && newDescriptionKeyword.trim()) {
+                            addDescriptionKeyword(newDescriptionKeyword);
+                          }
+                        }}
+                      />
+                      {data.aiRentalFinder.searchCriteria.descriptionKeywords.length > 0 && (
+                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', marginTop: 1 }}>
+                          {data.aiRentalFinder.searchCriteria.descriptionKeywords.map(keyword => (
+                            <Chip
+                              key={keyword}
+                              label={keyword}
+                              onDelete={() => removeDescriptionKeyword(keyword)}
+                              color="primary"
+                              variant="outlined"
+                              size="small"
+                            />
+                          ))}
+                        </Box>
+                      )}
+                    </Grid>
+                  </Grid>
+
+                  {/* Search Button */}
+                  <Box sx={{ marginTop: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Button
+                      variant="contained"
+                      size="large"
+                      onClick={handleAISearch}
+                      disabled={aiSearchLoading}
+                      sx={{
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        color: 'white',
+                        fontWeight: 700,
+                        fontSize: '1.1rem',
+                        padding: '12px 32px',
+                        '&:hover': {
+                          background: 'linear-gradient(135deg, #5568d3 0%, #63408b 100%)',
+                        }
+                      }}
+                    >
+                      {aiSearchLoading ? '🔍 Generating URLs...' : '🤖 Find Rentals with AI'}
+                    </Button>
+                    {data.aiRentalFinder.lastSearch && (
+                      <Typography variant="caption" sx={{ color: '#7f8c8d' }}>
+                        Last search: {new Date(data.aiRentalFinder.lastSearch).toLocaleString()}
+                      </Typography>
+                    )}
+                  </Box>
+
+                  {/* Error Display */}
+                  {aiSearchError && (
+                    <Alert severity="error" sx={{ marginTop: 2 }}>
+                      {aiSearchError}
+                    </Alert>
+                  )}
+                </Box>
+
+                {/* Generated URLs Display */}
+                {(data.aiRentalFinder.generatedURLs.zillow || data.aiRentalFinder.generatedURLs.redfin || data.aiRentalFinder.generatedURLs.hotpads) && (
+                  <Box sx={{ background: 'white', borderRadius: 2, padding: 3 }}>
+                    <Typography variant="h6" sx={{ marginBottom: 2, color: '#2c3e50' }}>🔗 Generated Search URLs</Typography>
+                    <Typography variant="body2" sx={{ marginBottom: 2, color: '#7f8c8d' }}>
+                      Click to open searches in new tabs. Browse the listings and add ones you like manually below.
+                    </Typography>
+
+                    <Stack spacing={2}>
+                      {/* Zillow */}
+                      {data.aiRentalFinder.generatedURLs.zillow && (
+                        <Box sx={{ padding: 2, background: '#f8f9fa', borderRadius: 2, border: '1px solid #e0e0e0' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 1 }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#006aff' }}>
+                              🏠 Zillow
+                            </Typography>
+                            <Button
+                              variant="contained"
+                              size="small"
+                              onClick={() => window.open(data.aiRentalFinder.generatedURLs.zillow, '_blank')}
+                              sx={{ background: '#006aff' }}
+                            >
+                              Open Search
+                            </Button>
+                          </Box>
+                          <Typography variant="caption" sx={{ color: '#7f8c8d', wordBreak: 'break-all' }}>
+                            {data.aiRentalFinder.generatedURLs.zillow}
+                          </Typography>
+                        </Box>
+                      )}
+
+                      {/* Redfin */}
+                      {data.aiRentalFinder.generatedURLs.redfin && (
+                        <Box sx={{ padding: 2, background: '#f8f9fa', borderRadius: 2, border: '1px solid #e0e0e0' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 1 }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#a02021' }}>
+                              🏠 Redfin
+                            </Typography>
+                            <Button
+                              variant="contained"
+                              size="small"
+                              onClick={() => window.open(data.aiRentalFinder.generatedURLs.redfin, '_blank')}
+                              sx={{ background: '#a02021' }}
+                            >
+                              Open Search
+                            </Button>
+                          </Box>
+                          <Typography variant="caption" sx={{ color: '#7f8c8d', wordBreak: 'break-all' }}>
+                            {data.aiRentalFinder.generatedURLs.redfin}
+                          </Typography>
+                        </Box>
+                      )}
+
+                      {/* Hotpads */}
+                      {data.aiRentalFinder.generatedURLs.hotpads && (
+                        <Box sx={{ padding: 2, background: '#f8f9fa', borderRadius: 2, border: '1px solid #e0e0e0' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 1 }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#ff6f00' }}>
+                              🏠 Hotpads
+                            </Typography>
+                            <Button
+                              variant="contained"
+                              size="small"
+                              onClick={() => window.open(data.aiRentalFinder.generatedURLs.hotpads, '_blank')}
+                              sx={{ background: '#ff6f00' }}
+                            >
+                              Open Search
+                            </Button>
+                          </Box>
+                          <Typography variant="caption" sx={{ color: '#7f8c8d', wordBreak: 'break-all' }}>
+                            {data.aiRentalFinder.generatedURLs.hotpads}
+                          </Typography>
+                        </Box>
+                      )}
+                    </Stack>
+
+                    <Typography variant="body2" sx={{ marginTop: 2, padding: 2, background: '#e3f2fd', borderRadius: 1, color: '#1565c0' }}>
+                      💡 <strong>Tip:</strong> After browsing, come back and add your favorite listings to the Short-Term or Long-Term sections below for tracking.
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
 
               {/* Seattle Neighborhoods Section */}
               <Box sx={{ background: 'white', borderRadius: 3, padding: 4, marginBottom: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
