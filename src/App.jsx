@@ -3942,9 +3942,57 @@ function App() {
               <Typography variant="h2" sx={{ fontSize: '2.5rem', fontWeight: 700, color: '#1a365d', marginBottom: '12px', textAlign: 'center' }}>
                 🗺️ Move Timeline
               </Typography>
-              <Typography sx={{ fontSize: '1.1rem', color: '#4a5568', marginBottom: '40px', textAlign: 'center' }}>
+              <Typography sx={{ fontSize: '1.1rem', color: '#4a5568', marginBottom: '24px', textAlign: 'center' }}>
                 Your journey from San Diego to Seattle
               </Typography>
+
+              {/* Horizontal Progress Bar */}
+              {(() => {
+                const phaseOrder = ['preparation', 'houseReady', 'onMarket', 'underContract', 'closing', 'transition', 'settling'];
+                const phases = phaseOrder.map(id => data.timeline?.[id]).filter(p => p);
+                const completedCount = phases.filter(p => p.status === 'complete').length;
+                const progressPercent = Math.round((completedCount / phases.length) * 100);
+
+                return (
+                  <div style={{
+                    background: 'white',
+                    borderRadius: '12px',
+                    padding: '24px',
+                    marginBottom: '40px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                    border: '1px solid #e0e0e0'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                      <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#2c3e50' }}>
+                        Overall Progress
+                      </span>
+                      <span style={{ fontSize: '1.3rem', fontWeight: 700, color: '#3498db' }}>
+                        {progressPercent}%
+                      </span>
+                    </div>
+                    <div style={{
+                      width: '100%',
+                      height: '20px',
+                      background: '#e0e0e0',
+                      borderRadius: '10px',
+                      overflow: 'hidden',
+                      position: 'relative'
+                    }}>
+                      <div style={{
+                        width: `${progressPercent}%`,
+                        height: '100%',
+                        background: 'linear-gradient(90deg, #3498db 0%, #2ecc71 100%)',
+                        transition: 'width 0.5s ease',
+                        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
+                      }} />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', fontSize: '0.85rem', color: '#7f8c8d' }}>
+                      <span>{completedCount} of {phases.length} phases complete</span>
+                      <span>{phases.length - completedCount} remaining</span>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Vertical Timeline */}
               <div style={{ position: 'relative' }}>
@@ -3959,13 +4007,16 @@ function App() {
                   zIndex: 0
                 }} />
 
-                {Object.values(data.timeline || {}).map((phase, index) => {
+                {['preparation', 'houseReady', 'onMarket', 'underContract', 'closing', 'transition', 'settling'].map((phaseId, index) => {
+                  const phase = data.timeline?.[phaseId];
+                  if (!phase) return null;
+
                   const isComplete = phase.status === 'complete';
                   const isActive = phase.status === 'in-progress';
 
                   return (
                     <div key={phase.id} style={{ position: 'relative', marginBottom: '32px', paddingLeft: '70px' }}>
-                      {/* Timeline Dot */}
+                      {/* Timeline Dot with Star */}
                       <div style={{
                         position: 'absolute',
                         left: '0px',
@@ -3982,7 +4033,7 @@ function App() {
                         fontSize: '1.5rem',
                         zIndex: 2
                       }}>
-                        {isComplete ? '✓' : phase.title.split(' ')[0]}
+                        {isComplete ? '✓' : '⭐'}
                       </div>
 
                       {/* Phase Card */}
@@ -4019,78 +4070,41 @@ function App() {
                           </p>
                         </div>
 
-                        {/* Dates */}
-                        <div style={{ display: 'flex', gap: '20px' }}>
-                          <div style={{ flex: 1 }}>
-                            <label style={{
-                              display: 'block',
-                              fontSize: '1rem',
-                              fontWeight: 700,
+                        {/* Single Target Date */}
+                        <div>
+                          <label style={{
+                            display: 'block',
+                            fontSize: '1.05rem',
+                            fontWeight: 700,
+                            color: '#2c3e50',
+                            marginBottom: '10px',
+                            letterSpacing: '0.3px'
+                          }}>
+                            🎯 Target Date
+                          </label>
+                          <input
+                            type="date"
+                            value={phase.targetDate || ''}
+                            onChange={(e) => {
+                              const newData = {...data};
+                              newData.timeline[phase.id].targetDate = e.target.value;
+                              setData(newData);
+                              saveData(newData);
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '14px 18px',
+                              border: '2px solid #ddd',
+                              borderRadius: '8px',
+                              fontSize: '1.1rem',
+                              fontWeight: 600,
                               color: '#2c3e50',
-                              marginBottom: '8px',
-                              letterSpacing: '0.3px'
-                            }}>
-                              📅 Start Date
-                            </label>
-                            <input
-                              type="date"
-                              value={phase.startDate || ''}
-                              onChange={(e) => {
-                                const newData = {...data};
-                                newData.timeline[phase.id].startDate = e.target.value;
-                                setData(newData);
-                                saveData(newData);
-                              }}
-                              style={{
-                                width: '100%',
-                                padding: '12px 16px',
-                                border: '2px solid #ddd',
-                                borderRadius: '8px',
-                                fontSize: '1.05rem',
-                                fontWeight: 600,
-                                color: '#2c3e50',
-                                transition: 'border-color 0.2s ease',
-                                cursor: 'pointer'
-                              }}
-                              onFocus={(e) => e.target.style.borderColor = '#3498db'}
-                              onBlur={(e) => e.target.style.borderColor = '#ddd'}
-                            />
-                          </div>
-                          <div style={{ flex: 1 }}>
-                            <label style={{
-                              display: 'block',
-                              fontSize: '1rem',
-                              fontWeight: 700,
-                              color: '#2c3e50',
-                              marginBottom: '8px',
-                              letterSpacing: '0.3px'
-                            }}>
-                              🏁 End Date
-                            </label>
-                            <input
-                              type="date"
-                              value={phase.endDate || ''}
-                              onChange={(e) => {
-                                const newData = {...data};
-                                newData.timeline[phase.id].endDate = e.target.value;
-                                setData(newData);
-                                saveData(newData);
-                              }}
-                              style={{
-                                width: '100%',
-                                padding: '12px 16px',
-                                border: '2px solid #ddd',
-                                borderRadius: '8px',
-                                fontSize: '1.05rem',
-                                fontWeight: 600,
-                                color: '#2c3e50',
-                                transition: 'border-color 0.2s ease',
-                                cursor: 'pointer'
-                              }}
-                              onFocus={(e) => e.target.style.borderColor = '#3498db'}
-                              onBlur={(e) => e.target.style.borderColor = '#ddd'}
-                            />
-                          </div>
+                              transition: 'border-color 0.2s ease',
+                              cursor: 'pointer'
+                            }}
+                            onFocus={(e) => e.target.style.borderColor = '#3498db'}
+                            onBlur={(e) => e.target.style.borderColor = '#ddd'}
+                          />
                         </div>
                       </div>
                     </div>
