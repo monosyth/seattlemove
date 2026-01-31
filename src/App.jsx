@@ -3960,10 +3960,7 @@ function App() {
                 }} />
 
                 {Object.values(data.timeline || {}).map((phase, index) => {
-                  const totalTasks = phase.tasks?.length || 0;
-                  const completedTasks = phase.tasks?.filter(t => t.done).length || 0;
-                  const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-                  const isComplete = progress === 100;
+                  const isComplete = phase.status === 'complete';
                   const isActive = phase.status === 'in-progress';
 
                   return (
@@ -3992,21 +3989,21 @@ function App() {
                       <div style={{
                         background: 'white',
                         borderRadius: '12px',
-                        padding: '24px',
+                        padding: '28px',
                         boxShadow: isActive ? '0 8px 24px rgba(52, 152, 219, 0.2)' : '0 4px 12px rgba(0,0,0,0.08)',
                         border: isActive ? '2px solid #3498db' : '1px solid #e0e0e0',
                         transition: 'all 0.3s ease'
                       }}>
                         {/* Phase Header */}
-                        <div style={{ marginBottom: '16px' }}>
+                        <div style={{ marginBottom: '24px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                            <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#2c3e50', margin: 0 }}>
+                            <h3 style={{ fontSize: '1.6rem', fontWeight: 700, color: '#2c3e50', margin: 0 }}>
                               {phase.title}
                             </h3>
                             <span style={{
-                              padding: '4px 12px',
+                              padding: '6px 14px',
                               borderRadius: '20px',
-                              fontSize: '0.85rem',
+                              fontSize: '0.9rem',
                               fontWeight: 600,
                               background: isComplete ? '#d4edda' : isActive ? '#cce5ff' : '#f0f0f0',
                               color: isComplete ? '#155724' : isActive ? '#004085' : '#6c757d'
@@ -4014,45 +4011,26 @@ function App() {
                               {isComplete ? 'Complete' : isActive ? 'In Progress' : 'Pending'}
                             </span>
                           </div>
-                          <p style={{ fontSize: '1rem', fontWeight: 600, color: '#7f8c8d', margin: '0 0 4px 0' }}>
+                          <p style={{ fontSize: '1.05rem', fontWeight: 600, color: '#7f8c8d', margin: '0 0 6px 0' }}>
                             {phase.subtitle}
                           </p>
-                          <p style={{ fontSize: '0.95rem', color: '#95a5a6', margin: 0 }}>
+                          <p style={{ fontSize: '1rem', color: '#95a5a6', margin: 0, lineHeight: '1.5' }}>
                             {phase.description}
                           </p>
                         </div>
 
-                        {/* Progress Bar */}
-                        <div style={{ marginBottom: '16px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                            <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#34495e' }}>
-                              Progress: {completedTasks}/{totalTasks} tasks
-                            </span>
-                            <span style={{ fontSize: '1rem', fontWeight: 700, color: isComplete ? '#2ecc71' : '#3498db' }}>
-                              {progress}%
-                            </span>
-                          </div>
-                          <div style={{
-                            width: '100%',
-                            height: '8px',
-                            background: '#e0e0e0',
-                            borderRadius: '4px',
-                            overflow: 'hidden'
-                          }}>
-                            <div style={{
-                              width: `${progress}%`,
-                              height: '100%',
-                              background: isComplete ? '#2ecc71' : 'linear-gradient(90deg, #3498db, #2ecc71)',
-                              transition: 'width 0.3s ease'
-                            }} />
-                          </div>
-                        </div>
-
                         {/* Dates */}
-                        <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
+                        <div style={{ display: 'flex', gap: '20px' }}>
                           <div style={{ flex: 1 }}>
-                            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#7f8c8d', marginBottom: '4px' }}>
-                              Start Date
+                            <label style={{
+                              display: 'block',
+                              fontSize: '1rem',
+                              fontWeight: 700,
+                              color: '#2c3e50',
+                              marginBottom: '8px',
+                              letterSpacing: '0.3px'
+                            }}>
+                              📅 Start Date
                             </label>
                             <input
                               type="date"
@@ -4065,16 +4043,29 @@ function App() {
                               }}
                               style={{
                                 width: '100%',
-                                padding: '8px 12px',
-                                border: '1px solid #ddd',
-                                borderRadius: '6px',
-                                fontSize: '0.95rem'
+                                padding: '12px 16px',
+                                border: '2px solid #ddd',
+                                borderRadius: '8px',
+                                fontSize: '1.05rem',
+                                fontWeight: 600,
+                                color: '#2c3e50',
+                                transition: 'border-color 0.2s ease',
+                                cursor: 'pointer'
                               }}
+                              onFocus={(e) => e.target.style.borderColor = '#3498db'}
+                              onBlur={(e) => e.target.style.borderColor = '#ddd'}
                             />
                           </div>
                           <div style={{ flex: 1 }}>
-                            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#7f8c8d', marginBottom: '4px' }}>
-                              End Date
+                            <label style={{
+                              display: 'block',
+                              fontSize: '1rem',
+                              fontWeight: 700,
+                              color: '#2c3e50',
+                              marginBottom: '8px',
+                              letterSpacing: '0.3px'
+                            }}>
+                              🏁 End Date
                             </label>
                             <input
                               type="date"
@@ -4087,62 +4078,18 @@ function App() {
                               }}
                               style={{
                                 width: '100%',
-                                padding: '8px 12px',
-                                border: '1px solid #ddd',
-                                borderRadius: '6px',
-                                fontSize: '0.95rem'
+                                padding: '12px 16px',
+                                border: '2px solid #ddd',
+                                borderRadius: '8px',
+                                fontSize: '1.05rem',
+                                fontWeight: 600,
+                                color: '#2c3e50',
+                                transition: 'border-color 0.2s ease',
+                                cursor: 'pointer'
                               }}
+                              onFocus={(e) => e.target.style.borderColor = '#3498db'}
+                              onBlur={(e) => e.target.style.borderColor = '#ddd'}
                             />
-                          </div>
-                        </div>
-
-                        {/* Tasks */}
-                        <div>
-                          <h4 style={{ fontSize: '1rem', fontWeight: 600, color: '#2c3e50', marginBottom: '12px' }}>
-                            ✓ Tasks
-                          </h4>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            {(phase.tasks || []).map(task => (
-                              <label key={task.id} style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                padding: '10px 12px',
-                                background: task.done ? '#f0f8ff' : '#fafafa',
-                                borderRadius: '6px',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                                border: task.done ? '1px solid #3498db' : '1px solid #e0e0e0'
-                              }}>
-                                <input
-                                  type="checkbox"
-                                  checked={task.done}
-                                  onChange={(e) => {
-                                    const newData = {...data};
-                                    const phaseTask = newData.timeline[phase.id].tasks.find(t => t.id === task.id);
-                                    if (phaseTask) {
-                                      phaseTask.done = e.target.checked;
-                                      setData(newData);
-                                      saveData(newData);
-                                    }
-                                  }}
-                                  style={{
-                                    width: '18px',
-                                    height: '18px',
-                                    marginRight: '12px',
-                                    cursor: 'pointer',
-                                    accentColor: '#3498db'
-                                  }}
-                                />
-                                <span style={{
-                                  fontSize: '0.95rem',
-                                  color: task.done ? '#7f8c8d' : '#2c3e50',
-                                  textDecoration: task.done ? 'line-through' : 'none',
-                                  fontWeight: task.done ? 400 : 500
-                                }}>
-                                  {task.text}
-                                </span>
-                              </label>
-                            ))}
                           </div>
                         </div>
                       </div>
