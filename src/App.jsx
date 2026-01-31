@@ -3356,11 +3356,11 @@ function App() {
               <div style={{...styles.budgetTitle, background: '#2ecc71'}}>
                 <h3 style={styles.budgetTitleText}>🏠 Home Sale</h3>
               </div>
-              <div style={{padding: '20px'}}>
+              <div style={{padding: '24px'}}>
                 <div style={{marginBottom: '20px'}}>
-                  <label style={{display: 'block', fontWeight: 600, marginBottom: '8px', color: '#2c3e50'}}>Sale Price</label>
+                  <label style={{display: 'block', fontWeight: 700, marginBottom: '12px', color: '#2c3e50', fontSize: '1.3rem', letterSpacing: '0.5px'}}>💰 Sale Price</label>
                   <div style={styles.costInputWrapper}>
-                    <span style={styles.dollarSign}>$</span>
+                    <span style={{...styles.dollarSign, fontSize: '2rem', fontWeight: 800}}>$</span>
                     <input
                       type="number"
                       value={data.financial?.salePrice || ''}
@@ -3370,7 +3370,7 @@ function App() {
                         saveData(newData);
                       }}
                       placeholder="0"
-                      style={{...styles.costField, fontSize: '1.6rem', fontWeight: 700, padding: '12px'}}
+                      style={{...styles.costField, fontSize: '2rem', fontWeight: 800, padding: '16px', minWidth: '200px'}}
                     />
                   </div>
                 </div>
@@ -5835,14 +5835,16 @@ const styles = {
     boxShadow: '0 4px 12px rgba(30, 90, 142, 0.2)'
   },
   budgetGrandTotalLabel: {
-    fontSize: '1rem',
-    fontWeight: '600',
-    color: 'white'
+    fontSize: '1.4rem',
+    fontWeight: '700',
+    color: 'white',
+    letterSpacing: '0.5px'
   },
   budgetGrandTotalValue: {
-    fontSize: '1.25rem',
-    fontWeight: '700',
-    color: 'white'
+    fontSize: '2.5rem',
+    fontWeight: '800',
+    color: 'white',
+    letterSpacing: '1px'
   },
   budgetSection: {
     marginBottom: '20px',
