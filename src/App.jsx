@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { db } from './firebase';
 import { useEntityManager, useListItemManager } from './hooks/useEntityManager';
-import { styles } from './App.styles';
+import { styles, colors } from './App.styles';
 import { doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import {
   Box,

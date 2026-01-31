@@ -1,4 +1,4 @@
-const colors = {
+export const colors = {
   // Primary ocean blues
   pacificBlue: '#1e5a8e',
   pugetSound: '#2968a3',
