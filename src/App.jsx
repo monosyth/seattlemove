@@ -1240,6 +1240,7 @@ function App() {
 
   // Memoized calculation functions for performance
   const overallProgress = useMemo(() => {
+    if (!data.steps) return 0;
     let total = 0;
     let done = 0;
     Object.values(data.steps).forEach(step => {
@@ -1250,19 +1251,22 @@ function App() {
   }, [data.steps]);
 
   const totalTasks = useMemo(() => {
+    if (!data.steps) return 0;
     return Object.values(data.steps).reduce((sum, step) => sum + step.items.length, 0);
   }, [data.steps]);
 
   const completedTasks = useMemo(() => {
+    if (!data.steps) return 0;
     return Object.values(data.steps).reduce((sum, step) => sum + step.items.filter(i => i.done).length, 0);
   }, [data.steps]);
 
   const budgetTotals = useMemo(() => {
+    if (!data.budget) return { must: 0, high: 0, nice: 0, other: 0 };
     return {
-      must: data.budget.must.reduce((sum, item) => sum + (parseFloat(item.cost) || 0), 0),
-      high: data.budget.high.reduce((sum, item) => sum + (parseFloat(item.cost) || 0), 0),
-      nice: data.budget.nice.reduce((sum, item) => sum + (parseFloat(item.cost) || 0), 0),
-      other: data.budget.other.reduce((sum, item) => sum + (parseFloat(item.cost) || 0), 0)
+      must: (data.budget.must || []).reduce((sum, item) => sum + (parseFloat(item.cost) || 0), 0),
+      high: (data.budget.high || []).reduce((sum, item) => sum + (parseFloat(item.cost) || 0), 0),
+      nice: (data.budget.nice || []).reduce((sum, item) => sum + (parseFloat(item.cost) || 0), 0),
+      other: (data.budget.other || []).reduce((sum, item) => sum + (parseFloat(item.cost) || 0), 0)
     };
   }, [data.budget]);
 
