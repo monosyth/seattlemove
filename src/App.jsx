@@ -2066,7 +2066,32 @@ function App() {
                 {/* Realtor Candidates Section - Only for Step 1 */}
                 {activeStep === '1' && (
                   <div style={styles.realtorsSection}>
-                    <h3 style={styles.realtorsSectionTitle}>🏠 Realtor Candidates</h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+                      <h3 style={styles.realtorsSectionTitle}>🏠 Realtor Candidates</h3>
+                      <a
+                        href="compare_three_realtors.html"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          padding: '8px 16px',
+                          background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
+                          color: 'white',
+                          textDecoration: 'none',
+                          borderRadius: '6px',
+                          fontSize: '0.9rem',
+                          fontWeight: 600,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          transition: 'transform 0.2s',
+                          boxShadow: '0 2px 8px rgba(52, 152, 219, 0.3)'
+                        }}
+                        onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                        onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                      >
+                        📊 Compare Top 3
+                      </a>
+                    </div>
 
                     {data.realtors.length === 0 && (
                       <Box sx={{
