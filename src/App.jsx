@@ -2089,7 +2089,7 @@ function App() {
                         onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
                         onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
                       >
-                        📊 Compare Top 3
+                        Compare Realtors
                       </a>
                     </div>
 
