@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Three Realtor Comparison: Emma vs Caitlin Thill vs Joel Blumenfeld</title>
+    <title>Realtor Comparison: Emma vs Caitlin Thill</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
@@ -100,17 +100,124 @@
             color: var(--color-gold-light);
         }
 
-        /* Three-column comparison grid */
+        /* Mobile viewing message */
+        .mobile-landscape-message {
+            display: none;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 767px) and (orientation: portrait) {
+            .mobile-landscape-message {
+                display: block;
+            }
+        }
+
+        /* Two-column comparison grid */
         .comparison-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 2rem;
             margin-bottom: 3rem;
         }
 
-        @media (max-width: 1024px) {
+        /* Only go to single column on very small portrait screens */
+        @media (max-width: 599px) and (orientation: portrait) {
             .comparison-grid {
                 grid-template-columns: 1fr;
+            }
+        }
+
+        /* Keep two columns in landscape mode on phones */
+        @media (min-width: 600px) {
+            .comparison-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Mobile portrait styles - smaller screens */
+        @media (max-width: 599px) and (orientation: portrait) {
+            body {
+                padding: 1rem 0.5rem;
+            }
+
+            header {
+                padding: 1.5rem 0 2rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .recommendation {
+                padding: 1.5rem;
+            }
+
+            .recommendation h2 {
+                font-size: 1.5rem;
+            }
+
+            .realtor-card {
+                padding: 1.5rem;
+            }
+
+            .realtor-card h2 {
+                font-size: 1.6rem;
+            }
+        }
+
+        /* Mobile landscape and tablets - two columns side by side */
+        @media (min-width: 600px) and (max-width: 900px) {
+            body {
+                padding: 1rem;
+            }
+
+            .realtor-card {
+                padding: 1.2rem;
+            }
+
+            .realtor-card h2 {
+                font-size: 1.4rem;
+            }
+
+            .section-title {
+                font-size: 1.2rem;
+            }
+
+            .detail-item p,
+            .highlight-box p,
+            .neutral-box p,
+            .warning-box p {
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Make tables scroll horizontally on all mobile devices */
+        @media (max-width: 900px) {
+            .comparison-table-wrapper {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin: 2rem -0.5rem;
+            }
+
+            .comparison-table {
+                min-width: 600px;
+                font-size: 0.85rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.7rem;
             }
         }
 
@@ -319,17 +426,21 @@
     <div class="container">
         <header>
             <div class="header-label">Interview Analysis · 6739 Green Gables Ave, San Carlos</div>
-            <h1>Three Realtor Comparison</h1>
-            <div class="subtitle">Emma vs Caitlin Thill vs Joel Blumenfeld</div>
+            <h1>Realtor Comparison</h1>
+            <div class="subtitle">Emma vs Caitlin Thill</div>
         </header>
+
+        <!-- Mobile Landscape Message -->
+        <div class="mobile-landscape-message">
+            📱 Turn your phone sideways to see side-by-side comparison
+        </div>
 
         <!-- Recommendation Banner -->
         <div class="recommendation">
             <h2>🏆 VERY CLOSE RACE: Emma Slight Edge (55-45) or Tied (50-50)</h2>
-            <p><strong>Why This Is Now Close:</strong> After removing factors that don't actually differentiate (Concierge = 401k vendors, both 100% hands-on, negotiation roughly equal), this comes down to <strong>Emma's 22 years experience + ultra-local knowledge</strong> vs <strong>Caitlin's Compass prelisting advantage</strong>.</p>
+            <p><strong>Why This Is Close:</strong> After removing factors that don't actually differentiate (Concierge = 401k vendors, both 100% hands-on, negotiation roughly equal), this comes down to <strong>Emma's 22 years experience + ultra-local knowledge</strong> vs <strong>Caitlin's Compass prelisting advantage</strong>.</p>
             <p><strong>Emma's Edge:</strong> 15 more years experience (22 vs 7), went to Green Elementary <em>across the street from your house</em>, most affordable repair estimate ($1-2k clear cost), highest proven volume (228 homes/$250M in 2025), most realistic pricing.</p>
             <p><strong>Caitlin's Edge:</strong> Compass prelisting (early exposure to Compass buyer network before MLS = potential for higher price/faster sale), 9-agent team backup for March deadline emergencies.</p>
-            <p><strong>Joel:</strong> Out of contention due to solo agent risk (single point of failure during critical March timeline).</p>
         </div>
 
         <!-- Three-Column Comparison Cards -->
@@ -482,69 +593,18 @@
                     <p>You noted she negotiated well, but your selling agent was weak. This shows she's competent but isn't a major differentiator - any good agent would have "won" against a weak opponent.</p>
                 </div>
             </div>
-
-            <!-- JOEL -->
-            <div class="realtor-card">
-                <h2>Joel Blumenfeld</h2>
-                <div class="subtitle-text">Compass</div>
-                <span class="badge badge-third">THIRD PLACE</span>
-
-                <div class="section-title">Experience</div>
-                <div class="detail-item">
-                    <strong>16 years full-time</strong>
-                    <p>13 years Berkshire Hathaway, 3 years Compass</p>
-                </div>
-
-                <div class="section-title">Commission</div>
-                <div class="detail-item">
-                    <strong>2.5% + 2.5% buyer = 5% total</strong>
-                </div>
-
-                <div class="section-title">⚠️ Solo Agent Risk</div>
-                <div class="warning-box">
-                    <strong>SINGLE POINT OF FAILURE</strong>
-                    <p>• "I literally take, like, no vacations"<br>
-                    • No experienced backup agent<br>
-                    • If Joel is unavailable during critical March timeline, your $1.5M sale is at risk<br>
-                    • Burnout concern<br>
-                    • <strong>This risk disqualifies Joel from serious consideration</strong></p>
-                </div>
-
-                <div class="section-title">Remote Sales Experience</div>
-                <div class="highlight-box">
-                    <strong>11 years relocation certified</strong>
-                    <p>Formal training, but solo execution = risk</p>
-                </div>
-
-                <div class="section-title">Local Knowledge</div>
-                <div class="highlight-box">
-                    <strong>Born/raised within 6 blocks</strong>
-                    <p>• Family still in Del Cerro<br>
-                    • Remembers your property's backyard<br>
-                    • Went to Patrick Henry High<br>
-                    • Very hyperlocal (though Emma went to school across the street)</p>
-                </div>
-
-                <div class="section-title">Repair Approach</div>
-                <div class="neutral-box">
-                    <strong>Vendor network available</strong>
-                    <p>• Has trusted vendors (10+ years)<br>
-                    • <strong>Can use your 401k to pay vendors</strong><br>
-                    • Compass Concierge available but only used once, not confident with it</p>
-                </div>
-            </div>
         </div>
 
         <!-- Detailed Comparison Table -->
         <h2 class="section-title" style="text-align: center; font-size: 2rem; margin: 4rem 0 2rem;">Side-by-Side Comparison</h2>
 
+        <div class="comparison-table-wrapper">
         <table class="comparison-table">
             <thead>
                 <tr>
                     <th>Category</th>
                     <th>Emma (🏆 SLIGHT EDGE)</th>
                     <th>Caitlin Thill</th>
-                    <th>Joel Blumenfeld</th>
                 </tr>
             </thead>
             <tbody>
@@ -552,70 +612,60 @@
                     <td class="category">Years Experience</td>
                     <td style="background: #E8F5E9;"><strong>22 years (MOST)</strong><br>Licensed 2004</td>
                     <td>7-8 years<br>With O'Byrne Team</td>
-                    <td>16 years<br>13 Berkshire, 3 Compass</td>
                 </tr>
                 <tr>
                     <td class="category">Financing/Vendors</td>
                     <td style="background: #E8F5E9;"><strong>$1-2k estimate (clear cost)</strong><br>In-house handyman, vendors<br>Use 401k to pay</td>
                     <td>Vendor network available<br>Use 401k to pay<br>No cost estimate given</td>
-                    <td>10+ year trusted vendors<br>Use 401k to pay<br>Concierge used once</td>
                 </tr>
                 <tr>
                     <td class="category">Team Structure</td>
                     <td>20-agent team + 7 admin<br><strong>100% hands-on</strong></td>
                     <td style="background: #E8F5E9;">9-agent team<br><strong>100% hands-on</strong></td>
-                    <td style="background: #FFEBEE;"><strong>Solo agent - RISKY</strong><br>"No vacations" = burnout risk</td>
                 </tr>
                 <tr>
                     <td class="category">Remote Sales</td>
                     <td style="background: #E8F5E9;"><strong>50% vacant/remote</strong><br>"We do it all the time"</td>
                     <td style="background: #E8F5E9;"><strong>50%+ out of state</strong><br>Team standard procedure</td>
-                    <td style="background: #E8F5E9;">11 years certified<br>Formal training</td>
                 </tr>
                 <tr>
                     <td class="category">Local Knowledge</td>
                     <td style="background: #E8F5E9;"><strong>⭐ BEST: Green Elementary</strong><br>Across the street!<br>Grew up there, brother lives there</td>
                     <td>Lives in Del Cerro<br>Kids in schools<br>Monthly door-knocking</td>
-                    <td style="background: #E8F5E9;">Born/raised 6 blocks away<br>Family still there</td>
                 </tr>
                 <tr>
                     <td class="category">Sales Volume</td>
                     <td style="background: #E8F5E9;"><strong>228 homes in 2025 ($250M)</strong><br>Avg $1.2-$1.5M</td>
                     <td>Team $50M+ annually<br>80% above $1.5M</td>
-                    <td>Not stated<br>Experienced in range</td>
                 </tr>
                 <tr>
                     <td class="category">Price Estimate</td>
                     <td style="background: #E8F5E9;"><strong>$1.5-$1.55M (realistic)</strong><br>$1.6M needs perfect<br>Honest about market</td>
                     <td>Not stated<br>(likely similar range)</td>
-                    <td>More optimistic<br>Higher potential mentioned</td>
                 </tr>
                 <tr>
                     <td class="category">Staging</td>
                     <td style="background: #E8F5E9;"><strong>Included at her cost</strong><br>In-house stager</td>
                     <td>Team provides staging<br>Details not specified</td>
-                    <td>Details not specified</td>
                 </tr>
                 <tr>
                     <td class="category">Marketing Budget</td>
                     <td style="background: #E8F5E9;"><strong>$10-15k/month</strong><br>Zillow, Google, social</td>
-                    <td>Not specified</td>
                     <td>Not specified</td>
                 </tr>
                 <tr>
                     <td class="category">⭐ Compass Prelisting</td>
                     <td style="background: #FFF3E0;">❌ Not Compass<br>No prelisting access</td>
                     <td style="background: #E8F5E9;"><strong>✓ YES - ADVANTAGE</strong><br>Early exposure to Compass buyers</td>
-                    <td style="background: #E8F5E9;"><strong>✓ YES</strong><br>But solo risk outweighs</td>
                 </tr>
                 <tr>
                     <td class="category">Commission</td>
                     <td>Not stated<br>(typical 5% in area)</td>
                     <td><strong>2.5% + 2.5% = 5%</strong><br>Clearly stated</td>
-                    <td><strong>2.5% + 2.5% = 5%</strong><br>Clearly stated</td>
                 </tr>
             </tbody>
         </table>
+        </div>
 
         <!-- Final Analysis -->
         <div class="final-summary">
@@ -752,7 +802,7 @@
         <div class="footer">
             <p>Interview Analysis: 6739 Green Gables Ave, San Carlos<br>
             Based on complete Otter.ai transcript analysis · January 2026<br>
-            Emma (42 min) vs Caitlin Thill (48 min) vs Joel Blumenfeld (63 min)</p>
+            Emma (42 min) vs Caitlin Thill (48 min)</p>
         </div>
     </div>
 </body>
