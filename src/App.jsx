@@ -2069,7 +2069,7 @@ function App() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
                       <h3 style={styles.realtorsSectionTitle}>🏠 Realtor Candidates</h3>
                       <a
-                        href="compare_three_realtors.html"
+                        href="/compare_three_realtors.html"
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{
