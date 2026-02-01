@@ -4,6 +4,7 @@ import { useEntityManager, useListItemManager } from './hooks/useEntityManager';
 import { styles, colors } from './App.styles';
 import { generateSearchURLs } from './services/geminiService';
 import GeminiTest from './components/GeminiTest';
+import PasswordGate from './components/PasswordGate';
 import { doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import {
   Box,
@@ -543,6 +544,15 @@ function App() {
   const [aiSearchLoading, setAiSearchLoading] = useState(false);
   const [aiSearchError, setAiSearchError] = useState(null);
   const [newDescriptionKeyword, setNewDescriptionKeyword] = useState('');
+  // Password authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check authentication on mount
+  useEffect(() => {
+    const authenticated = sessionStorage.getItem('seattlemove_authenticated') === 'true';
+    setIsAuthenticated(authenticated);
+  }, []);
+
   // List item management using custom hooks
   const checklistItems = useListItemManager();
   const budgetItems = useListItemManager();
@@ -1455,6 +1465,11 @@ function App() {
         </Typography>
       </Container>
     );
+  }
+
+  // Show password gate if not authenticated
+  if (!isAuthenticated) {
+    return <PasswordGate onUnlock={() => setIsAuthenticated(true)} />;
   }
 
   return (
