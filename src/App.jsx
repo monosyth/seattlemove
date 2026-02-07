@@ -3629,74 +3629,6 @@ function App() {
               </button>
             </div>
 
-            {/* Repairs Summary (Detailed view in Step 3) */}
-            <div className="budget-section" style={{...styles.budgetSection, borderColor: '#e67e22'}}>
-              <div style={{...styles.budgetTitle, background: '#e67e22'}}>
-                <div>
-                  <h3 style={styles.budgetTitleText}>🔧 Repairs Summary</h3>
-                  <p style={styles.budgetTitleDesc}>Breakdown of repair costs</p>
-                </div>
-                <span style={styles.budgetTitleTotal}>-${(budgetTotals.must + budgetTotals.high + budgetTotals.nice).toLocaleString()}</span>
-              </div>
-              <div style={{padding: '24px'}}>
-                <div style={{
-                  background: '#fff9f5',
-                  borderRadius: '8px',
-                  padding: '20px',
-                  border: '1px solid #ffe0cc'
-                }}>
-                  <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                      <span style={{fontSize: '0.95rem', color: '#c0392b', fontWeight: 600}}>Must Do (Safety/Inspection)</span>
-                      <span style={{fontSize: '1.1rem', fontWeight: 700, color: '#2c3e50'}}>${budgetTotals.must.toLocaleString()}</span>
-                    </div>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                      <span style={{fontSize: '0.95rem', color: '#e67e22', fontWeight: 600}}>High Impact (Buyers Notice)</span>
-                      <span style={{fontSize: '1.1rem', fontWeight: 700, color: '#2c3e50'}}>${budgetTotals.high.toLocaleString()}</span>
-                    </div>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                      <span style={{fontSize: '0.95rem', color: '#3498db', fontWeight: 600}}>Nice to Have</span>
-                      <span style={{fontSize: '1.1rem', fontWeight: 700, color: '#2c3e50'}}>${budgetTotals.nice.toLocaleString()}</span>
-                    </div>
-                    <div style={{
-                      marginTop: '12px',
-                      paddingTop: '12px',
-                      borderTop: '2px solid #e67e22',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }}>
-                      <span style={{fontSize: '1.1rem', fontWeight: 700, color: '#2c3e50'}}>Total Repairs</span>
-                      <span style={{fontSize: '1.3rem', fontWeight: 800, color: '#e67e22'}}>${(budgetTotals.must + budgetTotals.high + budgetTotals.nice).toLocaleString()}</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setActiveTab('checklist');
-                      setActiveStep('3');
-                    }}
-                    style={{
-                      marginTop: '16px',
-                      width: '100%',
-                      padding: '12px',
-                      background: 'linear-gradient(135deg, #e67e22 0%, #d35400 100%)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '0.95rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      transition: 'transform 0.2s',
-                    }}
-                    onMouseEnter={(e) => e.target.style.transform = 'scale(1.02)'}
-                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                  >
-                    📋 View & Edit Detailed Repairs in Step 3
-                  </button>
-                </div>
-              </div>
-            </div>
-
             {/* Expenses */}
             <div className="budget-section" style={{...styles.budgetSection, borderColor: '#9b59b6'}}>
               <div style={{...styles.budgetTitle, background: '#9b59b6'}}>
@@ -3704,7 +3636,7 @@ function App() {
                   <h3 style={styles.budgetTitleText}>💸 Additional Expenses</h3>
                   <p style={styles.budgetTitleDesc}>Concierge, moving, housing, etc.</p>
                 </div>
-                <span style={styles.budgetTitleTotal}>-${(totalExpenses - (budgetTotals.must + budgetTotals.high + budgetTotals.nice)).toLocaleString()}</span>
+                <span style={styles.budgetTitleTotal}>-${totalExpenses.toLocaleString()}</span>
               </div>
               <table style={styles.budgetTable}>
                 <thead>
