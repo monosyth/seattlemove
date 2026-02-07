@@ -63,155 +63,6 @@ export const colors = {
 };
 
 export const styles = {
-  // Container
-  container: {
-    maxWidth: '900px',
-    margin: '0 auto',
-    padding: '20px',
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'relative',
-    zIndex: 1
-  },
-
-  // Loading
-  loadingContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100vh',
-    color: 'white'
-  },
-  loadingSpinner: {
-    width: '48px',
-    height: '48px',
-    border: '4px solid rgba(255,255,255,0.3)',
-    borderTop: `4px solid ${colors.mist}`,
-    borderRadius: '50%',
-    animation: 'spin 1s linear infinite'
-  },
-  loadingText: {
-    marginTop: '16px',
-    fontSize: '1.1rem'
-  },
-
-  // Header
-  header: {
-    background: `linear-gradient(135deg, ${colors.pacificBlue} 0%, ${colors.teal} 100%)`,
-    backgroundSize: '200% 200%',
-    animation: 'gradientShift 15s ease infinite',
-    borderRadius: '20px',
-    padding: '32px 40px',
-    marginBottom: '24px',
-    boxShadow: '0 4px 16px rgba(30, 90, 142, 0.2)',
-    position: 'relative',
-    overflow: 'hidden'
-  },
-  headerContent: {
-    position: 'relative',
-    zIndex: 1
-  },
-  headerMain: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '20px'
-  },
-  titleSection: {
-    flex: 1,
-    minWidth: '250px'
-  },
-  title: {
-    fontSize: '2.2rem',
-    color: 'white',
-    marginBottom: '8px',
-    fontWeight: '700',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    textShadow: '0 2px 8px rgba(0,0,0,0.15)'
-  },
-  titleIcon: {
-    fontSize: '2.4rem'
-  },
-  subtitle: {
-    color: 'rgba(255,255,255,0.9)',
-    fontSize: '1.05rem',
-    fontWeight: '500',
-    letterSpacing: '0.5px'
-  },
-  saveStatus: {
-    textAlign: 'right',
-    minHeight: '20px'
-  },
-  savingIndicator: {
-    fontSize: '0.85rem',
-    color: 'white',
-    padding: '6px 12px',
-    background: `linear-gradient(135deg, ${colors.turquoise}, ${colors.teal})`,
-    borderRadius: '6px',
-    backdropFilter: 'blur(10px)',
-    fontWeight: '600',
-    animation: 'pulseGlow 1s ease-in-out infinite',
-    boxShadow: '0 2px 8px rgba(26, 188, 156, 0.3)'
-  },
-  savedIndicator: {
-    fontSize: '0.85rem',
-    color: 'white',
-    padding: '6px 12px',
-    background: `linear-gradient(135deg, ${colors.seaweed}, ${colors.emerald})`,
-    borderRadius: '6px',
-    backdropFilter: 'blur(10px)',
-    fontWeight: '600',
-    boxShadow: '0 2px 8px rgba(46, 204, 113, 0.25)'
-  },
-
-  // Tab Navigation
-  tabNav: {
-    display: 'flex',
-    gap: '8px',
-    marginBottom: '16px',
-    flexWrap: 'wrap'
-  },
-  tabBtn: {
-    flex: 1,
-    minWidth: '80px',
-    padding: '12px 16px',
-    border: 'none',
-    borderRadius: '12px',
-    background: 'rgba(255,255,255,0.85)',
-    color: colors.slate,
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '6px'
-  },
-  tabBtnActive: {
-    background: 'white',
-    color: colors.evergreen,
-    boxShadow: '0 4px 15px rgba(45,90,74,0.15)'
-  },
-  tabIcon: {
-    fontSize: '1rem'
-  },
-  tabLabel: {},
-
-  // Main Content
-  main: {
-    background: colors.fog,
-    borderRadius: '16px',
-    padding: '24px',
-    boxShadow: '0 2px 8px rgba(30, 90, 142, 0.08)',
-    flex: 1
-  },
-
   // Checklist
   checklistContainer: {},
   stepTabs: {
@@ -755,12 +606,6 @@ export const styles = {
     gap: '10px',
     marginBottom: '8px'
   },
-  realtorName: {
-    margin: 0,
-    fontSize: '1rem',
-    fontWeight: '600',
-    color: colors.charcoal
-  },
   recommendedBadge: {
     background: `linear-gradient(135deg, ${colors.turquoise}, ${colors.teal})`,
     color: 'white',
@@ -769,11 +614,6 @@ export const styles = {
     padding: '2px 8px',
     borderRadius: '10px',
     boxShadow: '0 2px 6px rgba(26, 188, 156, 0.25)'
-  },
-  realtorDetail: {
-    margin: '4px 0',
-    fontSize: '0.85rem',
-    color: colors.slate
   },
   realtorNotes: {
     margin: '8px 0 0 0',
@@ -789,33 +629,6 @@ export const styles = {
     color: colors.evergreen,
     textDecoration: 'none',
     fontWeight: '500'
-  },
-  realtorActions: {
-    display: 'flex',
-    gap: '8px',
-    marginTop: '10px',
-    paddingTop: '10px',
-    borderTop: `1px solid ${colors.mist}`
-  },
-  realtorStarBtn: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '1.1rem',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    color: colors.slate,
-    transition: 'all 0.2s'
-  },
-  realtorUnstarBtn: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '1.1rem',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    color: colors.golden,
-    transition: 'all 0.2s'
   },
   realtorEditBtn: {
     background: 'none',
@@ -843,27 +656,6 @@ export const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: '8px'
-  },
-  realtorInput: {
-    padding: '10px 12px',
-    border: `1px solid ${colors.mist}`,
-    borderRadius: '6px',
-    fontSize: '0.9rem',
-    outline: 'none'
-  },
-  realtorTextarea: {
-    padding: '10px 12px',
-    border: `1px solid ${colors.mist}`,
-    borderRadius: '6px',
-    fontSize: '0.9rem',
-    outline: 'none',
-    resize: 'vertical',
-    fontFamily: 'inherit'
-  },
-  realtorEditActions: {
-    display: 'flex',
-    gap: '8px',
-    marginTop: '4px'
   },
   realtorSaveBtn: {
     padding: '10px 20px',
@@ -1344,54 +1136,6 @@ export const styles = {
     marginBottom: '16px',
     fontWeight: '600'
   },
-  budgetLineItems: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-    marginBottom: '12px'
-  },
-  budgetLineItem: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '14px 16px',
-    background: 'white',
-    borderRadius: '10px'
-  },
-  budgetLineItemName: {
-    fontSize: '1rem',
-    fontWeight: '600',
-    color: colors.charcoal
-  },
-  budgetLineItemValue: {
-    fontSize: '1.1rem',
-    fontWeight: '700',
-    color: colors.evergreen
-  },
-  budgetGrandTotal: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '16px',
-    background: `linear-gradient(135deg, ${colors.pacificBlue}, ${colors.teal})`,
-    backgroundSize: '200% 200%',
-    animation: 'gradientShift 10s ease infinite',
-    borderRadius: '10px',
-    marginTop: '4px',
-    boxShadow: '0 4px 12px rgba(30, 90, 142, 0.2)'
-  },
-  budgetGrandTotalLabel: {
-    fontSize: '1.4rem',
-    fontWeight: '700',
-    color: 'white',
-    letterSpacing: '0.5px'
-  },
-  budgetGrandTotalValue: {
-    fontSize: '2.5rem',
-    fontWeight: '800',
-    color: 'white',
-    letterSpacing: '1px'
-  },
   budgetSection: {
     marginBottom: '20px',
     borderRadius: '12px',
@@ -1443,22 +1187,6 @@ export const styles = {
     fontSize: '0.9rem',
     verticalAlign: 'middle'
   },
-  budgetRowDone: {
-    background: colors.fog,
-    opacity: 0.7
-  },
-  budgetItemName: {
-    color: colors.mountain
-  },
-  budgetItemNameDone: {
-    color: colors.rain,
-    textDecoration: 'line-through'
-  },
-  budgetDoneCheck: {
-    color: colors.complete,
-    marginRight: '6px',
-    fontWeight: 'bold'
-  },
   budgetTableInput: {
     width: '100%',
     padding: '8px 10px',
@@ -1473,11 +1201,6 @@ export const styles = {
     justifyContent: 'flex-end',
     minWidth: '180px'
   },
-  budgetTableActions: {
-    display: 'flex',
-    gap: '4px',
-    justifyContent: 'center'
-  },
   budgetTableBtn: {
     background: 'none',
     border: 'none',
@@ -1487,78 +1210,6 @@ export const styles = {
     borderRadius: '4px',
     opacity: 0.6,
     transition: 'opacity 0.2s'
-  },
-  addBudgetRowForm: {
-    display: 'flex',
-    gap: '8px',
-    padding: '12px 16px',
-    background: colors.fog,
-    borderTop: `1px solid ${colors.mist}`
-  },
-  addBudgetInput: {
-    flex: 1,
-    padding: '10px 12px',
-    border: `1px solid ${colors.mist}`,
-    borderRadius: '6px',
-    fontSize: '0.9rem',
-    outline: 'none'
-  },
-  budgetItemsList: {
-    padding: '12px'
-  },
-  budgetItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '10px 12px',
-    borderRadius: '8px',
-    transition: 'all 0.2s',
-    background: colors.fog,
-    marginBottom: '8px',
-    border: `1px solid ${colors.mist}`
-  },
-  budgetItemDone: {
-    opacity: 0.6
-  },
-  budgetItemDragging: {
-    opacity: 0.4,
-    background: colors.paleBlue,
-    border: `2px dashed ${colors.slate}`,
-    transform: 'scale(0.98)'
-  },
-  budgetItemDropTarget: {
-    borderTop: `4px solid ${colors.turquoise}`,
-    background: `linear-gradient(180deg, rgba(26, 188, 156, 0.1) 0%, ${colors.fog} 20%)`,
-    transform: 'translateY(2px)',
-    boxShadow: '0 0 15px rgba(26, 188, 156, 0.2)'
-  },
-  budgetItemText: {
-    flex: 1,
-    color: colors.mountain,
-    fontSize: '0.9rem',
-    cursor: 'pointer'
-  },
-  budgetItemTextDone: {
-    flex: 1,
-    color: colors.rain,
-    textDecoration: 'line-through',
-    fontSize: '0.9rem',
-    cursor: 'pointer'
-  },
-  budgetItemEditForm: {
-    flex: 1,
-    display: 'flex'
-  },
-  budgetCostWrapper: {
-    display: 'flex',
-    alignItems: 'center',
-    marginLeft: '8px'
-  },
-  budgetItemActions: {
-    display: 'flex',
-    gap: '4px',
-    marginLeft: '8px',
-    flexShrink: 0
   },
   addBudgetItemBtn: {
     width: 'calc(100% - 24px)',
@@ -1579,22 +1230,6 @@ export const styles = {
       transform: 'translateY(-2px)'
     }
   },
-  budgetSubtotal: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '12px 16px',
-    background: colors.fog,
-    borderTop: `1px solid ${colors.mist}`,
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    color: colors.mountain
-  },
-  budgetSubtotalAmount: {
-    color: colors.turquoise,
-    fontSize: '1rem',
-    fontWeight: '700'
-  },
   dollarSign: {
     color: colors.slate,
     marginRight: '4px',
@@ -1609,179 +1244,6 @@ export const styles = {
     fontSize: '0.85rem',
     textAlign: 'right',
     background: 'white'
-  },
-  grandTotal: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    background: `linear-gradient(135deg, ${colors.evergreen}, ${colors.forest})`,
-    color: 'white',
-    padding: '20px 24px',
-    borderRadius: '12px',
-    fontSize: '1.1rem',
-    fontWeight: 'bold'
-  },
-  grandTotalAmount: {
-    fontSize: '1.5rem'
-  },
-
-  // Timeline
-  timelineWrapper: {},
-  timelineContainer: {
-    position: 'relative',
-    paddingLeft: '30px'
-  },
-  timelineItem: {
-    position: 'relative',
-    paddingBottom: '24px',
-    paddingLeft: '30px',
-    marginLeft: '15px',
-    backgroundColor: colors.cloud,
-    padding: '12px 14px 12px 30px',
-    borderRadius: '6px',
-    marginBottom: '8px'
-  },
-  timelineDot: {
-    position: 'absolute',
-    left: '-15px',
-    width: '30px',
-    height: '30px',
-    color: 'white',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontWeight: 'bold',
-    fontSize: '0.85rem'
-  },
-  timelineContent: {
-    background: colors.fog,
-    borderRadius: '12px',
-    padding: '16px',
-    border: `1px solid ${colors.mist}`
-  },
-  timelineHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '12px',
-    flexWrap: 'wrap',
-    gap: '8px'
-  },
-  timelineTitle: {
-    fontSize: '1rem',
-    color: colors.evergreen,
-    fontWeight: '600',
-    margin: 0
-  },
-  timelineDateBadge: {
-    background: colors.skyBlue,
-    color: 'white',
-    padding: '4px 10px',
-    borderRadius: '12px',
-    fontSize: '0.75rem',
-    fontWeight: '500'
-  },
-  timelineDateRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    marginBottom: '12px'
-  },
-  timelineLabel: {
-    fontSize: '0.85rem',
-    color: colors.slate
-  },
-  dateInput: {
-    padding: '8px 12px',
-    border: `1px solid ${colors.mist}`,
-    borderRadius: '8px',
-    fontSize: '0.9rem'
-  },
-  timelineProgress: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px'
-  },
-  timelineProgressBar: {
-    flex: 1,
-    height: '6px',
-    background: colors.mist,
-    borderRadius: '3px',
-    overflow: 'hidden'
-  },
-  timelineProgressFill: {
-    height: '100%',
-    transition: 'width 0.3s ease'
-  },
-  timelineProgressText: {
-    fontSize: '0.8rem',
-    color: colors.slate,
-    whiteSpace: 'nowrap'
-  },
-
-  // Notes
-  notesContainer: {
-    backgroundColor: colors.cloud,
-    padding: '20px',
-    borderRadius: '12px',
-    marginBottom: '24px'
-  },
-  notesTitle: {
-    fontSize: '1.3rem',
-    color: colors.evergreen,
-    marginBottom: '20px',
-    fontWeight: '600'
-  },
-  notesGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: '16px',
-    marginBottom: '24px'
-  },
-  reminderBox: {
-    background: colors.paleBlue,
-    border: `2px solid ${colors.mist}`,
-    borderRadius: '12px',
-    padding: '16px'
-  },
-  reminderTitle: {
-    color: colors.deepBlue,
-    marginBottom: '12px',
-    fontSize: '1rem',
-    fontWeight: '600'
-  },
-  reminderList: {
-    listStyle: 'none',
-    padding: 0,
-    margin: 0
-  },
-  reminderItem: {
-    marginBottom: '10px',
-    fontSize: '0.9rem',
-    color: colors.mountain,
-    lineHeight: '1.5'
-  },
-  notesInputSection: {},
-  notesLabel: {
-    display: 'block',
-    fontSize: '0.9rem',
-    color: colors.forest,
-    marginBottom: '8px',
-    fontWeight: '500'
-  },
-  notesTextarea: {
-    width: '100%',
-    minHeight: '180px',
-    padding: '16px',
-    border: `2px solid ${colors.mist}`,
-    borderRadius: '12px',
-    fontSize: '1rem',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
-    resize: 'vertical',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-    lineHeight: '1.5'
   },
 
   // History
@@ -1896,14 +1358,4 @@ export const styles = {
     marginRight: '6px'
   },
 
-  // Footer
-  footer: {
-    textAlign: 'center',
-    padding: '16px',
-    marginTop: '16px'
-  },
-  footerText: {
-    color: 'rgba(255,255,255,0.9)',
-    fontSize: '0.85rem'
-  }
 };

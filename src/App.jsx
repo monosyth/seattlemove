@@ -19,22 +19,11 @@ import {
   Chip,
   IconButton,
   Stack,
-  Divider,
   LinearProgress,
   Checkbox,
   FormControlLabel,
   Grid,
-  InputAdornment,
-  Tooltip,
-  Badge,
-  Fade,
-  Grow,
-  Slide,
-  Collapse,
-  Alert,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails
+  Alert
 } from '@mui/material';
 import {
   Home as HomeIcon,
@@ -513,7 +502,7 @@ const DOCUMENT_ID = 'seattle-move-data';
 const NOTE_CATEGORIES = {
   property: { label: '🏠 Property', color: '#3498db' },
   contacts: { label: '📞 Contacts', color: '#9b59b6' },
-  ideas: { label: '💭 Ideas', color: '#2ecc71' },
+  ideas: { label: '💭 Ideas', color: colors.seaweed },
   important: { label: '❗ Important', color: '#e74c3c' },
   seattle: { label: '📍 Seattle', color: '#f39c12' }
 };
@@ -572,7 +561,6 @@ function App() {
       }
       setLoading(false);
     }, (error) => {
-      console.error('Error loading data:', error);
       setLoading(false);
     });
     return () => unsubscribe();
@@ -588,7 +576,6 @@ function App() {
       const entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setChangelog(entries);
     } catch (error) {
-      console.error('Error loading changelog:', error);
     }
     setChangelogLoading(false);
   };
@@ -605,7 +592,6 @@ function App() {
         timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Error adding changelog entry:', error);
     }
   };
 
@@ -615,7 +601,6 @@ function App() {
       await setDoc(doc(db, 'seattle-move', DOCUMENT_ID), newData);
       setLastSaved(new Date());
     } catch (error) {
-      console.error('Error saving:', error);
     }
     setSaving(false);
   };
@@ -1258,7 +1243,6 @@ function App() {
         `Searched for ${criteria.bedrooms.min}-${criteria.bedrooms.max} bed, max $${criteria.priceRange.max}`
       );
     } catch (error) {
-      console.error('AI search error:', error);
       setAiSearchError(error.message || 'Failed to generate search URLs. Please try again.');
     } finally {
       setAiSearchLoading(false);
@@ -1439,7 +1423,6 @@ function App() {
       setLastSaved(new Date());
       window.location.reload(); // Reload to see the changes
     } catch (error) {
-      console.error('Error syncing realtors:', error);
       alert('❌ Error syncing realtors: ' + error.message);
     }
     setSaving(false);
@@ -1462,7 +1445,7 @@ function App() {
       <Paper
         elevation={0}
         sx={{
-          background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
+          background: `linear-gradient(135deg, ${colors.pacificBlue} 0%, ${colors.teal} 100%)`,
           backgroundSize: '200% 200%',
           animation: 'gradientShift 15s ease infinite',
           borderRadius: 3,
@@ -1501,7 +1484,7 @@ function App() {
                 textShadow: '0 2px 8px rgba(0,0,0,0.15)'
               }}
             >
-              <HomeIcon sx={{ fontSize: '2.4rem', color: '#7fffd4', filter: 'drop-shadow(0 2px 4px rgba(127, 255, 212, 0.3))' }} />
+              <HomeIcon sx={{ fontSize: '2.4rem', color: colors.aquamarine, filter: 'drop-shadow(0 2px 4px rgba(127, 255, 212, 0.3))' }} />
               Seattle Move Planner
             </Typography>
             <Typography
@@ -1533,9 +1516,9 @@ function App() {
           <Stack direction="row" spacing={2}>
             <Box>
               {saving ? (
-                <Chip label="💾 Saving..." color="default" sx={{ background: 'linear-gradient(135deg, #1abc9c, #00d4ff)', color: 'white', fontWeight: 600, animation: 'pulseGlow 1s ease-in-out infinite', boxShadow: '0 0 10px rgba(26, 188, 156, 0.5)' }} />
+                <Chip label="💾 Saving..." color="default" sx={{ background: `linear-gradient(135deg, ${colors.turquoise}, #00d4ff)`, color: 'white', fontWeight: 600, animation: 'pulseGlow 1s ease-in-out infinite', boxShadow: '0 0 10px rgba(26, 188, 156, 0.5)' }} />
               ) : lastSaved ? (
-                <Chip label={`✓ Saved ${lastSaved.toLocaleTimeString()}`} color="default" sx={{ background: 'linear-gradient(135deg, #2ecc71, #00a86b)', color: 'white', fontWeight: 600, boxShadow: '0 0 10px rgba(46, 204, 113, 0.4)' }} />
+                <Chip label={`✓ Saved ${lastSaved.toLocaleTimeString()}`} color="default" sx={{ background: `linear-gradient(135deg, ${colors.seaweed}, #00a86b)`, color: 'white', fontWeight: 600, boxShadow: '0 0 10px rgba(46, 204, 113, 0.4)' }} />
               ) : null}
             </Box>
           </Stack>
@@ -1617,7 +1600,7 @@ function App() {
               }
             },
             '& .MuiTabs-indicator': {
-              background: 'linear-gradient(135deg, #1e5a8e 0%, #2b9298 100%)',
+              background: `linear-gradient(135deg, ${colors.pacificBlue} 0%, ${colors.teal} 100%)`,
               height: 4,
               borderRadius: '4px 4px 0 0'
             }
@@ -2247,11 +2230,11 @@ function App() {
                                   <div style={{
                                     padding: '8px 12px',
                                     background: 'linear-gradient(135deg, rgba(30, 90, 142, 0.1), rgba(43, 146, 152, 0.1))',
-                                    borderLeft: '3px solid #2b9298',
+                                    borderLeft: `3px solid ${colors.teal}`,
                                     marginBottom: '12px',
                                     borderRadius: '4px'
                                   }}>
-                                    <strong style={{ color: '#1e5a8e', fontSize: '0.9rem' }}>
+                                    <strong style={{ color: colors.pacificBlue, fontSize: '0.9rem' }}>
                                       #{realtor.rank} • {realtor.specialty}
                                     </strong>
                                   </div>
@@ -2284,7 +2267,7 @@ function App() {
                                     marginBottom: '12px',
                                     fontSize: '0.85rem'
                                   }}>
-                                    <div style={{ fontWeight: 600, color: '#2b9298', marginBottom: '6px' }}>📊 Performance Metrics</div>
+                                    <div style={{ fontWeight: 600, color: colors.teal, marginBottom: '6px' }}>📊 Performance Metrics</div>
                                     {realtor.homesSold && <p style={{ margin: '4px 0', color: '#555' }}>• Homes Sold: <strong>{realtor.homesSold}</strong></p>}
                                     {realtor.avgDaysOnMarket && <p style={{ margin: '4px 0', color: '#555' }}>• Avg Days on Market: <strong>{realtor.avgDaysOnMarket}</strong></p>}
                                     {realtor.saleToListRatio && <p style={{ margin: '4px 0', color: '#555' }}>• Sale-to-List Ratio: <strong>{realtor.saleToListRatio}</strong></p>}
@@ -2301,7 +2284,7 @@ function App() {
                                     marginBottom: '12px',
                                     fontSize: '0.85rem'
                                   }}>
-                                    <div style={{ fontWeight: 600, color: '#1e5a8e', marginBottom: '6px' }}>📍 Market Focus</div>
+                                    <div style={{ fontWeight: 600, color: colors.pacificBlue, marginBottom: '6px' }}>📍 Market Focus</div>
                                     {realtor.neighborhoods && <p style={{ margin: '4px 0', color: '#555' }}>• Neighborhoods: <strong>{realtor.neighborhoods}</strong></p>}
                                     {realtor.priceRange && <p style={{ margin: '4px 0', color: '#555' }}>• Price Range: <strong>{realtor.priceRange}</strong></p>}
                                   </div>
@@ -3373,7 +3356,7 @@ function App() {
               <h3 style={styles.budgetSummaryTitle}>💰 Financials</h3>
               <div style={{display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'stretch'}}>
                 {/* Sale Price */}
-                <div style={{flex: '1 1 300px', minWidth: '300px', background: 'linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)', borderRadius: '12px', padding: '24px', display: 'flex', flexDirection: 'column'}}>
+                <div style={{flex: '1 1 300px', minWidth: '300px', background: `linear-gradient(135deg, ${colors.seaweed} 0%, ${colors.emerald} 100%)`, borderRadius: '12px', padding: '24px', display: 'flex', flexDirection: 'column'}}>
                   <label style={{fontSize: '1.2rem', fontWeight: 700, color: 'white', marginBottom: '12px', letterSpacing: '0.5px', opacity: 0.95}}>
                     🏠 Sale Price
                   </label>
@@ -3419,8 +3402,8 @@ function App() {
             </div>
 
             {/* Home Sale Details */}
-            <div className="budget-section" style={{...styles.budgetSection, borderColor: '#2ecc71'}}>
-              <div style={{...styles.budgetTitle, background: '#2ecc71'}}>
+            <div className="budget-section" style={{...styles.budgetSection, borderColor: colors.seaweed}}>
+              <div style={{...styles.budgetTitle, background: colors.seaweed}}>
                 <h3 style={styles.budgetTitleText}>🏠 Home Sale Details</h3>
               </div>
               <div style={{padding: '24px'}}>
@@ -3431,7 +3414,7 @@ function App() {
                   borderLeft: '4px solid #e74c3c'
                 }}>
                   <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px'}}>
-                    <span style={{fontSize: '1rem', fontWeight: 600, color: '#2c3e50'}}>Realtor Fees:</span>
+                    <span style={{fontSize: '1rem', fontWeight: 600, color: colors.charcoal}}>Realtor Fees:</span>
                     <div style={{display: 'flex', alignItems: 'center', gap: '6px'}}>
                       {editingFinancialItemId === 'realtorFeePercentage' ? (
                         <input
@@ -3594,7 +3577,7 @@ function App() {
                   {(data.financial?.fixedDebts || []).length > 0 && (
                     <tr style={{borderTop: '2px solid #e74c3c'}}>
                       <td style={{...styles.budgetTd, paddingTop: '12px', paddingBottom: '12px'}}>
-                        <span style={{fontSize: '1.05rem', fontWeight: 700, color: '#2c3e50'}}>
+                        <span style={{fontSize: '1.05rem', fontWeight: 700, color: colors.charcoal}}>
                           Subtotal (excluding mortgage)
                         </span>
                       </td>
@@ -4016,7 +3999,7 @@ function App() {
                     border: '1px solid #e0e0e0'
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                      <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#2c3e50' }}>
+                      <span style={{ fontSize: '1.1rem', fontWeight: 700, color: colors.charcoal }}>
                         Overall Progress
                       </span>
                       <span style={{ fontSize: '1.3rem', fontWeight: 700, color: '#3498db' }}>
@@ -4034,7 +4017,7 @@ function App() {
                       <div style={{
                         width: `${progressPercent}%`,
                         height: '100%',
-                        background: 'linear-gradient(90deg, #3498db 0%, #2ecc71 100%)',
+                        background: `linear-gradient(90deg, #3498db 0%, ${colors.seaweed} 100%)`,
                         transition: 'width 0.5s ease',
                         boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
                       }} />
@@ -4056,7 +4039,7 @@ function App() {
                   top: '24px',
                   bottom: '80px',
                   width: '3px',
-                  background: 'linear-gradient(180deg, #3498db 0%, #2ecc71 100%)',
+                  background: `linear-gradient(180deg, #3498db 0%, ${colors.seaweed} 100%)`,
                   zIndex: 0
                 }} />
 
@@ -4077,7 +4060,7 @@ function App() {
                         width: '48px',
                         height: '48px',
                         borderRadius: '50%',
-                        background: isComplete ? '#2ecc71' : isActive ? '#3498db' : '#e0e0e0',
+                        background: isComplete ? colors.seaweed : isActive ? '#3498db' : '#e0e0e0',
                         border: '4px solid white',
                         boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                         display: 'flex',
@@ -4101,7 +4084,7 @@ function App() {
                         {/* Phase Header */}
                         <div style={{ marginBottom: '24px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                            <h3 style={{ fontSize: '1.6rem', fontWeight: 700, color: '#2c3e50', margin: 0 }}>
+                            <h3 style={{ fontSize: '1.6rem', fontWeight: 700, color: colors.charcoal, margin: 0 }}>
                               {phase.title}
                             </h3>
                             <span style={{
@@ -4129,7 +4112,7 @@ function App() {
                             display: 'block',
                             fontSize: '1.05rem',
                             fontWeight: 700,
-                            color: '#2c3e50',
+                            color: colors.charcoal,
                             marginBottom: '10px',
                             letterSpacing: '0.3px'
                           }}>
@@ -4151,7 +4134,7 @@ function App() {
                               borderRadius: '8px',
                               fontSize: '1.1rem',
                               fontWeight: 600,
-                              color: '#2c3e50',
+                              color: colors.charcoal,
                               transition: 'border-color 0.2s ease',
                               cursor: 'pointer'
                             }}
@@ -4207,7 +4190,7 @@ function App() {
 
                 {/* Search Criteria Form */}
                 <Box sx={{ background: 'white', borderRadius: 2, padding: 3, marginBottom: 3 }}>
-                  <Typography variant="h6" sx={{ marginBottom: 2, color: '#2c3e50' }}>Search Criteria</Typography>
+                  <Typography variant="h6" sx={{ marginBottom: 2, color: colors.charcoal }}>Search Criteria</Typography>
 
                   <Grid container spacing={2}>
                     {/* Bedrooms */}
@@ -4373,7 +4356,7 @@ function App() {
                 {/* Generated URLs Display */}
                 {(data.aiRentalFinder.generatedURLs.zillow || data.aiRentalFinder.generatedURLs.redfin || data.aiRentalFinder.generatedURLs.hotpads) && (
                   <Box sx={{ background: 'white', borderRadius: 2, padding: 3 }}>
-                    <Typography variant="h6" sx={{ marginBottom: 2, color: '#2c3e50' }}>🔗 Generated Search URLs</Typography>
+                    <Typography variant="h6" sx={{ marginBottom: 2, color: colors.charcoal }}>🔗 Generated Search URLs</Typography>
                     <Typography variant="body2" sx={{ marginBottom: 2, color: '#7f8c8d' }}>
                       Click to open searches in new tabs. Browse the listings and add ones you like manually below.
                     </Typography>
@@ -4455,7 +4438,7 @@ function App() {
 
               {/* Seattle Neighborhoods Section */}
               <Box sx={{ background: 'white', borderRadius: 3, padding: 4, marginBottom: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-                <Typography variant="h3" sx={{ fontSize: '1.8rem', fontWeight: 700, color: '#2c3e50', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="h3" sx={{ fontSize: '1.8rem', fontWeight: 700, color: colors.charcoal, marginBottom: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
                   🏘️ Seattle Neighborhoods to Research
                   <Chip label={`${data.neighborhoods?.length || 0} neighborhoods`} size="small" color="success" />
                 </Typography>
@@ -4511,7 +4494,7 @@ function App() {
                       <Grid item xs={12} md={6} key={hood.id}>
                         <Card>
                           <CardContent>
-                            <Typography variant="h6" sx={{ fontWeight: 700, color: '#2c3e50', marginBottom: 1 }}>
+                            <Typography variant="h6" sx={{ fontWeight: 700, color: colors.charcoal, marginBottom: 1 }}>
                               {hood.name}
                             </Typography>
                             {hood.priceRange && (
@@ -4519,7 +4502,7 @@ function App() {
                             )}
                             {hood.pros && (
                               <Box sx={{ marginBottom: 1 }}>
-                                <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#27ae60' }}>✓ Pros:</Typography>
+                                <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: colors.emerald }}>✓ Pros:</Typography>
                                 <Typography sx={{ fontSize: '0.85rem', color: '#555' }}>{hood.pros}</Typography>
                               </Box>
                             )}
@@ -4567,7 +4550,7 @@ function App() {
 
               {/* Short-Term Rentals Section (1 month) */}
               <Box sx={{ background: 'white', borderRadius: 3, padding: 4, marginBottom: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-                <Typography variant="h3" sx={{ fontSize: '1.8rem', fontWeight: 700, color: '#2c3e50', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="h3" sx={{ fontSize: '1.8rem', fontWeight: 700, color: colors.charcoal, marginBottom: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
                   🏠 Short-Term Rentals (1 Month)
                   <Chip label={`${data.rentalProperties?.filter(p => p.duration === 'short').length || 0} options`} size="small" sx={{ background: '#e74c3c', color: 'white' }} />
                 </Typography>
@@ -4651,7 +4634,7 @@ function App() {
                             )}
                             <Chip label="1 MONTH" size="small" sx={{ background: '#e74c3c', color: 'white', marginBottom: 1, marginLeft: property.interested ? 1 : 0 }} />
 
-                            <Typography variant="h6" sx={{ fontWeight: 700, color: '#2c3e50', marginBottom: 1 }}>
+                            <Typography variant="h6" sx={{ fontWeight: 700, color: colors.charcoal, marginBottom: 1 }}>
                               {property.address}
                             </Typography>
 
@@ -4670,7 +4653,7 @@ function App() {
                                 </Typography>
                               )}
                               {property.petFriendly && (
-                                <Chip label="🐾 Pet Friendly" size="small" sx={{ background: '#2ecc71', color: 'white' }} />
+                                <Chip label="🐾 Pet Friendly" size="small" sx={{ background: colors.seaweed, color: 'white' }} />
                               )}
                             </Stack>
 
@@ -4726,9 +4709,9 @@ function App() {
 
               {/* Long-Term Rentals Section (1 year) */}
               <Box sx={{ background: 'white', borderRadius: 3, padding: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-                <Typography variant="h3" sx={{ fontSize: '1.8rem', fontWeight: 700, color: '#2c3e50', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="h3" sx={{ fontSize: '1.8rem', fontWeight: 700, color: colors.charcoal, marginBottom: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
                   🏢 Long-Term Rentals (1 Year Lease)
-                  <Chip label={`${data.rentalProperties?.filter(p => p.duration === 'long').length || 0} options`} size="small" sx={{ background: '#27ae60', color: 'white' }} />
+                  <Chip label={`${data.rentalProperties?.filter(p => p.duration === 'long').length || 0} options`} size="small" sx={{ background: colors.emerald, color: 'white' }} />
                 </Typography>
 
                 <Typography sx={{ fontSize: '0.95rem', color: '#7f8c8d', marginBottom: 3, fontStyle: 'italic' }}>
@@ -4752,7 +4735,7 @@ function App() {
 
                 {/* Add Property Form */}
                 {properties.adding && properties.newData.duration === 'long' && (
-                  <Box sx={{ background: '#e8f5e9', padding: 3, borderRadius: 2, marginBottom: 3, border: '2px solid #27ae60' }}>
+                  <Box sx={{ background: '#e8f5e9', padding: 3, borderRadius: 2, marginBottom: 3, border: `2px solid ${colors.emerald}` }}>
                     <Typography variant="h6" sx={{ marginBottom: 2, color: '#1e8449' }}>Add Long-Term Rental (1 Year)</Typography>
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
@@ -4803,14 +4786,14 @@ function App() {
                   <Grid container spacing={3}>
                     {data.rentalProperties.filter(p => p.duration === 'long').map(property => (
                       <Grid item xs={12} md={6} key={property.id}>
-                        <Card sx={{ border: property.interested ? '2px solid #3498db' : '1px solid #27ae60', background: '#f0fdf4' }}>
+                        <Card sx={{ border: property.interested ? '2px solid #3498db' : `1px solid ${colors.emerald}`, background: '#f0fdf4' }}>
                           <CardContent>
                             {property.interested && (
                               <Chip label="⭐ Interested" size="small" sx={{ background: '#3498db', color: 'white', marginBottom: 1 }} />
                             )}
-                            <Chip label="1 YEAR LEASE" size="small" sx={{ background: '#27ae60', color: 'white', marginBottom: 1, marginLeft: property.interested ? 1 : 0 }} />
+                            <Chip label="1 YEAR LEASE" size="small" sx={{ background: colors.emerald, color: 'white', marginBottom: 1, marginLeft: property.interested ? 1 : 0 }} />
 
-                            <Typography variant="h6" sx={{ fontWeight: 700, color: '#2c3e50', marginBottom: 1 }}>
+                            <Typography variant="h6" sx={{ fontWeight: 700, color: colors.charcoal, marginBottom: 1 }}>
                               {property.address}
                             </Typography>
 
@@ -4829,7 +4812,7 @@ function App() {
                                 </Typography>
                               )}
                               {property.petFriendly && (
-                                <Chip label="🐾 Pet Friendly" size="small" sx={{ background: '#2ecc71', color: 'white' }} />
+                                <Chip label="🐾 Pet Friendly" size="small" sx={{ background: colors.seaweed, color: 'white' }} />
                               )}
                             </Stack>
 
