@@ -1406,9 +1406,8 @@ function App() {
     const expenses = (data.financial?.expenses || []).reduce((sum, item) => {
       return sum + (parseFloat(item.amount) || 0);
     }, 0);
-    const repairs = budgetTotals.must + budgetTotals.high + budgetTotals.nice;
     const moving = budgetTotals.other;
-    return expenses + repairs + moving;
+    return expenses + moving;
   }, [data.financial?.expenses, budgetTotals]);
 
   const totalFunding = useMemo(() => {
