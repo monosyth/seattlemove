@@ -662,13 +662,18 @@ function App() {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
       if (docSnap.exists()) {
         const firebaseData = docSnap.data();
-        // Merge Firebase data with initialData to ensure all steps exist
+        // Deep merge Firebase data with initialData to ensure defaults exist
+        // Firebase data takes priority over initialData for all fields
         const mergedData = {
           ...initialData,
           ...firebaseData,
           steps: {
             ...initialData.steps,
-            ...firebaseData.steps
+            ...(firebaseData.steps || {})
+          },
+          financial: {
+            ...initialData.financial,
+            ...(firebaseData.financial || {})
           }
         };
         setData(mergedData);
@@ -710,6 +715,8 @@ function App() {
   };
 
   const saveData = async (newData) => {
+    // Prevent saving before Firebase data has loaded to avoid overwriting real data with defaults
+    if (loading) return;
     setSaving(true);
     try {
       await setDoc(doc(db, 'seattle-move', DOCUMENT_ID), newData);
