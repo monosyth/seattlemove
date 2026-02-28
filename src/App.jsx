@@ -3622,24 +3622,32 @@ function App() {
                             onChange={(e) => setEditFinancialItemText(e.target.value)}
                             onKeyPress={(e) => {
                               if (e.key === 'Enter') {
-                                const newData = {...data};
-                                const debtItem = newData.financial.fixedDebts.find(d => d.id === item.id);
-                                if (debtItem) {
-                                  debtItem.item = editFinancialItemText;
-                                  setData(newData);
-                                  saveData(newData);
-                                }
+                                const newData = {
+                                  ...data,
+                                  financial: {
+                                    ...data.financial,
+                                    fixedDebts: data.financial.fixedDebts.map(d =>
+                                      d.id === item.id ? { ...d, item: editFinancialItemText } : d
+                                    )
+                                  }
+                                };
+                                setData(newData);
+                                saveData(newData);
                                 setEditingFinancialItemId(null);
                               }
                             }}
                             onBlur={() => {
-                              const newData = {...data};
-                              const debtItem = newData.financial.fixedDebts.find(d => d.id === item.id);
-                              if (debtItem) {
-                                debtItem.item = editFinancialItemText;
-                                setData(newData);
-                                saveData(newData);
-                              }
+                              const newData = {
+                                ...data,
+                                financial: {
+                                  ...data.financial,
+                                  fixedDebts: data.financial.fixedDebts.map(d =>
+                                    d.id === item.id ? { ...d, item: editFinancialItemText } : d
+                                  )
+                                }
+                              };
+                              setData(newData);
+                              saveData(newData);
                               setEditingFinancialItemId(null);
                             }}
                             style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
@@ -3663,13 +3671,17 @@ function App() {
                             onChange={(e) => {
                               const value = e.target.value.replace(/,/g, '');
                               if (value === '' || !isNaN(value)) {
-                                const newData = {...data};
-                                const debtItem = newData.financial.fixedDebts.find(d => d.id === item.id);
-                                if (debtItem) {
-                                  debtItem.amount = value;
-                                  setData(newData);
-                                  saveData(newData);
-                                }
+                                const newData = {
+                                  ...data,
+                                  financial: {
+                                    ...data.financial,
+                                    fixedDebts: data.financial.fixedDebts.map(d =>
+                                      d.id === item.id ? { ...d, amount: value } : d
+                                    )
+                                  }
+                                };
+                                setData(newData);
+                                saveData(newData);
                               }
                             }}
                             placeholder="0"
@@ -3682,8 +3694,13 @@ function App() {
                           style={styles.budgetTableBtn}
                           onClick={() => {
                             if (confirm(`Delete "${item.item}"?`)) {
-                              const newData = {...data};
-                              newData.financial.fixedDebts = newData.financial.fixedDebts.filter(d => d.id !== item.id);
+                              const newData = {
+                                ...data,
+                                financial: {
+                                  ...data.financial,
+                                  fixedDebts: data.financial.fixedDebts.filter(d => d.id !== item.id)
+                                }
+                              };
                               setData(newData);
                               saveData(newData);
                             }
@@ -3717,14 +3734,21 @@ function App() {
                 onClick={() => {
                   const itemName = prompt('Enter debt name:');
                   if (!itemName) return;
-                  const newData = {...data};
-                  if (!newData.financial.fixedDebts) newData.financial.fixedDebts = [];
-                  newData.financial.fixedDebts.push({
-                    id: 'fd_' + Date.now(),
-                    item: itemName,
-                    amount: '',
-                    type: 'debt'
-                  });
+                  const newData = {
+                    ...data,
+                    financial: {
+                      ...data.financial,
+                      fixedDebts: [
+                        ...(data.financial.fixedDebts || []),
+                        {
+                          id: 'fd_' + Date.now(),
+                          item: itemName,
+                          amount: '',
+                          type: 'debt'
+                        }
+                      ]
+                    }
+                  };
                   setData(newData);
                   saveData(newData);
                 }}
@@ -3805,13 +3829,17 @@ function App() {
                             onChange={(e) => {
                               const value = e.target.value.replace(/,/g, '');
                               if (value === '' || !isNaN(value)) {
-                                const newData = {...data};
-                                const expItem = newData.financial.expenses.find(d => d.id === item.id);
-                                if (expItem) {
-                                  expItem.amount = value;
-                                  setData(newData);
-                                  saveData(newData);
-                                }
+                                const newData = {
+                                  ...data,
+                                  financial: {
+                                    ...data.financial,
+                                    expenses: data.financial.expenses.map(d =>
+                                      d.id === item.id ? { ...d, amount: value } : d
+                                    )
+                                  }
+                                };
+                                setData(newData);
+                                saveData(newData);
                               }
                             }}
                             placeholder="0"
@@ -4015,13 +4043,17 @@ function App() {
                               onChange={(e) => {
                                 const value = e.target.value.replace(/,/g, '');
                                 if (value === '' || !isNaN(value)) {
-                                  const newData = {...data};
-                                  const customItem = newData.financial.customItems.find(d => d.id === item.id);
-                                  if (customItem) {
-                                    customItem.amount = value;
-                                    setData(newData);
-                                    saveData(newData);
-                                  }
+                                  const newData = {
+                                    ...data,
+                                    financial: {
+                                      ...data.financial,
+                                      customItems: data.financial.customItems.map(d =>
+                                        d.id === item.id ? { ...d, amount: value } : d
+                                      )
+                                    }
+                                  };
+                                  setData(newData);
+                                  saveData(newData);
                                 }
                               }}
                               placeholder="0"
