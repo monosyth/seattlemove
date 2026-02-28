@@ -493,7 +493,8 @@ const initialData = {
       hotpads: ''
     },
     lastSearch: null
-  }
+  },
+  steps: {}
 };
 
 const DOCUMENT_ID = 'seattle-move-data';
@@ -1497,7 +1498,7 @@ function App() {
             >
               San Diego → Seattle
             </Typography>
-            {activeTab === 'checklist' && data.steps[activeStep] && (
+            {activeTab === 'checklist' && data.steps && data.steps[activeStep] && (
               <Chip
                 label={`📍 Step ${activeStep}: ${data.steps[activeStep].title}`}
                 size="small"
@@ -1641,7 +1642,7 @@ function App() {
             <Box sx={{ position: 'relative', zIndex: 1, ...styles.checklistContainer }}>
             {/* Step Tabs */}
             <Box className="step-tabs" sx={styles.stepTabs}>
-              {Object.entries(data.steps).map(([stepId, step]) => {
+              {Object.entries(data.steps || {}).map(([stepId, step]) => {
                 const progress = getStepProgress(stepId);
                 const isComplete = progress === 100;
                 const isActive = activeStep === stepId;
@@ -1677,7 +1678,7 @@ function App() {
             </Box>
 
             {/* Active Step Content */}
-            {data.steps[activeStep] && (
+            {data.steps && data.steps[activeStep] && (
               <Box className="step-content" sx={styles.stepContent}>
                 <Box sx={styles.stepContentHeader}>
                   <Typography variant="h2" sx={styles.stepContentTitle}>
@@ -5088,7 +5089,7 @@ function App() {
             {getAllNotes().length > 0 && (
               <div style={styles.allNotesSection}>
                 <h3 style={styles.allNotesTitle}>📋 All Step Notes</h3>
-                {Object.entries(data.steps).map(([stepId, step]) => {
+                {Object.entries(data.steps || {}).map(([stepId, step]) => {
                   const stepNotes = data.stepNotes?.[stepId] || [];
                   if (stepNotes.length === 0) return null;
                   return (
