@@ -494,7 +494,120 @@ const initialData = {
     },
     lastSearch: null
   },
-  steps: {}
+  steps: {
+    '1': {
+      title: 'Choose Realtor',
+      description: 'Interview and select the best realtor for your home sale',
+      targetDate: '',
+      items: [
+        { id: '1-1', text: 'Research top realtors in San Carlos area', done: false },
+        { id: '1-2', text: 'Schedule interviews with top 3 candidates', done: false },
+        { id: '1-3', text: 'Ask prepared questions during interviews', done: false },
+        { id: '1-4', text: 'Compare commission rates and services', done: false },
+        { id: '1-5', text: 'Sign listing agreement with chosen realtor', done: false }
+      ]
+    },
+    '2': {
+      title: 'Secure Funding',
+      description: 'Calculate costs and secure funding for repairs, moving, and transition',
+      targetDate: '',
+      items: [
+        { id: '2-1', text: 'Get realistic sale price estimate from realtor', done: false },
+        { id: '2-2', text: 'Calculate total repair and prep costs', done: false },
+        { id: '2-3', text: 'Calculate moving and transition costs', done: false },
+        { id: '2-4', text: 'Explore funding options (401k loan, Compass Concierge, etc.)', done: false },
+        { id: '2-5', text: 'Secure funding source', done: false }
+      ]
+    },
+    '3': {
+      title: 'Home Repairs',
+      description: 'Complete must-do and high-priority repairs to maximize sale value',
+      targetDate: '',
+      items: [
+        { id: '3-1', text: 'Get repair estimates from contractors', done: false },
+        { id: '3-2', text: 'Complete must-do safety repairs (electrical, plumbing)', done: false },
+        { id: '3-3', text: 'Complete high-priority cosmetic repairs (paint, fixtures)', done: false },
+        { id: '3-4', text: 'Professional carpet cleaning', done: false },
+        { id: '3-5', text: 'Pressure wash exterior and concrete', done: false },
+        { id: '3-6', text: 'Landscaping and curb appeal', done: false }
+      ]
+    },
+    '4': {
+      title: 'Sort & Declutter',
+      description: 'Sort belongings into keep, sell, donate, and discard categories',
+      targetDate: '',
+      items: [
+        { id: '4-1', text: 'Sort belongings room by room (keep, sell, donate, discard)', done: false },
+        { id: '4-2', text: 'List items on Marketplace/OfferUp', done: false },
+        { id: '4-3', text: 'Donate items to charity', done: false },
+        { id: '4-4', text: 'Rent storage unit for keeper items', done: false },
+        { id: '4-5', text: 'Move keeper items to storage', done: false }
+      ]
+    },
+    '5': {
+      title: 'Temp Housing',
+      description: 'Find temporary housing in San Diego for the transition period',
+      targetDate: '',
+      items: [
+        { id: '5-1', text: 'Research short-term rental options in San Diego', done: false },
+        { id: '5-2', text: 'Find pet-friendly temporary housing', done: false },
+        { id: '5-3', text: 'Book temporary housing (4-6 weeks)', done: false },
+        { id: '5-4', text: 'Plan logistics for move to temp housing', done: false }
+      ]
+    },
+    '6': {
+      title: 'Vacate House',
+      description: 'Final cleaning, staging, and moving out for sale',
+      targetDate: '',
+      items: [
+        { id: '6-1', text: 'Professional move-out cleaning', done: false },
+        { id: '6-2', text: 'Staging consultation and setup', done: false },
+        { id: '6-3', text: 'Professional photos and virtual tour', done: false },
+        { id: '6-4', text: 'Pre-listing inspection', done: false },
+        { id: '6-5', text: 'Move to temporary housing', done: false }
+      ]
+    },
+    '7': {
+      title: 'Sell House',
+      description: 'List house, manage showings, review offers, and close the sale',
+      targetDate: '',
+      items: [
+        { id: '7-1', text: 'List house on MLS', done: false },
+        { id: '7-2', text: 'Host open houses and showings', done: false },
+        { id: '7-3', text: 'Review and negotiate offers', done: false },
+        { id: '7-4', text: 'Accept offer and open escrow', done: false },
+        { id: '7-5', text: 'Complete buyer inspection and appraisal', done: false },
+        { id: '7-6', text: 'Sign closing documents', done: false },
+        { id: '7-7', text: 'Close escrow and receive proceeds', done: false }
+      ]
+    },
+    '8': {
+      title: 'Move to Seattle',
+      description: 'Plan and execute the move from San Diego to Seattle',
+      targetDate: '',
+      items: [
+        { id: '8-1', text: 'Research Seattle neighborhoods', done: false },
+        { id: '8-2', text: 'Find pet-friendly rental in Seattle', done: false },
+        { id: '8-3', text: 'Hire movers for cross-country move', done: false },
+        { id: '8-4', text: 'Travel to Seattle with pets', done: false },
+        { id: '8-5', text: 'Move into Seattle rental', done: false }
+      ]
+    },
+    '9': {
+      title: 'Closing Tasks',
+      description: 'Wrap up loose ends, pay off debts, and settle into your new life',
+      targetDate: '',
+      items: [
+        { id: '9-1', text: 'Pay off debts with sale proceeds', done: false },
+        { id: '9-2', text: 'Set up utilities at new place', done: false },
+        { id: '9-3', text: 'Set up mail forwarding', done: false },
+        { id: '9-4', text: 'Update address with important accounts', done: false },
+        { id: '9-5', text: 'Cancel San Diego utilities', done: false },
+        { id: '9-6', text: 'Establish emergency fund', done: false },
+        { id: '9-7', text: 'Explore your new city!', done: false }
+      ]
+    }
+  }
 };
 
 const DOCUMENT_ID = 'seattle-move-data';
