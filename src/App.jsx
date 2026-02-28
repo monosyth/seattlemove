@@ -680,6 +680,7 @@ function App() {
       }
       setLoading(false);
     }, (error) => {
+      console.error('Firebase onSnapshot error:', error);
       setLoading(false);
     });
     return () => unsubscribe();
@@ -695,6 +696,7 @@ function App() {
       const entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setChangelog(entries);
     } catch (error) {
+      console.error('loadChangelog error:', error);
     }
     setChangelogLoading(false);
   };
@@ -711,6 +713,7 @@ function App() {
         timestamp: new Date().toISOString()
       });
     } catch (error) {
+      console.error('addChangelogEntry error:', error);
     }
   };
 
@@ -719,9 +722,12 @@ function App() {
     if (loading) return;
     setSaving(true);
     try {
-      await setDoc(doc(db, 'seattle-move', DOCUMENT_ID), newData);
+      // Sanitize data: Firebase rejects undefined values
+      const sanitized = JSON.parse(JSON.stringify(newData));
+      await setDoc(doc(db, 'seattle-move', DOCUMENT_ID), sanitized);
       setLastSaved(new Date());
     } catch (error) {
+      console.error('saveData error:', error);
     }
     setSaving(false);
   };
