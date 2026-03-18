@@ -627,6 +627,8 @@ function App() {
   const [activeTab, setActiveTab] = useState('checklist');
   const [loading, setLoading] = useState(true);
   const loadingRef = useRef(true);
+  const pendingSaveRef = useRef(null);
+  const saveLoopActiveRef = useRef(false);
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
   const [activeStep, setActiveStep] = useState('1');
@@ -732,19 +734,33 @@ function App() {
     }
   };
 
-  const saveData = async (newData) => {
-    // Prevent saving before Firebase data has loaded to avoid overwriting real data with defaults
-    if (loadingRef.current) return;
+  const flushSaveQueue = async () => {
+    if (saveLoopActiveRef.current || loadingRef.current) return;
+    saveLoopActiveRef.current = true;
     setSaving(true);
     try {
-      // Sanitize data: Firebase rejects undefined values
-      const sanitized = JSON.parse(JSON.stringify(newData));
-      await setDoc(doc(db, 'seattle-move', DOCUMENT_ID), sanitized);
-      setLastSaved(new Date());
+      while (pendingSaveRef.current && !loadingRef.current) {
+        const dataToSave = pendingSaveRef.current;
+        pendingSaveRef.current = null;
+        const sanitized = JSON.parse(JSON.stringify(dataToSave));
+        await setDoc(doc(db, 'seattle-move', DOCUMENT_ID), sanitized);
+        setLastSaved(new Date());
+      }
     } catch (error) {
       console.error('saveData error:', error);
+    } finally {
+      saveLoopActiveRef.current = false;
+      setSaving(false);
+      if (pendingSaveRef.current && !loadingRef.current) {
+        flushSaveQueue();
+      }
     }
-    setSaving(false);
+  };
+
+  const saveData = (newData) => {
+    if (loadingRef.current) return;
+    pendingSaveRef.current = newData;
+    flushSaveQueue();
   };
 
   const updateData = (updater) => {
