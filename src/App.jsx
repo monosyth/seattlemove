@@ -464,11 +464,7 @@ const initialData = {
       { id: 'fd4', item: 'Solar Loan', amount: '53000', type: 'debt' },
       { id: 'fd5', item: 'Credit Cards', amount: '80000', type: 'debt' },
       { id: 'fd6', item: '401k Loan', amount: '', type: 'debt' },
-    ],
-    expenses: [
-      { id: 'exp1', item: 'Concierge for Upgrades', amount: '', type: 'expense' },
-    ],
-    customItems: []
+    ]
   },
   // AI Rental Finder
   aiRentalFinder: {
@@ -620,15 +616,6 @@ const buildFinancialDraft = (source) => ({
     ...item,
     amount: item.amount ?? ''
   })),
-  expenses: (source.financial?.expenses || []).map(item => ({
-    ...item,
-    amount: item.amount ?? ''
-  })),
-  customItems: (source.financial?.customItems || []).map(item => ({
-    ...item,
-    amount: item.amount ?? '',
-    type: item.type || 'expense'
-  })),
   movingHousing: (source.budget?.other || []).map(item => ({
     ...item,
     cost: item.cost ?? '',
@@ -673,15 +660,8 @@ const buildPersistedFinancialState = (baseData, draft, revision) => ({
       ...item,
       amount: item.amount ?? ''
     })),
-    expenses: draft.expenses.map(item => ({
-      ...item,
-      amount: item.amount ?? ''
-    })),
-    customItems: draft.customItems.map(item => ({
-      ...item,
-      amount: item.amount ?? '',
-      type: item.type || 'expense'
-    }))
+    expenses: [],
+    customItems: []
   },
   budget: {
     ...baseData.budget,
@@ -1813,20 +1793,11 @@ function App() {
   }, [financialDraft.fixedDebts]);
 
   const totalExpenses = useMemo(() => {
-    const expenses = financialDraft.expenses.reduce((sum, item) => {
-      return sum + (parseFloat(item.amount) || 0);
-    }, 0);
     const moving = financialDraft.movingHousing.reduce((sum, item) => {
       return sum + (parseFloat(item.cost) || 0);
     }, 0);
-    return expenses + moving;
-  }, [financialDraft.expenses, financialDraft.movingHousing]);
-
-  const financialExpensesTotal = useMemo(() => {
-    return financialDraft.expenses.reduce((sum, item) => {
-      return sum + (parseFloat(item.amount) || 0);
-    }, 0);
-  }, [financialDraft.expenses]);
+    return moving;
+  }, [financialDraft.movingHousing]);
 
   const movingBudgetItems = useMemo(() => {
     return financialDraft.movingHousing;
@@ -1842,17 +1813,10 @@ function App() {
     return 0; // Funding section removed - 401k moved to debts
   }, []);
 
-  const customItemsTotal = useMemo(() => {
-    return financialDraft.customItems.reduce((sum, item) => {
-      const amount = parseFloat(item.amount) || 0;
-      return item.type === 'income' ? sum + amount : sum - amount;
-    }, 0);
-  }, [financialDraft.customItems]);
-
   const netProceeds = useMemo(() => {
     const salePrice = parseFloat(financialDraft.salePrice) || 0;
-    return salePrice + totalFunding - realtorFees - totalDebts - totalExpenses + customItemsTotal;
-  }, [financialDraft.salePrice, totalFunding, realtorFees, totalDebts, totalExpenses, customItemsTotal]);
+    return salePrice + totalFunding - realtorFees - totalDebts - totalExpenses;
+  }, [financialDraft.salePrice, totalFunding, realtorFees, totalDebts, totalExpenses]);
 
   // One-time function to sync new realtor data to Firebase
   const syncRealtorsToFirebase = async () => {
@@ -4027,106 +3991,6 @@ function App() {
               </button>
             </div>
 
-            {/* Expenses */}
-            <div className="budget-section" style={{...styles.budgetSection, borderColor: '#9b59b6'}}>
-              <div style={{...styles.budgetTitle, background: '#9b59b6'}}>
-                <div>
-                  <h3 style={styles.budgetTitleText}>💸 Additional Expenses</h3>
-                  <p style={styles.budgetTitleDesc}>Concierge and one-off sale costs</p>
-                </div>
-                <span style={styles.budgetTitleTotal}>-${financialExpensesTotal.toLocaleString()}</span>
-              </div>
-              <table style={styles.budgetTable}>
-                <thead>
-                  <tr>
-                    <th style={styles.budgetTh}>Item</th>
-                    <th style={{...styles.budgetTh, width: '200px', textAlign: 'right'}}>Amount</th>
-                    <th style={{...styles.budgetTh, width: '80px', textAlign: 'center'}}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {financialDraft.expenses.map(item => (
-                    <tr key={item.id}>
-                      <td style={styles.budgetTd}>
-                        {editingFinancialItemId === item.id ? (
-                          <input
-                            type="text"
-                            value={editFinancialItemText}
-                            onChange={(e) => setEditFinancialItemText(e.target.value)}
-                            onKeyPress={(e) => {
-                              if (e.key === 'Enter') {
-                                finishFinancialItemEditing('expenses', item.id);
-                              }
-                            }}
-                            onBlur={() => {
-                              finishFinancialItemEditing('expenses', item.id);
-                            }}
-                            style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
-                            autoFocus
-                          />
-                        ) : (
-                          <span
-                            style={{cursor: 'pointer', fontSize: '1rem', fontWeight: 600, userSelect: 'none'}}
-                            onClick={() => {
-                              setEditingFinancialItemId(item.id);
-                              setEditFinancialItemText(item.item);
-                            }}
-                          >
-                            {item.item}
-                          </span>
-                        )}
-                      </td>
-                      <td style={{...styles.budgetTd, textAlign: 'right'}}>
-                        <div style={styles.costInputWrapper}>
-                          <span style={{...styles.dollarSign, fontSize: '1.2rem', fontWeight: 700}}>$</span>
-                          <input
-                            type="text"
-                            value={formatNumericDisplay(item.amount)}
-                            onChange={(e) => {
-                              const value = e.target.value.replace(/,/g, '');
-                              if (isNumericInput(value)) {
-                                updateFinancialListItem('expenses', item.id, { amount: value });
-                              }
-                            }}
-                            placeholder="0"
-                            style={{...styles.costField, fontSize: '1.1rem', fontWeight: 700}}
-                          />
-                        </div>
-                      </td>
-                      <td style={{...styles.budgetTd, textAlign: 'center'}}>
-                        <button
-                          style={styles.budgetTableBtn}
-                          onClick={() => {
-                            if (confirm(`Delete "${item.item}"?`)) {
-                              removeFinancialListItem('expenses', item.id);
-                            }
-                          }}
-                          title="Delete"
-                        >
-                          🗑️
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <button
-                style={styles.addBudgetItemBtn}
-                onClick={() => {
-                  const itemName = prompt('Enter expense name:');
-                  if (!itemName) return;
-                  addFinancialListItem('expenses', {
-                    id: 'exp_' + Date.now(),
-                    item: itemName,
-                    amount: '',
-                    type: 'expense'
-                  });
-                }}
-              >
-                + Add expense
-              </button>
-            </div>
-
             {/* Moving & Housing */}
             <div className="budget-section" style={{...styles.budgetSection, borderColor: '#f39c12'}}>
               <div style={{...styles.budgetTitle, background: '#f39c12'}}>
@@ -4215,131 +4079,6 @@ function App() {
                 }}
               >
                 + Add moving/housing item
-              </button>
-            </div>
-
-            {/* Custom Items */}
-            <div className="budget-section" style={{...styles.budgetSection, borderColor: '#95a5a6'}}>
-              <div style={{...styles.budgetTitle, background: '#95a5a6'}}>
-                <div>
-                  <h3 style={styles.budgetTitleText}>📋 Custom Items</h3>
-                  <p style={styles.budgetTitleDesc}>Additional income or expenses</p>
-                </div>
-                <span style={styles.budgetTitleTotal}>${customItemsTotal.toLocaleString()}</span>
-              </div>
-              {financialDraft.customItems.length > 0 && (
-                <table style={styles.budgetTable}>
-                  <thead>
-                    <tr>
-                      <th style={styles.budgetTh}>Item</th>
-                      <th style={{...styles.budgetTh, width: '100px'}}>Type</th>
-                      <th style={{...styles.budgetTh, width: '150px', textAlign: 'right'}}>Amount</th>
-                      <th style={{...styles.budgetTh, width: '80px', textAlign: 'center'}}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {financialDraft.customItems.map(item => (
-                      <tr key={item.id}>
-                        <td style={styles.budgetTd}>
-                          {editingFinancialItemId === item.id ? (
-                            <input
-                              type="text"
-                              value={editFinancialItemText}
-                              onChange={(e) => setEditFinancialItemText(e.target.value)}
-                              onKeyPress={(e) => {
-                                if (e.key === 'Enter') {
-                                  finishFinancialItemEditing('customItems', item.id);
-                                }
-                              }}
-                              onBlur={() => {
-                                finishFinancialItemEditing('customItems', item.id);
-                              }}
-                              style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
-                              autoFocus
-                            />
-                          ) : (
-                            <span
-                              style={{cursor: 'pointer', fontSize: '1rem', fontWeight: 600, userSelect: 'none'}}
-                              onClick={() => {
-                                setEditingFinancialItemId(item.id);
-                                setEditFinancialItemText(item.item);
-                              }}
-                            >
-                              {item.item}
-                            </span>
-                          )}
-                        </td>
-                        <td style={styles.budgetTd}>
-                          <select
-                            value={item.type}
-                            onChange={(e) => {
-                              updateFinancialListItem('customItems', item.id, { type: e.target.value });
-                            }}
-                            style={{
-                              padding: '6px 10px',
-                              borderRadius: '4px',
-                              fontSize: '0.9rem',
-                              fontWeight: 600,
-                              border: '1px solid #ddd',
-                              background: item.type === 'income' ? '#d4edda' : '#f8d7da',
-                              color: item.type === 'income' ? '#155724' : '#721c24',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            <option value="income">+ Income</option>
-                            <option value="expense">- Expense</option>
-                          </select>
-                        </td>
-                        <td style={{...styles.budgetTd, textAlign: 'right'}}>
-                          <div style={styles.costInputWrapper}>
-                            <span style={{...styles.dollarSign, fontSize: '1.2rem', fontWeight: 700}}>$</span>
-                            <input
-                              type="text"
-                              value={formatNumericDisplay(item.amount)}
-                              onChange={(e) => {
-                                const value = e.target.value.replace(/,/g, '');
-                                if (isNumericInput(value)) {
-                                  updateFinancialListItem('customItems', item.id, { amount: value });
-                                }
-                              }}
-                              placeholder="0"
-                              style={{...styles.costField, fontSize: '1.1rem', fontWeight: 700}}
-                            />
-                          </div>
-                        </td>
-                        <td style={{...styles.budgetTd, textAlign: 'center'}}>
-                          <button
-                            style={styles.budgetTableBtn}
-                            onClick={() => {
-                              if (confirm(`Delete "${item.item}"?`)) {
-                                removeFinancialListItem('customItems', item.id);
-                              }
-                            }}
-                            title="Delete"
-                          >
-                            🗑️
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-              <button
-                style={styles.addBudgetItemBtn}
-                onClick={() => {
-                  const itemName = prompt('Enter item name:');
-                  if (!itemName) return;
-                  const itemType = confirm('Click OK for INCOME (+), Cancel for EXPENSE (-)') ? 'income' : 'expense';
-                  addFinancialListItem('customItems', {
-                    id: 'custom_' + Date.now(),
-                    item: itemName,
-                    amount: '',
-                    type: itemType
-                  });
-                }}
-              >
-                + Add custom item
               </button>
             </div>
 
