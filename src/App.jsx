@@ -736,6 +736,17 @@ function App() {
     setSaving(false);
   };
 
+  const updateData = (updater) => {
+    let nextData;
+    setData(prevData => {
+      nextData = updater(prevData);
+      return nextData;
+    });
+    if (nextData) {
+      saveData(nextData);
+    }
+  };
+
   const toggleItem = (stepId, itemId) => {
     const newData = { ...data };
     const item = newData.steps[stepId].items.find(i => i.id === itemId);
@@ -885,58 +896,72 @@ function App() {
   };
 
   const updateBudgetCost = (category, itemId, cost) => {
-    const newData = { ...data };
-    const item = newData.budget[category].find(i => i.id === itemId);
-    if (item) {
-      const oldCost = item.cost;
-      item.cost = cost;
-      setData(newData);
-      saveData(newData);
-      // Only log significant changes (not every keystroke)
-      if (oldCost !== cost && cost !== '') {
-        addChangelogEntry(
-          'budget_change',
-          `Updated budget for "${item.item}"`,
-          oldCost ? `$${oldCost}` : 'Not set',
-          `$${cost}`
-        );
+    const currentItem = data.budget?.[category]?.find(i => i.id === itemId);
+    if (!currentItem) return;
+    const oldCost = currentItem.cost;
+    updateData(prevData => ({
+      ...prevData,
+      budget: {
+        ...prevData.budget,
+        [category]: (prevData.budget?.[category] || []).map(item =>
+          item.id === itemId ? { ...item, cost } : item
+        )
       }
+    }));
+    if (oldCost !== cost && cost !== '') {
+      addChangelogEntry(
+        'budget_change',
+        `Updated budget for "${currentItem.item}"`,
+        oldCost ? `$${oldCost}` : 'Not set',
+        `$${cost}`
+      );
     }
   };
 
   // Toggle budget item completion
   const toggleBudgetItem = (category, itemId) => {
-    const newData = { ...data };
-    const item = newData.budget[category].find(i => i.id === itemId);
-    if (item) {
-      const oldValue = item.done || false;
-      item.done = !oldValue;
-      setData(newData);
-      saveData(newData);
-      addChangelogEntry(
-        'budget_toggle',
-        `${item.done ? 'Completed' : 'Uncompleted'}: "${item.item}"`,
-        oldValue,
-        item.done
-      );
-    }
+    const currentItem = data.budget?.[category]?.find(i => i.id === itemId);
+    if (!currentItem) return;
+    const oldValue = currentItem.done || false;
+    const newValue = !oldValue;
+    updateData(prevData => ({
+      ...prevData,
+      budget: {
+        ...prevData.budget,
+        [category]: (prevData.budget?.[category] || []).map(item =>
+          item.id === itemId ? { ...item, done: newValue } : item
+        )
+      }
+    }));
+    addChangelogEntry(
+      'budget_toggle',
+      `${newValue ? 'Completed' : 'Uncompleted'}: "${currentItem.item}"`,
+      oldValue,
+      newValue
+    );
   };
 
   // Update budget item text
   const updateBudgetItemText = (category, itemId) => {
     if (!budgetItems.editText.trim()) return;
-    const newData = { ...data };
-    const item = newData.budget[category].find(i => i.id === itemId);
-    if (item && item.item !== budgetItems.editText.trim()) {
-      const oldText = item.item;
-      item.item = budgetItems.editText.trim();
-      setData(newData);
-      saveData(newData);
+    const newText = budgetItems.editText.trim();
+    const currentItem = data.budget?.[category]?.find(i => i.id === itemId);
+    if (currentItem && currentItem.item !== newText) {
+      const oldText = currentItem.item;
+      updateData(prevData => ({
+        ...prevData,
+        budget: {
+          ...prevData.budget,
+          [category]: (prevData.budget?.[category] || []).map(item =>
+            item.id === itemId ? { ...item, item: newText } : item
+          )
+        }
+      }));
       addChangelogEntry(
         'budget_item_edited',
         `Edited budget item`,
         oldText,
-        budgetItems.editText.trim()
+        newText
       );
     }
     budgetItems.setEditingId(null);
@@ -946,21 +971,28 @@ function App() {
   // Add new budget item
   const addNewBudgetItem = (category) => {
     if (!budgetItems.newItemText.trim()) return;
-    const newData = { ...data };
+    const newText = budgetItems.newItemText.trim();
     const newId = `b-${Date.now()}`;
-    newData.budget[category].push({
-      id: newId,
-      item: budgetItems.newItemText.trim(),
-      cost: '',
-      done: false
-    });
-    setData(newData);
-    saveData(newData);
+    updateData(prevData => ({
+      ...prevData,
+      budget: {
+        ...prevData.budget,
+        [category]: [
+          ...(prevData.budget?.[category] || []),
+          {
+            id: newId,
+            item: newText,
+            cost: '',
+            done: false
+          }
+        ]
+      }
+    }));
     addChangelogEntry(
       'budget_item_added',
       `Added budget item to ${category}`,
       null,
-      budgetItems.newItemText.trim()
+      newText
     );
     budgetItems.setNewItemParent(null);
     budgetItems.setNewItemText('');
@@ -968,12 +1000,15 @@ function App() {
 
   // Delete budget item
   const deleteBudgetItem = (category, itemId) => {
-    const newData = { ...data };
-    const item = newData.budget[category].find(i => i.id === itemId);
+    const item = data.budget?.[category]?.find(i => i.id === itemId);
     const deletedText = item?.item || '';
-    newData.budget[category] = newData.budget[category].filter(i => i.id !== itemId);
-    setData(newData);
-    saveData(newData);
+    updateData(prevData => ({
+      ...prevData,
+      budget: {
+        ...prevData.budget,
+        [category]: (prevData.budget?.[category] || []).filter(i => i.id !== itemId)
+      }
+    }));
     addChangelogEntry(
       'budget_item_deleted',
       `Deleted budget item`,
@@ -985,14 +1020,16 @@ function App() {
 
   // Update budget item cost
   const updateBudgetItemCost = (category, itemId, newCost) => {
-    const newData = { ...data };
-    const item = newData.budget[category].find(i => i.id === itemId);
-    if (item) {
-      const numericCost = newCost.replace(/[^0-9]/g, '');
-      item.cost = numericCost ? parseInt(numericCost, 10) : '';
-      setData(newData);
-      saveData(newData);
-    }
+    const numericCost = newCost.replace(/[^0-9]/g, '');
+    updateData(prevData => ({
+      ...prevData,
+      budget: {
+        ...prevData.budget,
+        [category]: (prevData.budget?.[category] || []).map(item =>
+          item.id === itemId ? { ...item, cost: numericCost ? parseInt(numericCost, 10) : '' } : item
+        )
+      }
+    }));
   };
 
   // Drag and drop for budget items
@@ -1499,7 +1536,8 @@ function App() {
   // Financial calculator functions
   const realtorFees = useMemo(() => {
     const salePrice = parseFloat(data.financial?.salePrice) || 0;
-    const percentage = parseFloat(data.financial?.realtorFeePercentage) || 5;
+    const rawPercentage = parseFloat(data.financial?.realtorFeePercentage);
+    const percentage = Number.isNaN(rawPercentage) ? 5 : rawPercentage;
     return salePrice * (percentage / 100);
   }, [data.financial?.salePrice, data.financial?.realtorFeePercentage]);
 
@@ -3517,9 +3555,13 @@ function App() {
                       onChange={(e) => {
                         const value = e.target.value.replace(/,/g, '');
                         if (value === '' || !isNaN(value)) {
-                          const newData = {...data, financial: {...data.financial, salePrice: value}};
-                          setData(newData);
-                          saveData(newData);
+                          updateData(prevData => ({
+                            ...prevData,
+                            financial: {
+                              ...prevData.financial,
+                              salePrice: value
+                            }
+                          }));
                         }
                       }}
                       placeholder="0"
@@ -3572,16 +3614,26 @@ function App() {
                           onChange={(e) => setEditFinancialItemText(e.target.value)}
                           onKeyPress={(e) => {
                             if (e.key === 'Enter') {
-                              const newData = {...data, financial: {...data.financial, realtorFeePercentage: parseFloat(editFinancialItemText) || 5}};
-                              setData(newData);
-                              saveData(newData);
+                              const parsedPercentage = Number(editFinancialItemText);
+                              updateData(prevData => ({
+                                ...prevData,
+                                financial: {
+                                  ...prevData.financial,
+                                  realtorFeePercentage: Number.isNaN(parsedPercentage) ? 5 : parsedPercentage
+                                }
+                              }));
                               setEditingFinancialItemId(null);
                             }
                           }}
                           onBlur={() => {
-                            const newData = {...data, financial: {...data.financial, realtorFeePercentage: parseFloat(editFinancialItemText) || 5}};
-                            setData(newData);
-                            saveData(newData);
+                            const parsedPercentage = Number(editFinancialItemText);
+                            updateData(prevData => ({
+                              ...prevData,
+                              financial: {
+                                ...prevData.financial,
+                                realtorFeePercentage: Number.isNaN(parsedPercentage) ? 5 : parsedPercentage
+                              }
+                            }));
                             setEditingFinancialItemId(null);
                           }}
                           style={{
@@ -3607,10 +3659,10 @@ function App() {
                           }}
                           onClick={() => {
                             setEditingFinancialItemId('realtorFeePercentage');
-                            setEditFinancialItemText(String(data.financial?.realtorFeePercentage || 5));
+                            setEditFinancialItemText(String(data.financial?.realtorFeePercentage ?? 5));
                           }}
                         >
-                          {data.financial?.realtorFeePercentage || 5}%
+                          {data.financial?.realtorFeePercentage ?? 5}%
                         </span>
                       )}
                     </div>
@@ -3650,32 +3702,28 @@ function App() {
                             onChange={(e) => setEditFinancialItemText(e.target.value)}
                             onKeyPress={(e) => {
                               if (e.key === 'Enter') {
-                                const newData = {
-                                  ...data,
+                                updateData(prevData => ({
+                                  ...prevData,
                                   financial: {
-                                    ...data.financial,
-                                    fixedDebts: data.financial.fixedDebts.map(d =>
+                                    ...prevData.financial,
+                                    fixedDebts: (prevData.financial?.fixedDebts || []).map(d =>
                                       d.id === item.id ? { ...d, item: editFinancialItemText } : d
                                     )
                                   }
-                                };
-                                setData(newData);
-                                saveData(newData);
+                                }));
                                 setEditingFinancialItemId(null);
                               }
                             }}
                             onBlur={() => {
-                              const newData = {
-                                ...data,
+                              updateData(prevData => ({
+                                ...prevData,
                                 financial: {
-                                  ...data.financial,
-                                  fixedDebts: data.financial.fixedDebts.map(d =>
+                                  ...prevData.financial,
+                                  fixedDebts: (prevData.financial?.fixedDebts || []).map(d =>
                                     d.id === item.id ? { ...d, item: editFinancialItemText } : d
                                   )
                                 }
-                              };
-                              setData(newData);
-                              saveData(newData);
+                              }));
                               setEditingFinancialItemId(null);
                             }}
                             style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
@@ -3699,17 +3747,15 @@ function App() {
                             onChange={(e) => {
                               const value = e.target.value.replace(/,/g, '');
                               if (value === '' || !isNaN(value)) {
-                                const newData = {
-                                  ...data,
+                                updateData(prevData => ({
+                                  ...prevData,
                                   financial: {
-                                    ...data.financial,
-                                    fixedDebts: data.financial.fixedDebts.map(d =>
+                                    ...prevData.financial,
+                                    fixedDebts: (prevData.financial?.fixedDebts || []).map(d =>
                                       d.id === item.id ? { ...d, amount: value } : d
                                     )
                                   }
-                                };
-                                setData(newData);
-                                saveData(newData);
+                                }));
                               }
                             }}
                             placeholder="0"
@@ -3722,15 +3768,13 @@ function App() {
                           style={styles.budgetTableBtn}
                           onClick={() => {
                             if (confirm(`Delete "${item.item}"?`)) {
-                              const newData = {
-                                ...data,
+                              updateData(prevData => ({
+                                ...prevData,
                                 financial: {
-                                  ...data.financial,
-                                  fixedDebts: data.financial.fixedDebts.filter(d => d.id !== item.id)
+                                  ...prevData.financial,
+                                  fixedDebts: (prevData.financial?.fixedDebts || []).filter(d => d.id !== item.id)
                                 }
-                              };
-                              setData(newData);
-                              saveData(newData);
+                              }));
                             }
                           }}
                           title="Delete"
@@ -3762,12 +3806,12 @@ function App() {
                 onClick={() => {
                   const itemName = prompt('Enter debt name:');
                   if (!itemName) return;
-                  const newData = {
-                    ...data,
+                  updateData(prevData => ({
+                    ...prevData,
                     financial: {
-                      ...data.financial,
+                      ...prevData.financial,
                       fixedDebts: [
-                        ...(data.financial.fixedDebts || []),
+                        ...(prevData.financial?.fixedDebts || []),
                         {
                           id: 'fd_' + Date.now(),
                           item: itemName,
@@ -3776,9 +3820,7 @@ function App() {
                         }
                       ]
                     }
-                  };
-                  setData(newData);
-                  saveData(newData);
+                  }));
                 }}
               >
                 + Add debt
@@ -3813,24 +3855,28 @@ function App() {
                             onChange={(e) => setEditFinancialItemText(e.target.value)}
                             onKeyPress={(e) => {
                               if (e.key === 'Enter') {
-                                const newData = {...data};
-                                const expItem = newData.financial.expenses.find(d => d.id === item.id);
-                                if (expItem) {
-                                  expItem.item = editFinancialItemText;
-                                  setData(newData);
-                                  saveData(newData);
-                                }
+                                updateData(prevData => ({
+                                  ...prevData,
+                                  financial: {
+                                    ...prevData.financial,
+                                    expenses: (prevData.financial?.expenses || []).map(d =>
+                                      d.id === item.id ? { ...d, item: editFinancialItemText } : d
+                                    )
+                                  }
+                                }));
                                 setEditingFinancialItemId(null);
                               }
                             }}
                             onBlur={() => {
-                              const newData = {...data};
-                              const expItem = newData.financial.expenses.find(d => d.id === item.id);
-                              if (expItem) {
-                                expItem.item = editFinancialItemText;
-                                setData(newData);
-                                saveData(newData);
-                              }
+                              updateData(prevData => ({
+                                ...prevData,
+                                financial: {
+                                  ...prevData.financial,
+                                  expenses: (prevData.financial?.expenses || []).map(d =>
+                                    d.id === item.id ? { ...d, item: editFinancialItemText } : d
+                                  )
+                                }
+                              }));
                               setEditingFinancialItemId(null);
                             }}
                             style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
@@ -3857,17 +3903,15 @@ function App() {
                             onChange={(e) => {
                               const value = e.target.value.replace(/,/g, '');
                               if (value === '' || !isNaN(value)) {
-                                const newData = {
-                                  ...data,
+                                updateData(prevData => ({
+                                  ...prevData,
                                   financial: {
-                                    ...data.financial,
-                                    expenses: data.financial.expenses.map(d =>
+                                    ...prevData.financial,
+                                    expenses: (prevData.financial?.expenses || []).map(d =>
                                       d.id === item.id ? { ...d, amount: value } : d
                                     )
                                   }
-                                };
-                                setData(newData);
-                                saveData(newData);
+                                }));
                               }
                             }}
                             placeholder="0"
@@ -3880,10 +3924,13 @@ function App() {
                           style={styles.budgetTableBtn}
                           onClick={() => {
                             if (confirm(`Delete "${item.item}"?`)) {
-                              const newData = {...data};
-                              newData.financial.expenses = newData.financial.expenses.filter(d => d.id !== item.id);
-                              setData(newData);
-                              saveData(newData);
+                              updateData(prevData => ({
+                                ...prevData,
+                                financial: {
+                                  ...prevData.financial,
+                                  expenses: (prevData.financial?.expenses || []).filter(d => d.id !== item.id)
+                                }
+                              }));
                             }
                           }}
                           title="Delete"
@@ -3900,16 +3947,21 @@ function App() {
                 onClick={() => {
                   const itemName = prompt('Enter expense name:');
                   if (!itemName) return;
-                  const newData = {...data};
-                  if (!newData.financial.expenses) newData.financial.expenses = [];
-                  newData.financial.expenses.push({
-                    id: 'exp_' + Date.now(),
-                    item: itemName,
-                    amount: '',
-                    type: 'expense'
-                  });
-                  setData(newData);
-                  saveData(newData);
+                  updateData(prevData => ({
+                    ...prevData,
+                    financial: {
+                      ...prevData.financial,
+                      expenses: [
+                        ...(prevData.financial?.expenses || []),
+                        {
+                          id: 'exp_' + Date.now(),
+                          item: itemName,
+                          amount: '',
+                          type: 'expense'
+                        }
+                      ]
+                    }
+                  }));
                 }}
               >
                 + Add expense
@@ -3995,17 +4047,21 @@ function App() {
                 onClick={() => {
                   const itemName = prompt('Enter moving or housing item name:');
                   if (!itemName) return;
-                  const newData = {...data};
-                  if (!newData.budget) newData.budget = {...initialData.budget};
-                  if (!newData.budget.other) newData.budget.other = [];
-                  newData.budget.other.push({
-                    id: 'move_' + Date.now(),
-                    item: itemName,
-                    cost: '',
-                    done: false
-                  });
-                  setData(newData);
-                  saveData(newData);
+                  updateData(prevData => ({
+                    ...prevData,
+                    budget: {
+                      ...prevData.budget,
+                      other: [
+                        ...(prevData.budget?.other || []),
+                        {
+                          id: 'move_' + Date.now(),
+                          item: itemName,
+                          cost: '',
+                          done: false
+                        }
+                      ]
+                    }
+                  }));
                 }}
               >
                 + Add moving/housing item
@@ -4042,24 +4098,28 @@ function App() {
                               onChange={(e) => setEditFinancialItemText(e.target.value)}
                               onKeyPress={(e) => {
                                 if (e.key === 'Enter') {
-                                  const newData = {...data};
-                                  const customItem = newData.financial.customItems.find(d => d.id === item.id);
-                                  if (customItem) {
-                                    customItem.item = editFinancialItemText;
-                                    setData(newData);
-                                    saveData(newData);
-                                  }
+                                  updateData(prevData => ({
+                                    ...prevData,
+                                    financial: {
+                                      ...prevData.financial,
+                                      customItems: (prevData.financial?.customItems || []).map(d =>
+                                        d.id === item.id ? { ...d, item: editFinancialItemText } : d
+                                      )
+                                    }
+                                  }));
                                   setEditingFinancialItemId(null);
                                 }
                               }}
                               onBlur={() => {
-                                const newData = {...data};
-                                const customItem = newData.financial.customItems.find(d => d.id === item.id);
-                                if (customItem) {
-                                  customItem.item = editFinancialItemText;
-                                  setData(newData);
-                                  saveData(newData);
-                                }
+                                updateData(prevData => ({
+                                  ...prevData,
+                                  financial: {
+                                    ...prevData.financial,
+                                    customItems: (prevData.financial?.customItems || []).map(d =>
+                                      d.id === item.id ? { ...d, item: editFinancialItemText } : d
+                                    )
+                                  }
+                                }));
                                 setEditingFinancialItemId(null);
                               }}
                               style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
@@ -4081,13 +4141,15 @@ function App() {
                           <select
                             value={item.type}
                             onChange={(e) => {
-                              const newData = {...data};
-                              const customItem = newData.financial.customItems.find(d => d.id === item.id);
-                              if (customItem) {
-                                customItem.type = e.target.value;
-                                setData(newData);
-                                saveData(newData);
-                              }
+                              updateData(prevData => ({
+                                ...prevData,
+                                financial: {
+                                  ...prevData.financial,
+                                  customItems: (prevData.financial?.customItems || []).map(d =>
+                                    d.id === item.id ? { ...d, type: e.target.value } : d
+                                  )
+                                }
+                              }));
                             }}
                             style={{
                               padding: '6px 10px',
@@ -4113,17 +4175,15 @@ function App() {
                               onChange={(e) => {
                                 const value = e.target.value.replace(/,/g, '');
                                 if (value === '' || !isNaN(value)) {
-                                  const newData = {
-                                    ...data,
+                                  updateData(prevData => ({
+                                    ...prevData,
                                     financial: {
-                                      ...data.financial,
-                                      customItems: data.financial.customItems.map(d =>
+                                      ...prevData.financial,
+                                      customItems: (prevData.financial?.customItems || []).map(d =>
                                         d.id === item.id ? { ...d, amount: value } : d
                                       )
                                     }
-                                  };
-                                  setData(newData);
-                                  saveData(newData);
+                                  }));
                                 }
                               }}
                               placeholder="0"
@@ -4136,10 +4196,13 @@ function App() {
                             style={styles.budgetTableBtn}
                             onClick={() => {
                               if (confirm(`Delete "${item.item}"?`)) {
-                                const newData = {...data};
-                                newData.financial.customItems = newData.financial.customItems.filter(i => i.id !== item.id);
-                                setData(newData);
-                                saveData(newData);
+                                updateData(prevData => ({
+                                  ...prevData,
+                                  financial: {
+                                    ...prevData.financial,
+                                    customItems: (prevData.financial?.customItems || []).filter(i => i.id !== item.id)
+                                  }
+                                }));
                               }
                             }}
                             title="Delete"
@@ -4158,16 +4221,21 @@ function App() {
                   const itemName = prompt('Enter item name:');
                   if (!itemName) return;
                   const itemType = confirm('Click OK for INCOME (+), Cancel for EXPENSE (-)') ? 'income' : 'expense';
-                  const newData = {...data};
-                  if (!newData.financial.customItems) newData.financial.customItems = [];
-                  newData.financial.customItems.push({
-                    id: 'custom_' + Date.now(),
-                    item: itemName,
-                    amount: '',
-                    type: itemType
-                  });
-                  setData(newData);
-                  saveData(newData);
+                  updateData(prevData => ({
+                    ...prevData,
+                    financial: {
+                      ...prevData.financial,
+                      customItems: [
+                        ...(prevData.financial?.customItems || []),
+                        {
+                          id: 'custom_' + Date.now(),
+                          item: itemName,
+                          amount: '',
+                          type: itemType
+                        }
+                      ]
+                    }
+                  }));
                 }}
               >
                 + Add custom item
