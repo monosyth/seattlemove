@@ -611,6 +611,7 @@ const initialData = {
 };
 
 const DOCUMENT_ID = 'seattle-move-data';
+const LOCAL_STORAGE_KEY = 'seattle-move-data-local';
 
 const buildFinancialDraft = (source) => ({
   salePrice: source.financial?.salePrice ?? '',
@@ -635,6 +636,23 @@ const buildFinancialDraft = (source) => ({
   }))
 });
 
+const mergeAppData = (sourceData = {}) => ({
+  ...initialData,
+  ...sourceData,
+  budget: {
+    ...initialData.budget,
+    ...(sourceData.budget || {})
+  },
+  steps: {
+    ...initialData.steps,
+    ...(sourceData.steps || {})
+  },
+  financial: {
+    ...initialData.financial,
+    ...(sourceData.financial || {})
+  }
+});
+
 const formatNumericDisplay = (value) => {
   if (value === '' || value === null || value === undefined) return '';
   const numericValue = typeof value === 'number' ? value : parseFloat(String(value).replace(/,/g, ''));
@@ -642,6 +660,43 @@ const formatNumericDisplay = (value) => {
 };
 
 const isNumericInput = (value) => value === '' || !Number.isNaN(Number(value));
+
+const buildPersistedFinancialState = (baseData, draft, revision) => ({
+  ...baseData,
+  financial: {
+    ...baseData.financial,
+    salePrice: draft.salePrice,
+    realtorFeePercentage: draft.realtorFeePercentage === ''
+      ? 5
+      : (Number.isNaN(Number(draft.realtorFeePercentage)) ? 5 : Number(draft.realtorFeePercentage)),
+    fixedDebts: draft.fixedDebts.map(item => ({
+      ...item,
+      amount: item.amount ?? ''
+    })),
+    expenses: draft.expenses.map(item => ({
+      ...item,
+      amount: item.amount ?? ''
+    })),
+    customItems: draft.customItems.map(item => ({
+      ...item,
+      amount: item.amount ?? '',
+      type: item.type || 'expense'
+    }))
+  },
+  budget: {
+    ...baseData.budget,
+    other: draft.movingHousing.map(item => ({
+      ...item,
+      cost: item.cost ?? '',
+      done: item.done || false
+    }))
+  },
+  _meta: {
+    ...(baseData._meta || {}),
+    clientRevision: revision,
+    updatedAt: new Date().toISOString()
+  }
+});
 
 // Note categories
 const NOTE_CATEGORIES = {
@@ -661,6 +716,8 @@ function App() {
   const loadingRef = useRef(true);
   const pendingSaveRef = useRef(null);
   const saveLoopActiveRef = useRef(false);
+  const [storageMode, setStorageMode] = useState('firebase');
+  const firestoreUnavailableRef = useRef(false);
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
   const [activeStep, setActiveStep] = useState('1');
@@ -704,6 +761,35 @@ function App() {
     loadingRef.current = loading;
   }, [loading]);
 
+  const readLocalSnapshot = () => {
+    try {
+      const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (error) {
+      console.error('readLocalSnapshot error:', error);
+      return null;
+    }
+  };
+
+  const writeLocalSnapshot = (nextData) => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(nextData));
+      setLastSaved(new Date());
+    } catch (error) {
+      console.error('writeLocalSnapshot error:', error);
+    }
+  };
+
+  const loadLocalFallback = () => {
+    const localData = readLocalSnapshot();
+    const mergedData = mergeAppData(localData || {});
+    dataRef.current = mergedData;
+    setData(mergedData);
+    setStorageMode('local');
+    firestoreUnavailableRef.current = true;
+  };
+
   useEffect(() => {
     if (!financialDirty) {
       setFinancialDraft(buildFinancialDraft(data));
@@ -712,6 +798,8 @@ function App() {
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
+      firestoreUnavailableRef.current = false;
+      setStorageMode('firebase');
       if (docSnap.exists()) {
         const firebaseData = docSnap.data();
         const serverRevision = Number(firebaseData._meta?.clientRevision) || 0;
@@ -721,29 +809,16 @@ function App() {
         }
         // Deep merge Firebase data with initialData to ensure defaults exist
         // Firebase data takes priority over initialData for all fields
-        const mergedData = {
-          ...initialData,
-          ...firebaseData,
-          budget: {
-            ...initialData.budget,
-            ...(firebaseData.budget || {})
-          },
-          steps: {
-            ...initialData.steps,
-            ...(firebaseData.steps || {})
-          },
-          financial: {
-            ...initialData.financial,
-            ...(firebaseData.financial || {})
-          }
-        };
+        const mergedData = mergeAppData(firebaseData);
         localRevisionRef.current = serverRevision;
         dataRef.current = mergedData;
         setData(mergedData);
+        writeLocalSnapshot(mergedData);
       }
       setLoading(false);
     }, (error) => {
       console.error('Firebase onSnapshot error:', error);
+      loadLocalFallback();
       setLoading(false);
     });
     return () => unsubscribe();
@@ -781,7 +856,7 @@ function App() {
   };
 
   const flushSaveQueue = async () => {
-    if (saveLoopActiveRef.current || loadingRef.current) return;
+    if (saveLoopActiveRef.current || loadingRef.current || firestoreUnavailableRef.current) return;
     saveLoopActiveRef.current = true;
     setSaving(true);
     try {
@@ -805,6 +880,10 @@ function App() {
 
   const saveData = (newData) => {
     if (loadingRef.current) return;
+    if (firestoreUnavailableRef.current) {
+      writeLocalSnapshot(newData);
+      return;
+    }
     pendingSaveRef.current = newData;
     flushSaveQueue();
   };
@@ -831,49 +910,51 @@ function App() {
     setFinancialDirty(true);
   };
 
-  const commitFinancialDraft = () => {
-    const draftToSave = financialDraft;
-    updateData(prevData => ({
-      ...prevData,
-      financial: {
-        ...prevData.financial,
-        salePrice: draftToSave.salePrice,
-        realtorFeePercentage: draftToSave.realtorFeePercentage === ''
-          ? 5
-          : (Number.isNaN(Number(draftToSave.realtorFeePercentage)) ? 5 : Number(draftToSave.realtorFeePercentage)),
-        fixedDebts: draftToSave.fixedDebts.map(item => ({
-          ...item,
-          amount: item.amount ?? ''
-        })),
-        expenses: draftToSave.expenses.map(item => ({
-          ...item,
-          amount: item.amount ?? ''
-        })),
-        customItems: draftToSave.customItems.map(item => ({
-          ...item,
-          amount: item.amount ?? '',
-          type: item.type || 'expense'
-        }))
-      },
-      budget: {
-        ...prevData.budget,
-        other: draftToSave.movingHousing.map(item => ({
-          ...item,
-          cost: item.cost ?? '',
-          done: item.done || false
-        }))
-      }
-    }));
+  const commitFinancialDraft = async (draftOverride = null) => {
+    if (loadingRef.current) return;
+    const draftToSave = draftOverride || financialDraft;
+    const nextRevision = localRevisionRef.current + 1;
+    localRevisionRef.current = nextRevision;
+    const nextData = buildPersistedFinancialState(dataRef.current, draftToSave, nextRevision);
+    dataRef.current = nextData;
+    setData(nextData);
     setFinancialDirty(false);
+    writeLocalSnapshot(nextData);
+    if (firestoreUnavailableRef.current) {
+      return;
+    }
+    setSaving(true);
+    try {
+      await setDoc(
+        doc(db, 'seattle-move', DOCUMENT_ID),
+        {
+          financial: nextData.financial,
+          budget: nextData.budget,
+          _meta: nextData._meta
+        },
+        { merge: true }
+      );
+      setLastSaved(new Date());
+    } catch (error) {
+      console.error('commitFinancialDraft error:', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   useEffect(() => {
     if (!financialDirty || loading) return;
     const timeoutId = setTimeout(() => {
-      commitFinancialDraft();
+      commitFinancialDraft(financialDraft);
     }, 500);
     return () => clearTimeout(timeoutId);
   }, [financialDraft, financialDirty, loading]);
+
+  useEffect(() => {
+    if (activeTab !== 'budget' && financialDirty) {
+      commitFinancialDraft(financialDraft);
+    }
+  }, [activeTab, financialDirty, financialDraft]);
 
   const updateFinancialField = (field, value) => {
     updateFinancialDraft(prevDraft => ({

@@ -1,0 +1,13 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Temporary rule to restore the Seattle Move app after the expired
+    // Firebase test-mode rule stopped allowing access on February 25, 2026.
+    // This is scoped to the collection used by this app instead of opening
+    // the entire database.
+    match /seattle-move/{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
