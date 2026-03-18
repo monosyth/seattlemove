@@ -624,6 +624,7 @@ const NOTE_CATEGORIES = {
 function App() {
   const [data, setData] = useState(initialData);
   const dataRef = useRef(initialData);
+  const localRevisionRef = useRef(0);
   const [activeTab, setActiveTab] = useState('checklist');
   const [loading, setLoading] = useState(true);
   const loadingRef = useRef(true);
@@ -674,6 +675,11 @@ function App() {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
       if (docSnap.exists()) {
         const firebaseData = docSnap.data();
+        const serverRevision = Number(firebaseData._meta?.clientRevision) || 0;
+        if (serverRevision < localRevisionRef.current) {
+          setLoading(false);
+          return;
+        }
         // Deep merge Firebase data with initialData to ensure defaults exist
         // Firebase data takes priority over initialData for all fields
         const mergedData = {
@@ -692,6 +698,7 @@ function App() {
             ...(firebaseData.financial || {})
           }
         };
+        localRevisionRef.current = serverRevision;
         dataRef.current = mergedData;
         setData(mergedData);
       }
@@ -764,10 +771,20 @@ function App() {
   };
 
   const updateData = (updater) => {
+    const nextRevision = localRevisionRef.current + 1;
+    localRevisionRef.current = nextRevision;
     const nextData = updater(dataRef.current);
-    dataRef.current = nextData;
-    setData(nextData);
-    saveData(nextData);
+    const nextDataWithMeta = {
+      ...nextData,
+      _meta: {
+        ...(nextData._meta || {}),
+        clientRevision: nextRevision,
+        updatedAt: new Date().toISOString()
+      }
+    };
+    dataRef.current = nextDataWithMeta;
+    setData(nextDataWithMeta);
+    saveData(nextDataWithMeta);
   };
 
   const toggleItem = (stepId, itemId) => {
