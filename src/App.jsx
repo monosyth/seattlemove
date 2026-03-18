@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { db } from './firebase';
 import { useEntityManager, useListItemManager } from './hooks/useEntityManager';
 import { styles, colors } from './App.styles';
@@ -623,8 +623,10 @@ const NOTE_CATEGORIES = {
 
 function App() {
   const [data, setData] = useState(initialData);
+  const dataRef = useRef(initialData);
   const [activeTab, setActiveTab] = useState('checklist');
   const [loading, setLoading] = useState(true);
+  const loadingRef = useRef(true);
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
   const [activeStep, setActiveStep] = useState('1');
@@ -659,6 +661,14 @@ function App() {
   const properties = useEntityManager({ address: '', neighborhood: '', price: '', bedrooms: '', bathrooms: '', sqft: '', petFriendly: false, url: '', notes: '', interested: false, duration: 'short' });
 
   useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
+
+  useEffect(() => {
+    loadingRef.current = loading;
+  }, [loading]);
+
+  useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
       if (docSnap.exists()) {
         const firebaseData = docSnap.data();
@@ -680,6 +690,7 @@ function App() {
             ...(firebaseData.financial || {})
           }
         };
+        dataRef.current = mergedData;
         setData(mergedData);
       }
       setLoading(false);
@@ -723,7 +734,7 @@ function App() {
 
   const saveData = async (newData) => {
     // Prevent saving before Firebase data has loaded to avoid overwriting real data with defaults
-    if (loading) return;
+    if (loadingRef.current) return;
     setSaving(true);
     try {
       // Sanitize data: Firebase rejects undefined values
@@ -737,14 +748,10 @@ function App() {
   };
 
   const updateData = (updater) => {
-    let nextData;
-    setData(prevData => {
-      nextData = updater(prevData);
-      return nextData;
-    });
-    if (nextData) {
-      saveData(nextData);
-    }
+    const nextData = updater(dataRef.current);
+    dataRef.current = nextData;
+    setData(nextData);
+    saveData(nextData);
   };
 
   const toggleItem = (stepId, itemId) => {
