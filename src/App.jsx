@@ -667,6 +667,10 @@ function App() {
         const mergedData = {
           ...initialData,
           ...firebaseData,
+          budget: {
+            ...initialData.budget,
+            ...(firebaseData.budget || {})
+          },
           steps: {
             ...initialData.steps,
             ...(firebaseData.steps || {})
@@ -1517,9 +1521,27 @@ function App() {
     const expenses = (data.financial?.expenses || []).reduce((sum, item) => {
       return sum + (parseFloat(item.amount) || 0);
     }, 0);
-    const moving = budgetTotals.other;
+    const moving = (data.budget?.other || []).reduce((sum, item) => {
+      return sum + (parseFloat(item.cost) || 0);
+    }, 0);
     return expenses + moving;
-  }, [data.financial?.expenses, budgetTotals]);
+  }, [data.financial?.expenses, data.budget?.other]);
+
+  const financialExpensesTotal = useMemo(() => {
+    return (data.financial?.expenses || []).reduce((sum, item) => {
+      return sum + (parseFloat(item.amount) || 0);
+    }, 0);
+  }, [data.financial?.expenses]);
+
+  const movingBudgetItems = useMemo(() => {
+    return data.budget?.other || [];
+  }, [data.budget?.other]);
+
+  const movingBudgetTotal = useMemo(() => {
+    return movingBudgetItems.reduce((sum, item) => {
+      return sum + (parseFloat(item.cost) || 0);
+    }, 0);
+  }, [movingBudgetItems]);
 
   const totalFunding = useMemo(() => {
     return 0; // Funding section removed - 401k moved to debts
@@ -3768,9 +3790,9 @@ function App() {
               <div style={{...styles.budgetTitle, background: '#9b59b6'}}>
                 <div>
                   <h3 style={styles.budgetTitleText}>💸 Additional Expenses</h3>
-                  <p style={styles.budgetTitleDesc}>Concierge, moving, housing, etc.</p>
+                  <p style={styles.budgetTitleDesc}>Concierge and one-off sale costs</p>
                 </div>
-                <span style={styles.budgetTitleTotal}>-${totalExpenses.toLocaleString()}</span>
+                <span style={styles.budgetTitleTotal}>-${financialExpensesTotal.toLocaleString()}</span>
               </div>
               <table style={styles.budgetTable}>
                 <thead>
@@ -3871,7 +3893,48 @@ function App() {
                       </td>
                     </tr>
                   ))}
-                  {data.budget.other.map(item => (
+                </tbody>
+              </table>
+              <button
+                style={styles.addBudgetItemBtn}
+                onClick={() => {
+                  const itemName = prompt('Enter expense name:');
+                  if (!itemName) return;
+                  const newData = {...data};
+                  if (!newData.financial.expenses) newData.financial.expenses = [];
+                  newData.financial.expenses.push({
+                    id: 'exp_' + Date.now(),
+                    item: itemName,
+                    amount: '',
+                    type: 'expense'
+                  });
+                  setData(newData);
+                  saveData(newData);
+                }}
+              >
+                + Add expense
+              </button>
+            </div>
+
+            {/* Moving & Housing */}
+            <div className="budget-section" style={{...styles.budgetSection, borderColor: '#f39c12'}}>
+              <div style={{...styles.budgetTitle, background: '#f39c12'}}>
+                <div>
+                  <h3 style={styles.budgetTitleText}>🚚 Moving & Housing</h3>
+                  <p style={styles.budgetTitleDesc}>Temporary housing, travel, storage, and move costs</p>
+                </div>
+                <span style={styles.budgetTitleTotal}>-${movingBudgetTotal.toLocaleString()}</span>
+              </div>
+              <table style={styles.budgetTable}>
+                <thead>
+                  <tr>
+                    <th style={styles.budgetTh}>Item</th>
+                    <th style={{...styles.budgetTh, width: '200px', textAlign: 'right'}}>Amount</th>
+                    <th style={{...styles.budgetTh, width: '80px', textAlign: 'center'}}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {movingBudgetItems.map(item => (
                     <tr key={item.id}>
                       <td style={styles.budgetTd}>
                         {budgetItems.editingId === item.id ? (
@@ -3930,21 +3993,22 @@ function App() {
               <button
                 style={styles.addBudgetItemBtn}
                 onClick={() => {
-                  const itemName = prompt('Enter expense name:');
+                  const itemName = prompt('Enter moving or housing item name:');
                   if (!itemName) return;
                   const newData = {...data};
-                  if (!newData.financial.expenses) newData.financial.expenses = [];
-                  newData.financial.expenses.push({
-                    id: 'exp_' + Date.now(),
+                  if (!newData.budget) newData.budget = {...initialData.budget};
+                  if (!newData.budget.other) newData.budget.other = [];
+                  newData.budget.other.push({
+                    id: 'move_' + Date.now(),
                     item: itemName,
-                    amount: '',
-                    type: 'expense'
+                    cost: '',
+                    done: false
                   });
                   setData(newData);
                   saveData(newData);
                 }}
               >
-                + Add expense
+                + Add moving/housing item
               </button>
             </div>
 
