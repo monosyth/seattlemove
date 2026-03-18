@@ -612,6 +612,37 @@ const initialData = {
 
 const DOCUMENT_ID = 'seattle-move-data';
 
+const buildFinancialDraft = (source) => ({
+  salePrice: source.financial?.salePrice ?? '',
+  realtorFeePercentage: String(source.financial?.realtorFeePercentage ?? 5),
+  fixedDebts: (source.financial?.fixedDebts || []).map(item => ({
+    ...item,
+    amount: item.amount ?? ''
+  })),
+  expenses: (source.financial?.expenses || []).map(item => ({
+    ...item,
+    amount: item.amount ?? ''
+  })),
+  customItems: (source.financial?.customItems || []).map(item => ({
+    ...item,
+    amount: item.amount ?? '',
+    type: item.type || 'expense'
+  })),
+  movingHousing: (source.budget?.other || []).map(item => ({
+    ...item,
+    cost: item.cost ?? '',
+    done: item.done || false
+  }))
+});
+
+const formatNumericDisplay = (value) => {
+  if (value === '' || value === null || value === undefined) return '';
+  const numericValue = typeof value === 'number' ? value : parseFloat(String(value).replace(/,/g, ''));
+  return Number.isFinite(numericValue) ? numericValue.toLocaleString() : '';
+};
+
+const isNumericInput = (value) => value === '' || !Number.isNaN(Number(value));
+
 // Note categories
 const NOTE_CATEGORIES = {
   property: { label: '🏠 Property', color: '#3498db' },
@@ -657,6 +688,8 @@ function App() {
   // Financial item editing state
   const [editingFinancialItemId, setEditingFinancialItemId] = useState(null);
   const [editFinancialItemText, setEditFinancialItemText] = useState('');
+  const [financialDraft, setFinancialDraft] = useState(() => buildFinancialDraft(initialData));
+  const [financialDirty, setFinancialDirty] = useState(false);
   // Entity management state using custom hooks
   const realtors = useEntityManager({ name: '', team: '', brokerage: '', phone: '', email: '', website: '', notes: '' });
   const questions = useEntityManager({ question: '', idealAnswer: '', answer: '' });
@@ -670,6 +703,12 @@ function App() {
   useEffect(() => {
     loadingRef.current = loading;
   }, [loading]);
+
+  useEffect(() => {
+    if (!financialDirty) {
+      setFinancialDraft(buildFinancialDraft(data));
+    }
+  }, [data, financialDirty]);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'seattle-move', DOCUMENT_ID), (docSnap) => {
@@ -785,6 +824,103 @@ function App() {
     dataRef.current = nextDataWithMeta;
     setData(nextDataWithMeta);
     saveData(nextDataWithMeta);
+  };
+
+  const updateFinancialDraft = (updater) => {
+    setFinancialDraft(prevDraft => (typeof updater === 'function' ? updater(prevDraft) : updater));
+    setFinancialDirty(true);
+  };
+
+  const commitFinancialDraft = () => {
+    const draftToSave = financialDraft;
+    updateData(prevData => ({
+      ...prevData,
+      financial: {
+        ...prevData.financial,
+        salePrice: draftToSave.salePrice,
+        realtorFeePercentage: draftToSave.realtorFeePercentage === ''
+          ? 5
+          : (Number.isNaN(Number(draftToSave.realtorFeePercentage)) ? 5 : Number(draftToSave.realtorFeePercentage)),
+        fixedDebts: draftToSave.fixedDebts.map(item => ({
+          ...item,
+          amount: item.amount ?? ''
+        })),
+        expenses: draftToSave.expenses.map(item => ({
+          ...item,
+          amount: item.amount ?? ''
+        })),
+        customItems: draftToSave.customItems.map(item => ({
+          ...item,
+          amount: item.amount ?? '',
+          type: item.type || 'expense'
+        }))
+      },
+      budget: {
+        ...prevData.budget,
+        other: draftToSave.movingHousing.map(item => ({
+          ...item,
+          cost: item.cost ?? '',
+          done: item.done || false
+        }))
+      }
+    }));
+    setFinancialDirty(false);
+  };
+
+  useEffect(() => {
+    if (!financialDirty || loading) return;
+    const timeoutId = setTimeout(() => {
+      commitFinancialDraft();
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [financialDraft, financialDirty, loading]);
+
+  const updateFinancialField = (field, value) => {
+    updateFinancialDraft(prevDraft => ({
+      ...prevDraft,
+      [field]: value
+    }));
+  };
+
+  const updateFinancialListItem = (listKey, itemId, patch) => {
+    updateFinancialDraft(prevDraft => ({
+      ...prevDraft,
+      [listKey]: prevDraft[listKey].map(item =>
+        item.id === itemId ? { ...item, ...patch } : item
+      )
+    }));
+  };
+
+  const addFinancialListItem = (listKey, newItem) => {
+    updateFinancialDraft(prevDraft => ({
+      ...prevDraft,
+      [listKey]: [...prevDraft[listKey], newItem]
+    }));
+  };
+
+  const removeFinancialListItem = (listKey, itemId) => {
+    updateFinancialDraft(prevDraft => ({
+      ...prevDraft,
+      [listKey]: prevDraft[listKey].filter(item => item.id !== itemId)
+    }));
+  };
+
+  const finishFinancialItemEditing = (listKey, itemId) => {
+    const nextText = editFinancialItemText.trim();
+    if (nextText) {
+      updateFinancialListItem(listKey, itemId, { item: nextText });
+    }
+    setEditingFinancialItemId(null);
+    setEditFinancialItemText('');
+  };
+
+  const finishMovingHousingEditing = (itemId) => {
+    const nextText = budgetItems.editText.trim();
+    if (nextText) {
+      updateFinancialListItem('movingHousing', itemId, { item: nextText });
+    }
+    budgetItems.setEditingId(null);
+    budgetItems.setEditText('');
   };
 
   const toggleItem = (stepId, itemId) => {
@@ -1575,45 +1711,45 @@ function App() {
 
   // Financial calculator functions
   const realtorFees = useMemo(() => {
-    const salePrice = parseFloat(data.financial?.salePrice) || 0;
-    const rawPercentage = parseFloat(data.financial?.realtorFeePercentage);
+    const salePrice = parseFloat(financialDraft.salePrice) || 0;
+    const rawPercentage = parseFloat(financialDraft.realtorFeePercentage);
     const percentage = Number.isNaN(rawPercentage) ? 5 : rawPercentage;
     return salePrice * (percentage / 100);
-  }, [data.financial?.salePrice, data.financial?.realtorFeePercentage]);
+  }, [financialDraft.salePrice, financialDraft.realtorFeePercentage]);
 
   const totalDebts = useMemo(() => {
-    return (data.financial?.fixedDebts || []).reduce((sum, item) => {
+    return financialDraft.fixedDebts.reduce((sum, item) => {
       return sum + (parseFloat(item.amount) || 0);
     }, 0);
-  }, [data.financial?.fixedDebts]);
+  }, [financialDraft.fixedDebts]);
 
   const debtsWithoutMortgage = useMemo(() => {
-    return (data.financial?.fixedDebts || [])
+    return financialDraft.fixedDebts
       .filter(item => !item.item.toLowerCase().includes('mortgage'))
       .reduce((sum, item) => {
         return sum + (parseFloat(item.amount) || 0);
       }, 0);
-  }, [data.financial?.fixedDebts]);
+  }, [financialDraft.fixedDebts]);
 
   const totalExpenses = useMemo(() => {
-    const expenses = (data.financial?.expenses || []).reduce((sum, item) => {
+    const expenses = financialDraft.expenses.reduce((sum, item) => {
       return sum + (parseFloat(item.amount) || 0);
     }, 0);
-    const moving = (data.budget?.other || []).reduce((sum, item) => {
+    const moving = financialDraft.movingHousing.reduce((sum, item) => {
       return sum + (parseFloat(item.cost) || 0);
     }, 0);
     return expenses + moving;
-  }, [data.financial?.expenses, data.budget?.other]);
+  }, [financialDraft.expenses, financialDraft.movingHousing]);
 
   const financialExpensesTotal = useMemo(() => {
-    return (data.financial?.expenses || []).reduce((sum, item) => {
+    return financialDraft.expenses.reduce((sum, item) => {
       return sum + (parseFloat(item.amount) || 0);
     }, 0);
-  }, [data.financial?.expenses]);
+  }, [financialDraft.expenses]);
 
   const movingBudgetItems = useMemo(() => {
-    return data.budget?.other || [];
-  }, [data.budget?.other]);
+    return financialDraft.movingHousing;
+  }, [financialDraft.movingHousing]);
 
   const movingBudgetTotal = useMemo(() => {
     return movingBudgetItems.reduce((sum, item) => {
@@ -1626,16 +1762,16 @@ function App() {
   }, []);
 
   const customItemsTotal = useMemo(() => {
-    return (data.financial?.customItems || []).reduce((sum, item) => {
+    return financialDraft.customItems.reduce((sum, item) => {
       const amount = parseFloat(item.amount) || 0;
       return item.type === 'income' ? sum + amount : sum - amount;
     }, 0);
-  }, [data.financial?.customItems]);
+  }, [financialDraft.customItems]);
 
   const netProceeds = useMemo(() => {
-    const salePrice = parseFloat(data.financial?.salePrice) || 0;
+    const salePrice = parseFloat(financialDraft.salePrice) || 0;
     return salePrice + totalFunding - realtorFees - totalDebts - totalExpenses + customItemsTotal;
-  }, [data.financial?.salePrice, totalFunding, realtorFees, totalDebts, totalExpenses, customItemsTotal]);
+  }, [financialDraft.salePrice, totalFunding, realtorFees, totalDebts, totalExpenses, customItemsTotal]);
 
   // One-time function to sync new realtor data to Firebase
   const syncRealtorsToFirebase = async () => {
@@ -3591,17 +3727,11 @@ function App() {
                     <span style={{fontSize: '2.2rem', fontWeight: 800, color: 'white'}}>$</span>
                     <input
                       type="text"
-                      value={data.financial?.salePrice ? parseFloat(data.financial.salePrice).toLocaleString() : ''}
+                      value={formatNumericDisplay(financialDraft.salePrice)}
                       onChange={(e) => {
                         const value = e.target.value.replace(/,/g, '');
-                        if (value === '' || !isNaN(value)) {
-                          updateData(prevData => ({
-                            ...prevData,
-                            financial: {
-                              ...prevData.financial,
-                              salePrice: value
-                            }
-                          }));
+                        if (isNumericInput(value)) {
+                          updateFinancialField('salePrice', value);
                         }
                       }}
                       placeholder="0"
@@ -3654,27 +3784,17 @@ function App() {
                           onChange={(e) => setEditFinancialItemText(e.target.value)}
                           onKeyPress={(e) => {
                             if (e.key === 'Enter') {
-                              const parsedPercentage = Number(editFinancialItemText);
-                              updateData(prevData => ({
-                                ...prevData,
-                                financial: {
-                                  ...prevData.financial,
-                                  realtorFeePercentage: Number.isNaN(parsedPercentage) ? 5 : parsedPercentage
-                                }
-                              }));
+                              const nextValue = editFinancialItemText.trim();
+                              updateFinancialField('realtorFeePercentage', nextValue === '' ? '5' : nextValue);
                               setEditingFinancialItemId(null);
+                              setEditFinancialItemText('');
                             }
                           }}
                           onBlur={() => {
-                            const parsedPercentage = Number(editFinancialItemText);
-                            updateData(prevData => ({
-                              ...prevData,
-                              financial: {
-                                ...prevData.financial,
-                                realtorFeePercentage: Number.isNaN(parsedPercentage) ? 5 : parsedPercentage
-                              }
-                            }));
+                            const nextValue = editFinancialItemText.trim();
+                            updateFinancialField('realtorFeePercentage', nextValue === '' ? '5' : nextValue);
                             setEditingFinancialItemId(null);
+                            setEditFinancialItemText('');
                           }}
                           style={{
                             width: '50px',
@@ -3699,10 +3819,10 @@ function App() {
                           }}
                           onClick={() => {
                             setEditingFinancialItemId('realtorFeePercentage');
-                            setEditFinancialItemText(String(data.financial?.realtorFeePercentage ?? 5));
+                            setEditFinancialItemText(financialDraft.realtorFeePercentage === '' ? '5' : financialDraft.realtorFeePercentage);
                           }}
                         >
-                          {data.financial?.realtorFeePercentage ?? 5}%
+                          {financialDraft.realtorFeePercentage === '' ? 5 : financialDraft.realtorFeePercentage}%
                         </span>
                       )}
                     </div>
@@ -3732,7 +3852,7 @@ function App() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(data.financial?.fixedDebts || []).map(item => (
+                  {financialDraft.fixedDebts.map(item => (
                     <tr key={item.id}>
                       <td style={styles.budgetTd}>
                         {editingFinancialItemId === item.id ? (
@@ -3742,29 +3862,11 @@ function App() {
                             onChange={(e) => setEditFinancialItemText(e.target.value)}
                             onKeyPress={(e) => {
                               if (e.key === 'Enter') {
-                                updateData(prevData => ({
-                                  ...prevData,
-                                  financial: {
-                                    ...prevData.financial,
-                                    fixedDebts: (prevData.financial?.fixedDebts || []).map(d =>
-                                      d.id === item.id ? { ...d, item: editFinancialItemText } : d
-                                    )
-                                  }
-                                }));
-                                setEditingFinancialItemId(null);
+                                finishFinancialItemEditing('fixedDebts', item.id);
                               }
                             }}
                             onBlur={() => {
-                              updateData(prevData => ({
-                                ...prevData,
-                                financial: {
-                                  ...prevData.financial,
-                                  fixedDebts: (prevData.financial?.fixedDebts || []).map(d =>
-                                    d.id === item.id ? { ...d, item: editFinancialItemText } : d
-                                  )
-                                }
-                              }));
-                              setEditingFinancialItemId(null);
+                              finishFinancialItemEditing('fixedDebts', item.id);
                             }}
                             style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
                             autoFocus
@@ -3783,19 +3885,11 @@ function App() {
                           <span style={{...styles.dollarSign, fontSize: '1.2rem', fontWeight: 700}}>$</span>
                           <input
                             type="text"
-                            value={item.amount ? parseFloat(item.amount).toLocaleString() : ''}
+                            value={formatNumericDisplay(item.amount)}
                             onChange={(e) => {
                               const value = e.target.value.replace(/,/g, '');
-                              if (value === '' || !isNaN(value)) {
-                                updateData(prevData => ({
-                                  ...prevData,
-                                  financial: {
-                                    ...prevData.financial,
-                                    fixedDebts: (prevData.financial?.fixedDebts || []).map(d =>
-                                      d.id === item.id ? { ...d, amount: value } : d
-                                    )
-                                  }
-                                }));
+                              if (isNumericInput(value)) {
+                                updateFinancialListItem('fixedDebts', item.id, { amount: value });
                               }
                             }}
                             placeholder="0"
@@ -3808,13 +3902,7 @@ function App() {
                           style={styles.budgetTableBtn}
                           onClick={() => {
                             if (confirm(`Delete "${item.item}"?`)) {
-                              updateData(prevData => ({
-                                ...prevData,
-                                financial: {
-                                  ...prevData.financial,
-                                  fixedDebts: (prevData.financial?.fixedDebts || []).filter(d => d.id !== item.id)
-                                }
-                              }));
+                              removeFinancialListItem('fixedDebts', item.id);
                             }
                           }}
                           title="Delete"
@@ -3824,7 +3912,7 @@ function App() {
                       </td>
                     </tr>
                   ))}
-                  {(data.financial?.fixedDebts || []).length > 0 && (
+                  {financialDraft.fixedDebts.length > 0 && (
                     <tr style={{borderTop: '2px solid #e74c3c'}}>
                       <td style={{...styles.budgetTd, paddingTop: '12px', paddingBottom: '12px'}}>
                         <span style={{fontSize: '1.05rem', fontWeight: 700, color: colors.charcoal}}>
@@ -3846,21 +3934,12 @@ function App() {
                 onClick={() => {
                   const itemName = prompt('Enter debt name:');
                   if (!itemName) return;
-                  updateData(prevData => ({
-                    ...prevData,
-                    financial: {
-                      ...prevData.financial,
-                      fixedDebts: [
-                        ...(prevData.financial?.fixedDebts || []),
-                        {
-                          id: 'fd_' + Date.now(),
-                          item: itemName,
-                          amount: '',
-                          type: 'debt'
-                        }
-                      ]
-                    }
-                  }));
+                  addFinancialListItem('fixedDebts', {
+                    id: 'fd_' + Date.now(),
+                    item: itemName,
+                    amount: '',
+                    type: 'debt'
+                  });
                 }}
               >
                 + Add debt
@@ -3885,7 +3964,7 @@ function App() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(data.financial?.expenses || []).map(item => (
+                  {financialDraft.expenses.map(item => (
                     <tr key={item.id}>
                       <td style={styles.budgetTd}>
                         {editingFinancialItemId === item.id ? (
@@ -3895,29 +3974,11 @@ function App() {
                             onChange={(e) => setEditFinancialItemText(e.target.value)}
                             onKeyPress={(e) => {
                               if (e.key === 'Enter') {
-                                updateData(prevData => ({
-                                  ...prevData,
-                                  financial: {
-                                    ...prevData.financial,
-                                    expenses: (prevData.financial?.expenses || []).map(d =>
-                                      d.id === item.id ? { ...d, item: editFinancialItemText } : d
-                                    )
-                                  }
-                                }));
-                                setEditingFinancialItemId(null);
+                                finishFinancialItemEditing('expenses', item.id);
                               }
                             }}
                             onBlur={() => {
-                              updateData(prevData => ({
-                                ...prevData,
-                                financial: {
-                                  ...prevData.financial,
-                                  expenses: (prevData.financial?.expenses || []).map(d =>
-                                    d.id === item.id ? { ...d, item: editFinancialItemText } : d
-                                  )
-                                }
-                              }));
-                              setEditingFinancialItemId(null);
+                              finishFinancialItemEditing('expenses', item.id);
                             }}
                             style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
                             autoFocus
@@ -3939,19 +4000,11 @@ function App() {
                           <span style={{...styles.dollarSign, fontSize: '1.2rem', fontWeight: 700}}>$</span>
                           <input
                             type="text"
-                            value={item.amount ? parseFloat(item.amount).toLocaleString() : ''}
+                            value={formatNumericDisplay(item.amount)}
                             onChange={(e) => {
                               const value = e.target.value.replace(/,/g, '');
-                              if (value === '' || !isNaN(value)) {
-                                updateData(prevData => ({
-                                  ...prevData,
-                                  financial: {
-                                    ...prevData.financial,
-                                    expenses: (prevData.financial?.expenses || []).map(d =>
-                                      d.id === item.id ? { ...d, amount: value } : d
-                                    )
-                                  }
-                                }));
+                              if (isNumericInput(value)) {
+                                updateFinancialListItem('expenses', item.id, { amount: value });
                               }
                             }}
                             placeholder="0"
@@ -3964,13 +4017,7 @@ function App() {
                           style={styles.budgetTableBtn}
                           onClick={() => {
                             if (confirm(`Delete "${item.item}"?`)) {
-                              updateData(prevData => ({
-                                ...prevData,
-                                financial: {
-                                  ...prevData.financial,
-                                  expenses: (prevData.financial?.expenses || []).filter(d => d.id !== item.id)
-                                }
-                              }));
+                              removeFinancialListItem('expenses', item.id);
                             }
                           }}
                           title="Delete"
@@ -3987,21 +4034,12 @@ function App() {
                 onClick={() => {
                   const itemName = prompt('Enter expense name:');
                   if (!itemName) return;
-                  updateData(prevData => ({
-                    ...prevData,
-                    financial: {
-                      ...prevData.financial,
-                      expenses: [
-                        ...(prevData.financial?.expenses || []),
-                        {
-                          id: 'exp_' + Date.now(),
-                          item: itemName,
-                          amount: '',
-                          type: 'expense'
-                        }
-                      ]
-                    }
-                  }));
+                  addFinancialListItem('expenses', {
+                    id: 'exp_' + Date.now(),
+                    item: itemName,
+                    amount: '',
+                    type: 'expense'
+                  });
                 }}
               >
                 + Add expense
@@ -4034,8 +4072,8 @@ function App() {
                             type="text"
                             value={budgetItems.editText}
                             onChange={(e) => budgetItems.setEditText(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && updateBudgetItemText('other', item.id)}
-                            onBlur={() => updateBudgetItemText('other', item.id)}
+                            onKeyPress={(e) => e.key === 'Enter' && finishMovingHousingEditing(item.id)}
+                            onBlur={() => finishMovingHousingEditing(item.id)}
                             style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
                             autoFocus
                           />
@@ -4053,11 +4091,11 @@ function App() {
                           <span style={{...styles.dollarSign, fontSize: '1.2rem', fontWeight: 700}}>$</span>
                           <input
                             type="text"
-                            value={item.cost ? parseFloat(item.cost).toLocaleString() : ''}
+                            value={formatNumericDisplay(item.cost)}
                             onChange={(e) => {
                               const value = e.target.value.replace(/,/g, '');
-                              if (value === '' || !isNaN(value)) {
-                                updateBudgetCost('other', item.id, value);
+                              if (isNumericInput(value)) {
+                                updateFinancialListItem('movingHousing', item.id, { cost: value });
                               }
                             }}
                             placeholder="0"
@@ -4070,7 +4108,7 @@ function App() {
                           style={styles.budgetTableBtn}
                           onClick={() => {
                             if (confirm(`Delete "${item.item}"?`)) {
-                              deleteBudgetItem('other', item.id);
+                              removeFinancialListItem('movingHousing', item.id);
                             }
                           }}
                           title="Delete"
@@ -4087,21 +4125,12 @@ function App() {
                 onClick={() => {
                   const itemName = prompt('Enter moving or housing item name:');
                   if (!itemName) return;
-                  updateData(prevData => ({
-                    ...prevData,
-                    budget: {
-                      ...prevData.budget,
-                      other: [
-                        ...(prevData.budget?.other || []),
-                        {
-                          id: 'move_' + Date.now(),
-                          item: itemName,
-                          cost: '',
-                          done: false
-                        }
-                      ]
-                    }
-                  }));
+                  addFinancialListItem('movingHousing', {
+                    id: 'move_' + Date.now(),
+                    item: itemName,
+                    cost: '',
+                    done: false
+                  });
                 }}
               >
                 + Add moving/housing item
@@ -4117,7 +4146,7 @@ function App() {
                 </div>
                 <span style={styles.budgetTitleTotal}>${customItemsTotal.toLocaleString()}</span>
               </div>
-              {(data.financial?.customItems || []).length > 0 && (
+              {financialDraft.customItems.length > 0 && (
                 <table style={styles.budgetTable}>
                   <thead>
                     <tr>
@@ -4128,7 +4157,7 @@ function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {(data.financial?.customItems || []).map(item => (
+                    {financialDraft.customItems.map(item => (
                       <tr key={item.id}>
                         <td style={styles.budgetTd}>
                           {editingFinancialItemId === item.id ? (
@@ -4138,29 +4167,11 @@ function App() {
                               onChange={(e) => setEditFinancialItemText(e.target.value)}
                               onKeyPress={(e) => {
                                 if (e.key === 'Enter') {
-                                  updateData(prevData => ({
-                                    ...prevData,
-                                    financial: {
-                                      ...prevData.financial,
-                                      customItems: (prevData.financial?.customItems || []).map(d =>
-                                        d.id === item.id ? { ...d, item: editFinancialItemText } : d
-                                      )
-                                    }
-                                  }));
-                                  setEditingFinancialItemId(null);
+                                  finishFinancialItemEditing('customItems', item.id);
                                 }
                               }}
                               onBlur={() => {
-                                updateData(prevData => ({
-                                  ...prevData,
-                                  financial: {
-                                    ...prevData.financial,
-                                    customItems: (prevData.financial?.customItems || []).map(d =>
-                                      d.id === item.id ? { ...d, item: editFinancialItemText } : d
-                                    )
-                                  }
-                                }));
-                                setEditingFinancialItemId(null);
+                                finishFinancialItemEditing('customItems', item.id);
                               }}
                               style={{...styles.budgetTableInput, fontSize: '1rem', fontWeight: 600}}
                               autoFocus
@@ -4181,15 +4192,7 @@ function App() {
                           <select
                             value={item.type}
                             onChange={(e) => {
-                              updateData(prevData => ({
-                                ...prevData,
-                                financial: {
-                                  ...prevData.financial,
-                                  customItems: (prevData.financial?.customItems || []).map(d =>
-                                    d.id === item.id ? { ...d, type: e.target.value } : d
-                                  )
-                                }
-                              }));
+                              updateFinancialListItem('customItems', item.id, { type: e.target.value });
                             }}
                             style={{
                               padding: '6px 10px',
@@ -4211,19 +4214,11 @@ function App() {
                             <span style={{...styles.dollarSign, fontSize: '1.2rem', fontWeight: 700}}>$</span>
                             <input
                               type="text"
-                              value={item.amount ? parseFloat(item.amount).toLocaleString() : ''}
+                              value={formatNumericDisplay(item.amount)}
                               onChange={(e) => {
                                 const value = e.target.value.replace(/,/g, '');
-                                if (value === '' || !isNaN(value)) {
-                                  updateData(prevData => ({
-                                    ...prevData,
-                                    financial: {
-                                      ...prevData.financial,
-                                      customItems: (prevData.financial?.customItems || []).map(d =>
-                                        d.id === item.id ? { ...d, amount: value } : d
-                                      )
-                                    }
-                                  }));
+                                if (isNumericInput(value)) {
+                                  updateFinancialListItem('customItems', item.id, { amount: value });
                                 }
                               }}
                               placeholder="0"
@@ -4236,13 +4231,7 @@ function App() {
                             style={styles.budgetTableBtn}
                             onClick={() => {
                               if (confirm(`Delete "${item.item}"?`)) {
-                                updateData(prevData => ({
-                                  ...prevData,
-                                  financial: {
-                                    ...prevData.financial,
-                                    customItems: (prevData.financial?.customItems || []).filter(i => i.id !== item.id)
-                                  }
-                                }));
+                                removeFinancialListItem('customItems', item.id);
                               }
                             }}
                             title="Delete"
@@ -4261,21 +4250,12 @@ function App() {
                   const itemName = prompt('Enter item name:');
                   if (!itemName) return;
                   const itemType = confirm('Click OK for INCOME (+), Cancel for EXPENSE (-)') ? 'income' : 'expense';
-                  updateData(prevData => ({
-                    ...prevData,
-                    financial: {
-                      ...prevData.financial,
-                      customItems: [
-                        ...(prevData.financial?.customItems || []),
-                        {
-                          id: 'custom_' + Date.now(),
-                          item: itemName,
-                          amount: '',
-                          type: itemType
-                        }
-                      ]
-                    }
-                  }));
+                  addFinancialListItem('customItems', {
+                    id: 'custom_' + Date.now(),
+                    item: itemName,
+                    amount: '',
+                    type: itemType
+                  });
                 }}
               >
                 + Add custom item
